@@ -1,0 +1,70 @@
+<%-include("../../views/partials/admin/header")%>
+
+<div>
+
+<link rel="stylesheet" href="/css/admindashboard.css">
+<!-- dashboard.html -->
+
+<div class="dashboard-container">
+    <div class="sidebar">
+      <ul class="nav">
+        <li><a href="#" class="active">Dashboard</a></li>
+        <li><a href="#">Orders</a></li>
+        <li><a href="#">Products</a></li>
+        <li><a href="#">Customers</a></li>
+        <li><a href="#">Reports</a></li>
+      </ul>
+    </div>
+    <div class="main-content">
+      <div class="card">
+        <h2>Dashboard Overview</h2>
+        <p>Welcome to your ecommerce dashboard!</p>
+      </div>
+      <div class="card">
+        <h2>Recent Orders</h2>
+        <table>
+          <thead>
+            <tr>
+              <th>Order ID</th>
+              <th>Customer Name</th>
+              <th>Order Date</th>
+              <th>Total</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>#1234</td>
+              <td>John Doe</td>
+              <td>2022-01-01</td>
+              <td>$100.00</td>
+            </tr>
+            <tr>
+              <td>#1235</td>
+              <td>Jane Doe</td>
+              <td>2022-01-02</td>
+              <td>$50.00</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+      <div class="card">
+        <h2>Top Selling Products</h2>
+        <ul>
+          <li>
+            <img src="product1.jpg" alt="Product 1">
+            <span>Product 1</span>
+            <span>$20.00</span>
+          </li>
+          <li>
+            <img src="product2.jpg" alt="Product 2">
+            <span>Product 2</span>
+            <span>$30.00</span>
+          </li>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+    
+</div>
+<%-include("../../views/partials/admin/footer")%>

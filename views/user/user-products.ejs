@@ -1,0 +1,245 @@
+<%-include("../../views/partials/user/header", {user: firstName}) %>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+
+<style>
+  
+
+  /* Product Image Styling */
+  .image-gallery {
+    display: flex;
+    flex-wrap: wrap;
+    width: 50%;
+  }
+
+  .image-gallery img {
+    width: 200px;
+    height: 200px;
+    margin-right: 10px;
+    object-fit: cover;
+    margin-bottom: 10px;
+    cursor: pointer;
+  }
+
+  /* Product Details Styling */
+  .product-details {
+    width: 50%;
+    padding-left: 20px;
+  }
+
+  .product-title {
+    font-size: 24px;
+    font-weight: bold;
+    margin-bottom: 10px;
+  }
+
+  .product-rating {
+    display: flex;
+    align-items: center;
+    margin-bottom: 10px;
+  }
+
+  .product-rating i {
+    color: #ffcc00;
+    margin-right: 5px;
+  }
+
+  .product-price {
+    font-size: 20px;
+    font-weight: bold;
+    margin-bottom: 10px;
+  }
+
+  .product-description {
+    margin-bottom: 10px;
+  }
+
+  .product-details ul {
+    list-style: none;
+    padding: 0;
+  }
+
+  .product-details li {
+    margin-bottom: 5px;
+  }
+
+  .product-details ul li span {
+    font-weight: bold;
+  }
+
+  .product-buttons {
+    display: flex;
+    align-items: center;
+    margin-bottom: 10px;
+  }
+
+  .product-buttons button {
+    background-color: #ff0000;
+    color: white;
+    padding: 10px 20px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    margin-right: 10px;
+  }
+
+  .product-delivery,
+  .product-return {
+    margin-bottom: 10px;
+  }
+
+  .related-items {
+    margin-top: 20px;
+  }
+
+  .related-items h3 {
+    margin-bottom: 10px;
+  }
+
+  .related-items .item {
+    display: flex;
+    align-items: center;
+    margin-bottom: 10px;
+  }
+
+  .related-items .item img {
+    width: 100px;
+    height: 100px;
+    object-fit: cover;
+    margin-right: 10px;
+  }
+
+  .related-items .item .details {
+    flex-grow: 1;
+  }
+
+  .related-items .item .details h4 {
+    margin-bottom: 5px;
+  }
+
+  .related-items .item .details .price {
+    font-weight: bold;
+  }
+</style>
+
+</head>
+<body>
+  <div class="product-details-container">
+    <!-- Breadcrumbs -->
+    <nav aria-label="breadcrumb">
+      <ol class="breadcrumb">
+        <li class="breadcrumb-item"><a href="/">Home</a></li>
+        <li class="breadcrumb-item"><a href="#">Products</a></li>
+        <li class="breadcrumb-item active" aria-current="page"><%= product.productName %></li>
+      </ol>
+    </nav>
+
+    <div class="container" style="display: flex;
+    align-items: flex-start;
+    margin: 20px;">
+      <!-- Image Gallery -->
+      <div class="image-gallery">
+        <% for(let i = 0; i < 4 && i < product.productImage.length; i++) { %>
+          <img src="/uploads/re-image/<%= product.productImage[i] %>" alt="Product Image" class="product-image">
+        <% } %>
+      </div>
+
+      <!-- Product Details -->
+      <div class="product-details">
+        <h2 class="product-title"><%= product.productName %></h2>
+        <div class="product-rating">
+          <i class="fas fa-star"></i>
+          <i class="fas fa-star"></i>
+          <i class="fas fa-star"></i>
+          <i class="fas fa-star"></i>
+          <i class="fas fa-star-half-alt"></i>
+          (150 Reviews)
+        </div>
+        <div class="product-price">
+          ₹<%= product.salePrice %> <span style="text-decoration: line-through;">₹<%= product.regularPrice %></span>
+        </div>
+        <div class="product-description">
+          <%= product.description %>
+        </div>
+        <ul>
+          <li>
+            <span>Color:<%=product.color%></span>
+            <span class="colors">
+              <span class="color" style="background-color: #000000;"></span>
+              <span class="color" style="background-color: #ff0000;"></span>
+            </span>
+          </li>
+          <li>
+            <span>Size:</span>
+            <span class="sizes">
+              <span class="size" data-value="XS">6</span>
+              <span class="size" data-value="S">7</span>
+              <span class="size" data-value="M">8</span>
+              <span class="size" data-value="L">9</span>
+              <span class="size" data-value="XL">10</span>
+            </span>
+          </li>
+        </ul>
+        <div class="product-buttons">
+          <button>-</button>
+          <span class="quantity">2</span>
+          <button>+</button>
+          <button>Buy Now</button>
+          <i class="fas fa-heart"></i>
+        </div>
+        <div class="product-delivery">
+          <i class="fas fa-truck"></i>
+          Free Delivery
+          <span>Enter your postal code for Delivery Availability</span>
+        </div>
+        <div class="product-return">
+          <i class="fas fa-sync-alt"></i>
+          Free 30 Days Returns. Details
+        </div>
+      </div>
+    </div>
+
+    <div class="related-items">
+      <h3>Related Items</h3>
+      <div class="item">
+        <img src="https://dummyimage.com/100x100/000/fff" alt="Related Item 1" data-zoom="https://dummyimage.com/300x300/000/fff">
+        <div class="details">
+          <h4>Related Item 1</h4>
+          <div class="price">₹999/-</div>
+          <i class="fas fa-heart"></i>
+        </div>
+      </div>
+      <div class="item">
+        <img src="https://dummyimage.com/100x100/000/fff" alt="Related Item 2" data-zoom="https://dummyimage.com/300x300/000/fff">
+        <div class="details">
+          <h4>Related Item 2</h4>
+          <div class="price">₹1499/-</div>
+          <i class="fas fa-heart"></i>
+        </div>
+      </div>
+      <div class="item">
+        <img src="https://dummyimage.com/100x100/000/fff" alt="Related Item 3" data-zoom="https://dummyimage.com/300x300/000/fff">
+        <div class="details">
+          <h4>Related Item 3</h4>
+          <div class="price">₹1999/-</div>
+          <i class="fas fa-heart"></i>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <script>
+    const mainImage = document.getElementById('main-image');
+    const relatedItems = document.querySelectorAll('.related-items .item img');
+
+    relatedItems.forEach(item => {
+      item.addEventListener('mouseover', () => {
+        mainImage.src = item.dataset.zoom;
+      });
+    });
+  </script>
+
+</body>
+</html>
+
+<%-include("../../views/partials/user/footer") %>

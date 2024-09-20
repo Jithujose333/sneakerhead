@@ -1,0 +1,298 @@
+
+
+<link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css" rel="stylesheet"></link>
+<link rel="stylesheet" href="/css/usersignup.css">
+
+
+
+
+
+ 
+
+
+
+<div class="container right-panel-active" id="container">
+  
+    <!-- Sign Up Form -->
+    <div class="form-container sign-up-container">
+        <form id="signUpForm" method="post" action="/signup">
+          <h1>Create Account</h1>
+          <div class="social-container">
+            <a href="#" class="social"><i class="fab fa-facebook-f"></i></a>
+            <a href="/auth/google" class="social"><i class="fab fa-google-plus-g"></i></a>
+          </div>
+          <span>or use your email for registration</span>
+          
+          <input type="text" placeholder="Name" id="signupName" name="name"/>
+          <span class="error-message" id="nameError"></span>
+          
+          <input type="email" placeholder="Email" id="signupEmail" name="email"/>
+          <span class="error-message" id="emailError"></span>
+      
+          <!-- Added Phone Number Field -->
+          <input type="tel" placeholder="Phone Number" id="signupPhone" name="phone" />
+          <span class="error-message" id="phoneError"></span>
+          
+           <!-- Password Field with Show Password Icon -->
+    <div class="password-container">
+        <input type="password" placeholder="Password" id="signupPassword" name="password" />
+        <!-- <i class="fas fa-eye" id="togglePassword" onclick="togglePasswordVisibility()"></i> -->
+      </div>
+      <span class="error-message" id="passwordError"></span>
+  
+      <!-- Confirm Password Field -->
+      <div class="password-container">
+        <input type="password" placeholder="Confirm Password" id="confirmPassword" name="confirmPassword" />
+        <i class="fas fa-eye" id="toggleConfirmPassword" onclick="toggleConfirmPasswordVisibility()"></i>
+      </div>
+      <% if(locals.message && message.length >0){%>
+        <div class="alert alert-danger text-center " style="color: red;">
+            <%=message%>
+        </div>
+    <%}%>
+      <span class="error-message" id="confirmPasswordError"></span>
+      
+    
+          
+          <button type="submit">Sign Up</button>
+        </form>
+      </div>
+      
+    <!-- Sign In Form -->
+    <div class="form-container sign-in-container">
+      <form id="signInForm" method="post" action="/login">
+        <h1>Sign in</h1>
+        <div class="social-container">
+          <a href="#" class="social"><i class="fab fa-facebook-f"></i></a>
+          <a href="/auth/google" class="social"><i class="fab fa-google-plus-g"></i></a>
+        </div>
+        <span>or use your account</span>
+        <input type="email" placeholder="Email" id="signinEmail" />
+        <span class="error-message" id="signinEmailError"></span>
+        <div class="password-container">
+          <input type="password" placeholder="Password" id="signinPassword" name="password"/>
+          <i class="fas fa-eye" id="toggleSigninPassword"></i>
+        </div>
+        <% if(locals.message && message.length >0){%>
+          <div class="alert alert-danger text-center " style="color: red;">
+              <%=message%>
+          </div>
+      <%}%>
+        <span class="error-message" id="signinPasswordError"></span>
+        <a href="#">Forgot your password?</a>
+        <button type="submit">Sign In</button>
+      </form>
+    </div>
+
+    <!-- Overlay Container -->
+    <div class="overlay-container">
+      <div class="overlay">
+        <div class="overlay-panel overlay-left">
+          <h1>Welcome Sneakerhead!</h1>
+          <p>To keep connected with us please step in with your personal info</p>
+          <button class="ghost" id="signIn">Sign In</button>
+        </div>
+        <div class="overlay-panel overlay-right">
+          <h1>Hello, Sneakerhead!</h1>
+          <p>Enter your personal details and step in</p>
+          <button class="ghost" id="signUp">Sign Up</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+
+  <div class="home-container">
+    <button class="ghost" id="homeButton" onclick="goToHome()">Home</button>
+  </div>
+
+  <script>
+    // JavaScript to navigate to home page
+    function goToHome() {
+      window.location.href = '/'; // Replace '/' with the actual home page route if necessary
+    }
+  </script>
+</div>
+
+  <!-- JavaScript for Form Validation -->
+  <script>
+    const signUpForm = document.getElementById('signUpForm');
+    const signInForm = document.getElementById('signInForm');
+
+    signUpForm.addEventListener('submit', (e) => {
+    
+      if (!validateSignUpForm()) {
+    e.preventDefault(); // Stop form submission
+  }
+    });
+
+    signInForm.addEventListener('submit', (e) => {
+     
+      if (validateSignInForm()) {
+        if(isValid===false)
+    e.preventDefault(); // Stop form submission
+  }
+    });
+
+    function validateSignUpForm() {
+      let isValid = true;
+
+      // Get form fields
+      const name = document.getElementById('signupName').value.trim();
+      const email = document.getElementById('signupEmail').value.trim();
+      const phone = document.getElementById('signupPhone').value.trim();
+      const password = document.getElementById('signupPassword').value.trim();
+      const confirmPassword = document.getElementById('confirmPassword').value.trim();
+
+      // Validate name
+      if (name === "") {
+        isValid = false;
+        document.getElementById('nameError').textContent = "Name is required";
+      } else {
+        document.getElementById('nameError').textContent = "";
+      }
+
+      // Validate email
+      if (!isValidEmail(email)) {
+        isValid = false;
+        document.getElementById('emailError').textContent = "Invalid email format";
+      } else if (email === "") {
+        isValid = false;
+        document.getElementById('emailError').textContent = "Email is required";
+      } else {
+        document.getElementById('emailError').textContent = "";
+      }
+  // Validate phone number (example: must be 10 digits)
+      const phoneRegex = /^\d{10}$/;
+            if (!phoneRegex.test(phone)) {
+       isValid = false;
+        document.getElementById('phoneError').textContent = "Phone number must be 10 digits";
+          } else if (phone === "") {
+       isValid = false;
+        document.getElementById('phoneError').textContent = "Phone number is required";
+          } else {
+         document.getElementById('phoneError').textContent = "";
+        }
+
+      // Validate password
+      if (password.length < 6) {
+        isValid = false;
+        document.getElementById('passwordError').textContent = "Password must be at least 6 characters";
+      } else if (password === "") {
+        isValid = false;
+        document.getElementById('passwordError').textContent = "Password is required";
+      } else {
+        document.getElementById('passwordError').textContent = "";
+      }
+
+       // Validate confirm password
+  if (confirmPassword !== password) {
+    isValid = false;
+    document.getElementById('confirmPasswordError').textContent = "Passwords do not match";
+  } else if (confirmPassword === "") {
+    isValid = false;
+    document.getElementById('confirmPasswordError').textContent = "Confirm Password is required";
+  } else {
+    document.getElementById('confirmPasswordError').textContent = "";
+  }
+
+   
+    return isValid
+}
+
+
+
+
+function toggleConfirmPasswordVisibility() {
+  const confirmPasswordField = document.getElementById('confirmPassword');
+  const confirmPasswordIcon = document.getElementById('toggleConfirmPassword');
+
+  if (confirmPasswordField.type === "password") {
+    confirmPasswordField.type = "text";
+    confirmPasswordIcon.classList.remove('fa-eye');
+    confirmPasswordIcon.classList.add('fa-eye-slash');
+  } else {
+    confirmPasswordField.type = "password";
+    confirmPasswordIcon.classList.remove('fa-eye-slash');
+    confirmPasswordIcon.classList.add('fa-eye');
+  }
+}
+    function validateSignInForm() {
+      let isValid = true;
+
+      // Get form fields
+      const email = document.getElementById('signinEmail').value.trim();
+      const password = document.getElementById('signinPassword').value.trim();
+
+      // Validate email
+      if (!isValidEmail(email)) {
+        isValid = false;
+        document.getElementById('signinEmailError').textContent = "Invalid email format";
+      } else if (email === "") {
+        isValid = false;
+        document.getElementById('signinEmailError').textContent = "Email is required";
+      } else {
+        document.getElementById('signinEmailError').textContent = "";
+      }
+
+      // Validate password
+      if (password.length < 6) {
+        isValid = false;
+        document.getElementById('signinPasswordError').textContent = "Password must be at least 6 characters";
+      } else if (password === "") {
+        isValid = false;
+        document.getElementById('signinPasswordError').textContent = "Password is required";
+      } else {
+        document.getElementById('signinPasswordError').textContent = "";
+      }
+
+     
+    }
+    // Toggle password visibility for sign-in password
+  const toggleSigninPassword = document.getElementById('toggleSigninPassword');
+  const signinPasswordField = document.getElementById('signinPassword');
+
+  toggleSigninPassword.addEventListener('click', function () {
+    if (signinPasswordField.type === "password") {
+      signinPasswordField.type = "text";
+      this.classList.remove('fa-eye');
+      this.classList.add('fa-eye-slash');
+    } else {
+      signinPasswordField.type = "password";
+      this.classList.remove('fa-eye-slash');
+      this.classList.add('fa-eye');
+    }
+  });
+
+    // Utility function to validate email format
+    function isValidEmail(email) {
+      const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+      return emailRegex.test(email);
+    }
+
+    // Toggling panels
+    const signUpButton = document.getElementById('signUp');
+    const signInButton = document.getElementById('signIn');
+    const container = document.getElementById('container');
+
+    signUpButton.addEventListener('click', () => {
+      container.classList.add("right-panel-active");
+    });
+
+    signInButton.addEventListener('click', () => {
+      container.classList.remove("right-panel-active");
+    });
+  </script>
+
+
+
+
+
+
+
+
+
+
+
+
+
