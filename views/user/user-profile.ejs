@@ -1,0 +1,283 @@
+<%-include("../../views/partials/user/header") %>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
+  
+</head>
+<body>
+  <nav aria-label="breadcrumb">
+    <ol class="breadcrumb">
+      <li class="breadcrumb-item"><a href="/">Home</a></li>
+      <li class="breadcrumb-item"><a href="/userProfile">Profile</a></li>
+      <li class="breadcrumb-item active" aria-current="page">Edit Profile</li>
+    </ol>
+  </nav>
+  <div class="container" style="display: flex; justify-content: space-around;; margin: 20px;">
+    <div class="sidebar">
+      <h3>My Profile</h3>
+      <div class="profile-user">
+      <div class="user">
+        <img src="https://picsum.photos/id/1015/50/50" alt="Profile Picture" style="width: 100px; 
+        height: 100px; 
+        border-radius: 50%; 
+        object-fit: cover; ">
+        <div class="name" style="color: #000000;margin-left: 2rem;    font-weight: 500;
+    text-transform: uppercase;"><%= firstName %></div>
+      </div>
+    </div>
+      <ul>
+        <li><a href="/editProfile"><i  class="fas fa-user"></i> Edit Profile</a></li>
+        <li><a href="#"><i class="fas fa-wallet"></i> Your Wallet</a></li>
+        <li><a href="/profile/orders"><i class="fas fa-shopping-cart"></i> Your Orders</a></li>
+        <!-- <li><a href="#"><i class="fas fa-shopping-cart"></i> Open Orders</a></li> -->
+        <!-- <li><a href="#"><i class="fas fa-shopping-cart"></i> Cancelled Orders</a></li> -->
+        <li><a href="#"><i class="fas fa-heart"></i> Wishlist</a></li>
+        <li><a href="/profile/address"><i class="fas fa-address-card"></i> Addresses</a></li>
+        <li><a href="#"><i class="fas fa-money-bill-wave"></i> Payment Options</a></li>
+        <!-- <li><a href="#"><i class="fas fa-lock"></i> Login & Security</a></li> -->
+        <li><a href="/logout"><i class="fas fa-sign-out-alt"></i> Logout</a></li>
+      </ul>
+    </div>
+    
+      <div class="profile">
+        <h2> Profile</h2>
+        <form id="profileForm" method="post">
+          <div class="field">
+            <label for="firstName">Name</label>
+            <input type="text" id="firstName" name="name" placeholder="<%=user.name%>">
+          </div>
+          <div class="field">
+            <label for="email">Email</label>
+            <input type="email" id="email" name="email" placeholder="<%=user.email%>">
+          </div>
+          <div class="field">
+            <label for="mobile">Phone</label>
+            <input type="tel" id="mobile" name="mobile" placeholder="<%=user.phone%>">
+          </div>
+          <p id="errorProfile" style="color: red;"></p> <!-- Error message for profile -->
+          <div class="buttons" style="justify-content: space-around;">
+            <button type="submit" class="save" >Save </button>
+          </div>
+          
+        </form>
+      
+        <form id="passwordForm" method="post">
+          <h3>Change Password </h3>
+          <div class="field">
+            <label for="currentPassword">Current Password</label>
+            <input type="password" id="currentPassword" name="currentPassword" placeholder="Enter your current password">
+          </div>
+          <div class="field">
+            <label for="newPassword">New Password</label>
+            <input type="password" id="newPassword" name="newPassword" placeholder="Enter your new password">
+          </div>
+          <div class="field">
+            <label for="confirmPassword">Confirm New Password</label>
+            <input type="password" id="confirmPassword" name="confirmPassword" placeholder="Confirm your new password">
+          </div>
+          <p id="errorPassword" style="color: red;"></p> <!-- Error message for password -->
+          <div class="buttons" style="justify-content: space-around;">
+            <button type="submit" class="save">Save</button>
+          </div>
+        </form>
+      
+        
+        
+      </div>
+      
+  </div>
+</body>
+</html>
+
+<%-include("../../views/partials/user/footer") %>
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+<script>
+ // Profile form validation
+document.getElementById('profileForm').addEventListener('submit', function(event) {
+  // Get profile field values
+  const name = document.getElementById('firstName').value.trim();
+  const email = document.getElementById('email').value.trim();
+  const mobile = document.getElementById('mobile').value.trim();
+
+  // Validate the profile form fields
+  if (!name && !email && !mobile) {
+    event.preventDefault(); // Prevent form submission if no field is updated
+    document.getElementById('errorProfile').textContent = 'Please update at least one profile field.';
+  } else {
+    document.getElementById('errorProfile').textContent = ''; // Clear the error if validation passes
+  
+    Swal.fire({
+      icon: 'success',
+      title: 'Profile Updated',
+      text: 'Your profile information has been successfully updated!',
+      confirmButtonText: 'OK'
+    });
+    this.submit();
+  
+  }
+
+
+
+  
+});
+
+  // Password form validation
+document.getElementById('passwordForm').addEventListener('submit', function(event) {
+  // Get password field values
+  const currentPassword = document.getElementById('currentPassword').value.trim();
+  const newPassword = document.getElementById('newPassword').value.trim();
+  const confirmPassword = document.getElementById('confirmPassword').value.trim();
+
+  // Validate the password form fields
+  if (!currentPassword || !newPassword || !confirmPassword) {
+    event.preventDefault(); // Prevent form submission
+    document.getElementById('errorPassword').textContent = 'Please fill out all password fields.';
+  } else if (newPassword !== confirmPassword) {
+    event.preventDefault(); // Prevent form submission if passwords don't match
+    document.getElementById('errorPassword').textContent = 'New password and confirmation do not match.';
+  } else if (currentPassword == newPassword) {
+    event.preventDefault(); // Prevent form submission if passwords don't match
+    document.getElementById('errorPassword').textContent = 'current and new password are same';
+  }else if (newPassword.length < 6) { // Optional: Check for minimum password length
+    event.preventDefault(); 
+    document.getElementById('errorPassword').textContent = 'Password should be at least 6 characters long.';
+  } else {
+    document.getElementById('errorPassword').textContent = ''; // Clear the error if validation passes
+    Swal.fire({
+      icon: 'success',
+      title: 'Password Changed',
+      text: 'Your password has been successfully updated!',
+      confirmButtonText: 'OK'
+    });
+    this.submit()
+  
+  }
+});
+
+</script>
+
+
+
+<style>
+    
+  .sidebar {
+    background-color: #fff;
+    padding: 20px;
+    width: 250px;
+    border-radius: 5px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  }
+
+  .sidebar h3 {
+    margin-top: 0;
+  }
+
+  .sidebar ul {
+    list-style: none;
+    padding: 0;
+  }
+
+  .sidebar li {
+    margin-bottom: 10px;
+  }
+
+  .sidebar a {
+    display: flex;
+    align-items: center;
+    text-decoration: none;
+    color: #333;
+    padding: 10px;
+    border-radius: 5px;
+    transition: background-color 0.3s ease;
+  }
+
+  .sidebar a:hover {
+    background-color: #f0f0f0;
+  }
+
+  .sidebar i {
+    margin-right: 10px;
+    font-size: 18px;
+  }
+
+  .profile {
+    background-color: #fff;
+    padding: 20px;
+    width: 500px;
+    border-radius: 5px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  }
+  .profile-user {
+   
+    padding: 20px;
+    width: fit-content;
+    border-radius: 5px;
+    
+  }
+  .profile h2 {
+    margin-top: 0;
+  }
+
+  .profile .user {
+    display: flex;
+    align-items: center;
+    margin-bottom: 20px;
+  }
+
+  .profile .user img {
+    width: 50px;
+    height: 50px;
+    border-radius: 50%;
+    margin-right: 10px;
+  }
+
+  .profile .user .name {
+    font-size: 18px;
+    font-weight: bold;
+  }
+
+  .profile .field {
+    margin-bottom: 15px;
+  }
+
+  .profile .field label {
+    display: block;
+    margin-bottom: 5px;
+    font-weight: bold;
+  }
+
+  .profile .field input {
+    width: 100%;
+    padding: 10px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    box-sizing: border-box;
+  }
+
+  .profile .buttons {
+    display: flex;
+    justify-content: flex-end;
+    margin-top: 20px;
+  }
+
+  .profile .buttons button {
+    padding: 10px 20px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+  }
+
+  .profile .buttons button:hover {
+    opacity: 0.8;
+  }
+
+  .profile .buttons button.cancel {
+    background-color: #ccc;
+    color: #333;
+  }
+
+  .profile .buttons button.save {
+    background-color: #f44336;
+    color: #fff;
+  }
+</style>

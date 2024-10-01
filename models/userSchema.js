@@ -57,6 +57,10 @@ const userSchema = new Schema({
         type:Schema.Types.ObjectId,
         ref:"Order"
     }],
+    // addresses: [{  // Add this field
+    //     type: Schema.Types.ObjectId,
+    //     ref: "Address"
+    // }],
     createdOn : {
         type:Date,
         default:Date.now,

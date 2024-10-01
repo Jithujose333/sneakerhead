@@ -1,0 +1,273 @@
+<%- include("../../views/partials/user/header", { user: firstName }) %>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
+
+<body>
+    <nav aria-label="breadcrumb"></nav>
+    <ol class="breadcrumb">
+      <li class="breadcrumb-item"><a href="/">Home</a></li>
+      <li class="breadcrumb-item"><a href="/userProfile">Profile</a></li>
+      <li class="breadcrumb-item"><a href="/profile/address">Address</a></li>
+      <li class="breadcrumb-item active" aria-current="page">Edit Address</li>
+    </ol>
+  </nav>
+  <div class="container" style="display: flex; justify-content: space-around; margin: 20px;">
+    <div class="sidebar">
+      <h3>My Profile</h3>
+      <div class="profile-user">
+        <div class="user">
+          <img src="https://picsum.photos/id/1015/50/50" alt="Profile Picture" style="width: 100px; height: 100px; border-radius: 50%; object-fit: cover;">
+          <div class="name" style="color: #000000;margin-left: 2rem;    font-weight: 500;
+    text-transform: uppercase;"><%= firstName %></div>
+        </div>
+      </div>
+      <ul>
+        <li><a href="/userProfile"><i class="fas fa-user"></i> Edit Profile</a></li>
+        <li><a href="#"><i class="fas fa-wallet"></i> Your Wallet</a></li>
+        <li><a href="/profile/orders"><i class="fas fa-shopping-cart"></i> Your Orders</a></li>
+        <li><a href="#"><i class="fas fa-heart"></i> Wishlist</a></li>
+        <li><a href="/profile/address"><i class="fas fa-address-card"></i> Addresses</a></li>
+        <li><a href="#"><i class="fas fa-money-bill-wave"></i> Payment Options</a></li>
+        <li><a href="/logout"><i class="fas fa-sign-out-alt"></i> Logout</a></li>
+      </ul>
+    </div>
+
+    <div class="address">
+      <h2>Edit Address</h2>
+      <form action="/profile/editAddress/<%= address._id %>" method="POST" id="edit-address-form">
+       
+       
+        <div class="field">
+          <label for="name">Name</label>
+          <input type="text" id="name" name="name" value="<%= address.name %>" required>
+          <small class="error-message" style="display: none;">Please enter your name.</small>
+        </div>
+        <div class="field">
+          <label for="houseName">House Name</label>
+          <input type="text" id="houseName" name="houseName" value="<%= address.houseName %>" required>
+          <small class="error-message" style="display: none;">Please enter your house name.</small>
+        </div>
+        <div class="field">
+          <label for="locality">Locality</label>
+          <input type="text" id="locality" name="locality" value="<%= address.locality %>" required>
+          <small class="error-message" style="display: none;">Please enter your locality.</small>
+        </div>
+        <div class="field">
+          <label for="city">City</label>
+          <input type="text" id="city" name="city" value="<%= address.city %>" required>
+          <small class="error-message" style="display: none;">Please enter your city.</small>
+        </div>
+        <div class="field">
+          <label for="state">State</label>
+          <input type="text" id="state" name="state" value="<%= address.state %>" required>
+          <small class="error-message" style="display: none;">Please enter your state.</small>
+        </div>
+        <div class="field">
+          <label for="zip">Pin Code</label>
+          <input type="text" id="zip" name="pincode" value="<%= address.pincode %>" required pattern="\d{6}" maxlength="6">
+          <small class="error-message" style="display: none;">Please enter a valid 6-digit pin code.</small>
+        </div>
+        <div class="field">
+          <label for="phone">Phone</label>
+          <input type="tel" id="phone" name="phone" value="<%= address.phone %>" required pattern="[0-9]{10}" maxlength="10">
+          <small class="error-message" style="display: none;">Please enter a valid 10-digit phone number.</small>
+        </div>
+        <div class="field">
+          <label for="altPhone">Alt Phone</label>
+          <input type="tel" id="altPhone" name="altPhone" value="<%= address.altPhone %>" pattern="[0-9]{10}" maxlength="10">
+        </div>
+        <div class="buttons">
+          <button type="submit" onclick="validateForm(event)">Update Address</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <%- include("../../views/partials/user/footer") %>
+  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+<script>
+  function validateForm(event) {
+    event.preventDefault(); // Prevent default form submission
+    let isValid = true;
+    const formData = {};
+
+    // Check required fields and collect form data
+    document.querySelectorAll('input[required]').forEach(function(input) {
+      const errorMessage = input.nextElementSibling;
+      if (!input.value.trim()) {
+        isValid = false;
+        errorMessage.style.display = 'block';
+      } else {
+        errorMessage.style.display = 'none';
+        formData[input.name] = input.value; // Collect form data
+      }
+    });
+
+    // Validate pin code
+    const zip = document.getElementById('zip');
+    const zipPattern = /^\d{6}$/;
+    if (zip.value && !zipPattern.test(zip.value)) {
+      isValid = false;
+      zip.nextElementSibling.style.display = 'block';
+    } else {
+      zip.nextElementSibling.style.display = 'none';
+      formData['pincode'] = zip.value; // Collect pin code
+    }
+
+    // Validate phone number
+    const phone = document.getElementById('phone');
+    const phonePattern = /^[0-9]{10}$/;
+    if (phone.value && !phonePattern.test(phone.value)) {
+      isValid = false;
+      phone.nextElementSibling.style.display = 'block';
+    } else {
+      phone.nextElementSibling.style.display = 'none';
+      formData['phone'] = phone.value; // Collect phone number
+    }
+
+    // If form is invalid, return early
+    if (!isValid) {
+      return;
+    }
+
+    // Make a fetch call to update the address
+    fetch(`/profile/editAddress/<%= address._id %>`, {
+      method: "POST", // Using POST
+      headers: {
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify(formData)
+    })
+    .then(response => {
+      if (!response.ok) {
+        throw new Error('Network response was not ok');
+      }
+      return response.json(); // Assuming the server returns JSON
+    })
+    .then(data => {
+      Swal.fire({
+        icon: 'success',
+        title: 'Success',
+        text: data.message // Use the message returned from the server
+      });
+    })
+    .catch(error => {
+      console.error('Error:', error); // Log error for debugging
+      Swal.fire({
+        icon: 'error',
+        title: 'Oops',
+        text: 'An error occurred while updating the address.'
+      });
+    });
+  }
+</script>
+
+        }
+   
+  
+</script>
+  <style>
+    /* Your existing CSS remains the same */
+    .sidebar {
+      background-color: #fff;
+      padding: 20px;
+      width: 250px;
+      border-radius: 5px;
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    }
+
+    .sidebar h3 {
+      margin-top: 0;
+    }
+
+    .sidebar ul {
+      list-style: none;
+      padding: 0;
+    }
+
+    .sidebar li {
+      margin-bottom: 10px;
+    }
+
+    .sidebar a {
+      display: flex;
+      align-items: center;
+      text-decoration: none;
+      color: #333;
+      padding: 10px;
+      border-radius: 5px;
+      transition: background-color 0.3s ease;
+    }
+
+    .sidebar a:hover {
+      background-color: #f0f0f0;
+    }
+
+    .profile-user {
+      padding: 20px;
+      width: fit-content;
+      border-radius: 5px;
+    }
+
+    .address {
+      background-color: #fff;
+      padding: 20px;
+      border-radius: 5px;
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+      max-width: 1000px; /* Responsive max width */
+      width: 500px;
+      margin: auto; /* Center the form */
+    }
+
+    h2 {
+      margin-bottom: 20px;
+      text-align: center; /* Center the heading */
+    }
+
+    .field {
+      margin-bottom: 15px;
+    }
+
+    label {
+      display: block;
+      margin-bottom: 5px;
+      font-weight: bold;
+    }
+
+    input {
+      width: 100%;
+      padding: 10px;
+      border: 1px solid #ccc;
+      border-radius: 5px;
+      box-sizing: border-box;
+    }
+
+    input:focus {
+      border-color: #007bff;
+      outline: none;
+    }
+
+    .buttons {
+      text-align: center;
+    }
+
+    button {
+      padding: 10px 20px;
+      border: none;
+      border-radius: 5px;
+      background-color: #28a745;
+      color: #fff;
+      cursor: pointer;
+      transition: background-color 0.3s ease;
+    }
+
+    button:hover {
+      background-color: #218838;
+    }
+
+    .error-message {
+      display: block;
+      margin-top: 5px;
+      color: red; /* Make error message more noticeable */
+    }
+  </style>
+</body>

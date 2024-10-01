@@ -15,45 +15,70 @@ const pageNotFound = async (req,res) => {
 }
 
 
+const loadHomepage = async (req, res) => {
+    try {
+      const userId = req.session.user;  // User ID from session
+    //   const guser = req.user;           // User object from Passport
+      const sortOption = req.query.sort || 'popularity'; // Default sorting by popularity
+  
+      let userData = null;
+      let products = []; // Variable to store products
+  
+      // Fetch user data if session or Passport data is available
+    //   if (userId) {
+    //     userData = await User.findOne({ _id: userId });
+    //   } else if (guser) {
+    //     userData = await User.findOne({ _id: guser._id });
+    //   }
+  
 
+    
+            userData = await User.findOne({ _id: userId });
+                
+    
+      let sortCriteria;
+      switch (sortOption) {
+        case 'priceLowHigh':
+          sortCriteria = { salePrice: 1 }; // Ascending price
+          break;
+        case 'priceHighLow':
+          sortCriteria = { salePrice: -1 }; // Descending price
+          break;
+        case 'averageRatings':
+          sortCriteria = { averageRating: -1 }; // Descending rating
+          break;
+        case 'az':
+          sortCriteria = { productName: 1 }; // A-Z sorting
+          break;
+        case 'za':
+          sortCriteria = { productName: -1 }; // Z-A sorting
+          break;
+        default:
+          sortCriteria = { popularity: -1 }; // Default: Popularity
+      }
+  
+      // Retrieve a list of products with sorting
+      products = await Product.find({ isBlocked: false }).sort(sortCriteria).limit(12);
+  
+      
+      if (userData) {
+        const firstName = userData.name ? userData.name.split(' ')[0] : 'User';
+        return res.render('home', { user: userData, firstName, products, sortOption });
+      } else {
+        
+        return res.render('home', { products, sortOption });
+      }
+  
+    } catch (error) {
+      console.error("Error loading home page:", error);
+      return res.status(500).render('error', { message: "Something went wrong on the server!" });
+    }
+  };
+  
 
 
  
 
-
-const loadHomepage = async (req, res) => {
-    try {
-      const userId = req.session.user;  // User ID from session
-      const guser = req.user;  // User object from Passport
-  
-      let userData;
-      let products; // Add a variable to store products
-  
-      if (userId) {
-        // Find user by session ID
-        userData = await User.findOne({ _id: userId });
-      } else if (guser) {
-        // Find user by Passport user ID
-        userData = await User.findOne({ _id: guser._id });
-      }
-  
-      // Retrieve a list of products to display on the home page
-      products = await Product.find({isBlocked:false}).limit(12); // Retrieve 12 products, for example
-  
-      if (userData) {
-        // Extract first name from full name
-        const firstName = userData.name.split(' ')[0];
-        return res.render('home', { user: userData, firstName: firstName, products: products });
-      } else {
-        // Render homepage without user data if no user is found
-        return res.render('home', { products: products });
-      }
-  
-    } catch (error) {
-      console.log("Home page not found:", error);
-      res.status(500).send("Server error");
-    }
-  };
 
 const loadSignup = async (req,res) => {
     try {

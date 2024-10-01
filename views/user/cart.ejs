@@ -1,0 +1,230 @@
+<%- include("../../views/partials/user/header", { user: firstName }) %>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+
+<style>
+    .img {
+    width: 100px; /* Set the desired width */
+    height: 100px; /* Set the desired height */
+    background-size: cover; /* Ensures the image covers the entire div */
+    background-position: center; /* Centers the image within the div */
+    background-repeat: no-repeat; /* Prevents the image from repeating */
+}
+</style>
+
+
+<div class="breadcrumbs">
+    <div class="container">
+        <div class="row">
+            <div class="col">
+                <p class="bread"><span><a href="/">Home</a></span> / <span>Shopping Cart</span></p>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<div class="colorlib-product">
+    <div class="container">
+        <div class="row row-pb-lg">
+            <div class="col-md-10 offset-md-1">
+                <div class="process-wrap">
+                    <div class="process text-center active">
+                        <p><span>01</span></p>
+                        <h3>Shopping Cart</h3>
+                    </div>
+                    <div class="process text-center">
+                        <p><span>02</span></p>
+                        <h3>Checkout</h3>
+                    </div>
+                    <div class="process text-center">
+                        <p><span>03</span></p>
+                        <h3>Order Complete</h3>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="row row-pb-lg">
+            <div class="col-md-12">
+                <div class="product-name d-flex">
+                    <div class="one-forth text-left px-4">
+                        <span>Product Details</span>
+                    </div>
+                    <div class="one-eight text-center">
+                        <span>Price</span>
+                    </div>
+                    <div class="one-eight text-center">
+                        <span>Quantity</span>
+                    </div>
+                    <div class="one-eight text-center">
+                        <span>Total</span>
+                    </div>
+                    <div class="one-eight text-center px-4">
+                        <span>Remove</span>
+                    </div>
+                </div>
+                <% cartItems.forEach(item => { %>
+                <div class="product-cart d-flex">
+                    
+                    <div class="one-forth">
+                      
+                        <div class="product-img" ;>
+                            <% if (item.productId.productImage && item.productId.productImage.length > 0) { %>
+                                <img src="/uploads/re-image/<%= item.productId.productImage[0] %>" alt="Product Image" style="height: 100px ;width: 100px;">
+                                
+                                
+                            
+                            <% } else { %>
+                                <img src="/path/to/default-image.jpg" alt="Default Image"> 
+                            <% } %>                        </div>
+                        <div class="display-tc">
+                            <h3><%=item.productId.productName%></h3>
+                        </div>
+                    </div>
+                    <div class="one-eight text-center">
+                        <div class="display-tc">
+                            <span class="price">₹<%= item.price %></span>
+                        </div>
+                    </div>
+                    <div class="one-eight text-center">
+                        <div class="display-tc">
+                            <input type="text" id="quantity" name="quantity" class="form-control input-number text-center" value="<%= item.quantity %>" min="1" max="100">
+                        </div>
+                    </div>
+                    <div class="one-eight text-center">
+                        <div class="display-tc">
+                            <span class="price"><%= item.price * item.quantity%></span>
+                        </div>
+                    </div>
+                    <div class="one-eight text-center">
+                        <div class="display-tc">
+                            <button class="closed" data-id="<%= item._id %>"  onclick="removeItem(this)"  style="display: contents; cursor: pointer;"><i class="fa-solid fa-xmark"></i></button>
+                        </div>
+                    </div>
+                </div>
+                    <% }) %>
+                    
+                
+                
+                
+            </div>
+        </div>
+        <div class="row row-pb-lg">
+            <div class="col-md-12">
+                <div class="total-wrap">
+                    <div class="row">
+                        <div class="col-sm-8">
+                            <form action="#">
+                                <div class="row form-group">
+                                    <div class="col-sm-9">
+                                        <input type="text" name="quantity" class="form-control input-number" placeholder="Your Coupon Number...">
+                                    </div>
+                                    <div class="col-sm-3">
+                                        <input type="submit" value="Apply Coupon" class="btn btn-primary">
+                                    </div>
+                                </div>
+                            </form>
+                        </div>
+                        <div class="col-sm-4 text-center">
+                            <div class="total">
+                                <div class="sub">
+                                    <p><span>Subtotal:</span> <span>₹<%=subtotal%></span></p>
+                                    <p><span>Delivery:</span> <span>₹<%=delivery%></span></p>
+                                    <p><span>Discount:</span> <span>₹<%=discount%></span></p>
+                                </div>
+                                <div class="grand-total">
+                                    <p><span><strong>Total:</strong></span> <span>₹<%=total%></span></p>
+                                </div>
+                                <div class="col-sm-12 text-center">
+									<p class="addtocart"><a href="/cart/checkout/<%=cartId%>" class="btn btn-primary btn-addtocart"><i class="icon-shopping-cart"></i> Buy Now</a></p>
+								</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="row">
+            <div class="col-sm-8 offset-sm-2 text-center colorlib-heading colorlib-heading-sm">
+                <h2>Related Products</h2>
+            </div>
+        </div>
+        
+					<div class="row row-pb-md">
+						<% products.forEach((product, i) => { %>
+						  <% if (product) { %>
+							<div class="col-lg-3 mb-4 text-center">
+							  <div class="product-entry border">
+								<a href="/products/<%= product._id %>" class="prod-img">
+								  <% if (product.productImage && product.productImage.length > 0) { %>
+									<img src="/uploads/re-image/<%= product.productImage[0] %>" class="img-fluid" alt="<%= product.productName %>">
+								  <% } else { %>
+									<img src="/path/to/default/image.jpg" class="img-fluid" alt="No Image Available">
+								  <% } %>
+								</a>
+								<div class="desc">
+								  <h2><a href="/products/<%= product._id %>"><%= product.productName %></a></h2>
+								  <span class="price">₹<%= product.salePrice || product.regularPrice %>.00</span>
+								</div>
+							  </div>
+							</div>
+						  <% } %>
+						<% }); %>
+					  </div>
+    </div>
+</div>
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+<script>
+async function removeItem(button) {
+    try {
+        const itemId = button.dataset.id; // Get the item ID from the button's dataset
+
+        if (!itemId) {
+            Swal.fire('Error', 'Item ID not found.', 'error');
+            return;
+        }
+
+        // Ask for confirmation before removing the item
+        const confirmation = await Swal.fire({
+            title: 'Are you sure?',
+            text: "Do you want to remove this item from the cart?",
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: '#3085d6',
+            cancelButtonColor: '#d33',
+            confirmButtonText: 'Yes, remove it!'
+        });
+
+        if (!confirmation.isConfirmed) {
+            return; // If user canceled, do nothing
+        }
+
+        // Make DELETE request to the server
+        const response = await fetch(`/cart/deleteItems/${itemId}`, {
+            method: 'DELETE',
+            headers: {
+                'Content-Type': 'application/json'
+            }
+        });
+
+        const result = await response.json();
+
+        if (response.ok) {
+           
+            Swal.fire('Deleted!', result.message || 'Item removed successfully', 'success').then(() => {
+       
+        location.reload();
+    });
+            button.closest('.product-cart').remove(); 
+
+        } else {
+           
+            Swal.fire('Error', result.error || 'Failed to remove item.', 'error');
+        }
+    } catch (error) {
+        console.error('Error:', error);
+        Swal.fire('Error', 'An error occurred. Please try again.', 'error');
+    }
+}
+</script>
+<%- include("../../views/partials/user/footer") %>

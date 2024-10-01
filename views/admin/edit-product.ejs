@@ -153,9 +153,8 @@
                                <div class="card-body">
                                    <div class="card-body align-items-center" style="margin-bottom: 20px;">
                                        <img src="" alt="" id="imgView1">
-                                       <input class="form-control" type="file" name="images" id="input1"
-                                           accept="image/png, image/jpeg, image/jpg"
-                                           onchange="viewImage1(event), viewImage(event, 1)">
+                                       <input class="form-control" type="file" name="images" id="input1" accept="image/png, image/jpeg, image/jpg" onchange="validateImageFile(event, 1)">
+
                                            <div id="images-error" class="error-message"></div>
                                    </div>
                                    <div class="image-cropper d-flex align-items-center"
@@ -166,9 +165,8 @@
                                                            <div class="row">
                                                                <div class="card-body align-items-center" style="margin-bottom: 20px;">
                                                                    <img src="" alt="" id="imgView2">
-                                                                   <input class="form-control" type="file" name="images" id="input2"
-                                                                       accept="image/png, image/jpeg, image/jpg"
-                                                                       onchange="viewImage2(event),viewImage(event, 2)">
+                                                                   <input class="form-control" type="file" name="images" id="input1" accept="image/png, image/jpeg, image/jpg" onchange="validateImageFile(event, 2)">
+
                                                                </div>
                                                                <div class="image-cropper d-flex align-items-center"
                                                                    style="display:none; width: 300px; height: 200px; margin-bottom: 20px;">
@@ -180,9 +178,8 @@
                                                            <div class="row">
                                                                <div class="card-body align-items-center" style="margin-bottom: 20px;">
                                                                    <img src="" alt="" id="imgView3">
-                                                                   <input class="form-control" type="file" name="images" id="input3"
-                                                                       accept="image/png, image/jpeg, image/jpg"
-                                                                       onchange="viewImage3(event),viewImage(event, 3)">
+                                                                   <input class="form-control" type="file" name="images" id="input1" accept="image/png, image/jpeg, image/jpg" onchange="validateImageFile(event, 3)">
+
                                                                </div>
                                                                <div class="image-cropper d-flex align-items-center"
                                                                    style="display:none; width: 300px; height: 200px; margin-bottom: 20px;">
@@ -194,9 +191,8 @@
                                                            <div class="row">
                                                                <div class="card-body align-items-center" style="margin-bottom: 20px;">
                                                                    <img src="" alt="" id="imgView4">
-                                                                   <input class="form-control" type="file" name="images" id="input4"
-                                                                       accept="image/png, image/jpeg, image/jpg"
-                                                                       onchange="viewImage4(event),viewImage(event, 4)">
+                                                                   <input class="form-control" type="file" name="images" id="input1" accept="image/png, image/jpeg, image/jpg" onchange="validateImageFile(event, 4)">
+
                                                                </div>
                                                                <div class="image-cropper d-flex align-items-center"
                                                                    style="display:none; width: 300px; height: 200px; margin-bottom: 20px;">
@@ -240,76 +236,149 @@ if (validateForm()) {
 
 
 
-function validateForm() {
-   let imageDatas = false
-           console.log("validate form");
-           clearErrorMessages();
-           const name = document.getElementsByName('productName')[0].value;
-           const description = document.getElementsByName('descriptionData')[0].value;
-           const brand = document.getElementsByName('brand')[0].value;
-           const price = document.getElementsByName('regularPrice')[0].value;
-           const saleprice = document.getElementsByName('salePrice')[0].value;
-           const color = document.getElementsByName('color')[0].value;
-           const category = document.getElementsByName('category')[0].value;
-           const images = document.getElementById('input1')
-           const quantity=document.getElementsByName('quantity')
-imageDatas = document.getElementById("imageDatas")?.value;
-           let isValid = true;    
-           if (name.trim() === "") {
-   displayErrorMessage('productName-error', 'Please enter a product name.');
-   isValid = false;
-}
+// function validateForm() {
+//    let imageDatas = false
+//            console.log("validate form");
+//            clearErrorMessages();
+//            const name = document.getElementsByName('productName')[0].value;
+//            const description = document.getElementsByName('descriptionData')[0].value;
+//            const brand = document.getElementsByName('brand')[0].value;
+//            const price = document.getElementsByName('regularPrice')[0].value;
+//            const saleprice = document.getElementsByName('salePrice')[0].value;
+//            const color = document.getElementsByName('color')[0].value;
+//            const category = document.getElementsByName('category')[0].value;
+//            const images = document.getElementById('input1')
+//            const quantity=document.getElementsByName('quantity')
+// imageDatas = document.getElementById("imageDatas")?.value;
+//            let isValid = true;    
+//            if (name === "") {
+//    displayErrorMessage('productName-error', 'Please enter a product name.');
+//    isValid = false;
+// }
           
-           if (description=== '') {
-               displayErrorMessage('description-error', 'Please enter a product description.');
-               isValid = false;
-           } 
+//            if (description=== '') {
+//                displayErrorMessage('description-error', 'Please enter a product description.');
+//                isValid = false;
+//            } 
 
 
-           if ( parseInt(quantity) < 0) {
-               displayErrorMessage('quantity-error', 'Please enter a valid non-negative quantity.');
-               isValid = false;
-           }
+//            if ( parseInt(quantity) < 0) {
+//                displayErrorMessage('quantity-error', 'Please enter a valid non-negative quantity.');
+//                isValid = false;
+//            }
 
 
 
 
-           if (!/^\d+(\.\d{1,2})?$/.test(price) || parseFloat(price) < 0) {
-               displayErrorMessage('regularPrice-error', 'Please enter a valid non-negative price.');
-               isValid = false;
-           }
-          if (!/^\d+(\.\d{1,2})?$/.test(saleprice) || parseFloat(saleprice) < 0) {
-               displayErrorMessage('salePrice-error', 'Please enter a valid non-negative price.');
-               isValid = false;
-           }
+//            if (!/^\d+(\.\d{1,2})?$/.test(price) || parseFloat(price) < 0) {
+//                displayErrorMessage('regularPrice-error', 'Please enter a valid non-negative price.');
+//                isValid = false;
+//            }
+//           if (!/^\d+(\.\d{1,2})?$/.test(saleprice) || parseFloat(saleprice) < 0) {
+//                displayErrorMessage('salePrice-error', 'Please enter a valid non-negative price.');
+//                isValid = false;
+//            }
           
-           if (color.trim() === "") {
-               displayErrorMessage('color-error', 'Please enter a color.');
-               isValid = false;
-           }
-           if (!imageDatas && images.files.length === 0) {
-               displayErrorMessage("images-error",'Please select an image.');
-               isValid = false;
-           }
-           return isValid;
-       }
+//            if (color.trim() === "") {
+//                displayErrorMessage('color-error', 'Please enter a color.');
+//                isValid = false;
+//            }
+//            if (!imageDatas && images.files.length === 0) {
+//                displayErrorMessage("images-error",'Please select an image.');
+//                isValid = false;
+//            }
+//            return isValid;
+//        }
       
-       function displayErrorMessage(elementId, message) {
-           var errorElement = document.getElementById(elementId);
-           errorElement.innerText = message;
-           errorElement.style.display = "block";
-       }
+//        function displayErrorMessage(elementId, message) {
+//            var errorElement = document.getElementById(elementId);
+//            errorElement.innerText = message;
+//            errorElement.style.display = "block";
+//        }
 
 
-       function clearErrorMessages() {
-           const errorElements = document.getElementsByClassName('error-message');
-           Array.from(errorElements).forEach(element => {
-               element.innerText = '';
-           });
-           const errorMessage = document.getElementById('errorMessage');
+//        function clearErrorMessages() {
+//            const errorElements = document.getElementsByClassName('error-message');
+//            Array.from(errorElements).forEach(element => {
+//                element.innerText = '';
+//            });
+//            const errorMessage = document.getElementById('errorMessage');
 
 
-       }
+//        }
+
+function validateForm() {
+    let imageDatas = false;
+    console.log("validate form");
+    clearErrorMessages();
+
+    // Use trim() to remove any leading/trailing whitespace
+    const name = document.getElementsByName('productName')[0].value.trim();
+    const description = document.getElementsByName('descriptionData')[0].value.trim();
+    const price = document.getElementsByName('regularPrice')[0].value.trim();
+    const saleprice = document.getElementsByName('salePrice')[0].value.trim();
+    const color = document.getElementsByName('color')[0].value.trim();
+    const quantity = document.getElementsByName('quantity')[0].value.trim();
+    const images = document.getElementById('input1');
+    
+    imageDatas = document.getElementById("imageDatas")?.value;
+    let isValid = true;
+
+    // Validation for empty or whitespace-only fields
+    if (name === "") {
+        displayErrorMessage('productName-error', 'Please enter a product name.');
+        isValid = false;
+    }
+    
+    if (description === "") {
+        displayErrorMessage('description-error', 'Please enter a product description.');
+        isValid = false;
+    }
+
+    if (parseInt(quantity) < 0 || isNaN(parseInt(quantity))) {
+        displayErrorMessage('quantity-error', 'Please enter a valid non-negative quantity.');
+        isValid = false;
+    }
+
+    if (!/^\d+(\.\d{1,2})?$/.test(price) || parseFloat(price) < 0) {
+        displayErrorMessage('regularPrice-error', 'Please enter a valid non-negative price.');
+        isValid = false;
+    }
+
+    if (!/^\d+(\.\d{1,2})?$/.test(saleprice) || parseFloat(saleprice) < 0) {
+        displayErrorMessage('salePrice-error', 'Please enter a valid non-negative sale price.');
+        isValid = false;
+    }
+
+    if (color === "") {
+        displayErrorMessage('color-error', 'Please enter a color.');
+        isValid = false;
+    }
+
+    if (!imageDatas && images.files.length === 0) {
+        displayErrorMessage("images-error", 'Please select an image.');
+        isValid = false;
+    }
+
+    return isValid;
+}
+
+// Function to display error message
+function displayErrorMessage(elementId, message) {
+    var errorElement = document.getElementById(elementId);
+    errorElement.innerText = message;
+    errorElement.style.display = "block";
+}
+
+// Function to clear error messages
+function clearErrorMessages() {
+    const errorElements = document.getElementsByClassName('error-message');
+    Array.from(errorElements).forEach(element => {
+        element.innerText = '';
+        element.style.display = 'none';
+    });
+}
+
 
 
 
@@ -335,6 +404,23 @@ function viewImage1(event) {
 
 
 
+       function validateImageFile(event, index) {
+    const input = event.target;
+    const file = input.files[0];
+    const allowedExtensions = /(\.jpg|\.jpeg|\.png)$/i;
+    
+    if (!allowedExtensions.exec(file.name)) {
+        displayErrorMessage('images-error', 'Please select a valid image file (.jpg or .png).');
+        input.value = '';  // Clear the input field
+        return false;
+    }
+    
+    // Clear any previous error message
+    document.getElementById('images-error').innerText = '';
+
+    // Proceed with the preview if the file is valid
+    viewImage(event, index);
+}
 
        function viewImage(event, index) {
            let input = event.target;

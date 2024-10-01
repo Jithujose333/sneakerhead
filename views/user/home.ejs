@@ -102,7 +102,19 @@
 					</div>
 				</div>
 				
-
+				<div class="sort-options">
+					<label for="sort">Sort by:</label>
+					<select id="sort" name="sort" onchange="applySorting()">
+						<option value="popularity">Popularity</option>
+						<option value="priceLowHigh">Price: Low to High</option>
+						<option value="priceHighLow">Price: High to Low</option>
+						<option value="averageRatings">Average Ratings</option>
+						<option value="featured">Featured</option>
+						<option value="newArrivals">New Arrivals</option>
+						<option value="az">A - Z</option>
+						<option value="za">Z - A</option>
+					</select>
+				</div>
 
 
 
@@ -166,7 +178,14 @@
 		</div>
 
 		<%-include("../../views/partials/user/footer")%>
+		<script>
+			function applySorting() {
+				const sortValue = document.getElementById('sort').value;
+				window.location.href = `/?sort=${sortValue}`;
+			}
 
+
+		</script>
 		<style>
 			.header__nav__option .sign-in-link {
 		font-size: 16px;

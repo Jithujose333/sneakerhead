@@ -1,0 +1,257 @@
+<%- include("../../views/partials/admin/header", { admin: "admin" }) %>
+<head>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@10/dist/sweetalert2.min.css">
+</head>
+
+<div class="content-header"></div>
+<div>
+    <h2 class="content-title card-title">Orders</h2>
+</div>
+
+<header class="card-header text-center mb-20">
+    <form action="/admin/orders" method="get" class="d-inline">
+        <div class="input-group input-group-sm border border-1 border-grey rounded-pill" style="width: 500px; margin-left: 230px;">
+            <input type="text" class="form-control border-0 rounded-pill" placeholder="Search orders or customers" name="search">
+            <button class="btn border-0" type="submit">Search</button>
+        </div>
+    </form>
+</header>
+
+<div class="right mt-5">
+    <table class="table table-striped">
+        <thead>
+            <tr>
+                <th scope="col"><b>Order ID</b></th>
+                <th scope="col"><b>Invoice Date</b></th>
+                <th scope="col"><b>Quantity</b></th>
+                <th scope="col"><b>Total Price</b></th>
+                <th scope="col"><b>status</b></th>
+                <th scope="col"><b>Payment Method</b></th>
+                <th scope="col"><b>Cancel Order</b></th>
+                <th scope="col"><b>Action</b></th>
+            </tr>
+        </thead>
+        <tbody style="color: #000000; font-weight: 500;">
+            <tbody style="color: #000000; font-weight: 500;">
+                <% for (let i = data.length - 1; i >= 0; i--) { %>
+                    <tr>
+                        <td><%= data[i].orderId %></td>
+                        <td><%= new Date(data[i].invoiceDate).toLocaleDateString('en-GB', { day: '2-digit', month: '2-digit', year: 'numeric' }) %></td>
+
+
+            
+                        <!-- Check if orderedItems exists and has at least one item -->
+                        <% if (data[i].orderedItems && data[i].orderedItems.length > 0) { %>
+                            <!-- <td> -->
+                                <!-- Access the email of the first ordered item's userId -->
+                                <!-- <%= data[i].orderedItems[0].userId ? data[i].orderedItems[0].userId.email : 'No Email' %>
+                            </td> -->
+                            <td>
+                                <%= data[i].orderedItems.reduce((total, item) => total + item.quantity, 0) %> <!-- Total quantity -->
+                            </td>
+                            <td>
+                                <%= data[i].orderedItems.reduce((total, item) => total + item.price * item.quantity, 0) %> <!-- Total Price -->
+                            </td>
+                        <% } else { %>
+                            <td colspan="3">No Ordered Items</td>
+                        <% } %>
+                        <td><%= data[i].status %></td>
+                        <td><%= data[i].paymentMethod %></td>
+                        <td>
+                            <% if (data[i].status !== "Cancelled" && data[i].status !== "Shipped" && data[i].status !== "Delivered") { %>
+                                <button class="btn btn-danger cancel-btn" data-id="<%= data[i]._id %>" style="width: 100px;">
+                                    Cancel
+                                </button>
+                            <% } else { %>
+                                <button class="btn btn-secondary" style="width: 100px;" disabled>
+                                    Cancelled
+                                </button>
+                            <% } %>
+                        </td>
+                        
+                       
+                            <td>
+                                <select name="status" class="form-control" onchange="updateStatus('<%= data[i]._id %>', this.value)">
+                                    <option value="Pending" <%= data[i].status === 'Pending' ? 'selected' : '' %>>Pending</option>
+                                    <option value="Shipped" <%= data[i].status === 'Shipped' ? 'selected' : '' %>>Shipped</option>
+                                    <option value="Delivered" <%= data[i].status === 'Delivered' ? 'selected' : '' %>>Delivered</option>
+                                    <option value="Cancelled" <%= data[i].status === 'Cancelled' ? 'selected' : '' %>>Cancelled</option>
+                                </select>
+                            </td>
+                            
+                       
+                    </tr>
+                <% } %>
+            </tbody>
+            
+      
+    </table>
+</div>
+
+<div class="container mt-3">
+    <nav aria-label="Page navigation">
+        <ul class="pagination justify-content-center mb-20" style="margin-right: 200px;">
+            <% for (let i = 1; i <= totalPages; i++) { %>
+                <li class="page-item <%= (i === currentPage) ? 'active' : '' %>">
+                    <a class="page-link" href="?page=<%= i %>"><%= i %></a>
+                </li>
+            <% } %>
+        </ul>
+    </nav>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@10/dist/sweetalert2.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
+<%- include("../../views/partials/admin/footer") %>
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@10"></script>
+<script>
+    document.querySelectorAll('.cancel-btn').forEach(button => {
+        button.addEventListener('click', function() {
+            const orderId = this.getAttribute('data-id');
+
+            Swal.fire({
+                title: 'Are you sure?',
+                text: "You won't be able to revert this!",
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#d33',
+                cancelButtonColor: '#3085d6',
+                confirmButtonText: 'Yes, cancel it!'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    // Make a request to cancel the order
+                    fetch(`/admin/cancelOrder/${orderId}`, {
+                        method: 'POST', // Or 'GET' if you're using GET to cancel
+                        headers: {
+                            'Content-Type': 'application/json'
+                        }
+                    }).then(response => response.json())
+                    .then(data => {
+                        if (data.success) {
+                            Swal.fire(
+                                'Cancelled!',
+                                'The order has been cancelled.',
+                                'success'
+                            ).then(() => {
+                                location.reload(); // Reload the page to reflect changes
+                            });
+                        } else {
+                            Swal.fire(
+                                'Error!',
+                                'Unable to cancel the order. Please try again.',
+                                'error'
+                            );
+                        }
+                    }).catch(err => {
+                        Swal.fire(
+                            'Error!',
+                            'Something went wrong. Please try again.',
+                            'error'
+                        );
+                    });
+                }
+            });
+        });
+    });
+
+
+
+
+
+
+    async function updateStatus(orderId, newStatus) {
+    try {
+        const response = await fetch(`/admin/updateOrderStatus/${orderId}`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ status: newStatus }),
+        });
+
+        if (!response.ok) {
+            throw new Error('Error updating order status');
+        }
+
+        const data = await response.text();
+
+        // Use SweetAlert2 to show a success message
+        Swal.fire({
+            icon: 'success',
+            title: 'Success!',
+            text: data,
+            confirmButtonText: 'OK'
+        }).then(() => {
+                      location.reload(); // Reload the page to reflect changes
+      });
+    } catch (error) {
+        console.error('Error:', error);
+        
+        // Use SweetAlert2 to show an error message
+        Swal.fire({
+            icon: 'error',
+            title: 'Error!',
+            text: 'Failed to update order status. Please try again.',
+            confirmButtonText: 'OK'
+        });
+    }
+}
+
+</script>
+<style>
+    .table {
+        border-collapse: collapse;
+        width: 100%;
+        margin-top: 20px;
+    }
+
+    .table th, .table td {
+        padding: 15px;
+        text-align: center;
+        border-bottom: 1px solid #ddd;
+    }
+
+    .table th {
+        background-color: #f8f9fa;
+        font-weight: bold;
+    }
+
+    .table tr:hover {
+        background-color: #f1f1f1;
+    }
+
+    .btn {
+        border-radius: 25px;
+        padding: 10px 20px;
+        transition: background-color 0.3s;
+    }
+
+    .btn:hover {
+        opacity: 0.9;
+    }
+
+    .btn-info {
+        background-color: #17a2b8;
+    }
+
+    .btn-danger {
+        background-color: #dc3545;
+    }
+
+    .btn-success {
+        background-color: #28a745;
+    }
+
+    .input-group {
+        box-shadow: 0 0 5px rgba(0, 0, 0, 0.1);
+    }
+
+    .pagination .page-item.active .page-link {
+        background-color: #007bff;
+        color: white;
+    }
+
+    .pagination .page-link {
+        border-radius: 25px;
+    }
+</style>

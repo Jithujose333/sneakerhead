@@ -2,11 +2,22 @@ const mongoose = require("mongoose");
 const {Schema} = mongoose;
 const {v4:uuidv4} = require('uuid');
 
+
+// const generateOrderId = () => {
+//     return Math.random().toString(36).substr(2, 12).toUpperCase(); 
+// };
+
 const orderSchema = new Schema({
     orderId : {
         type:String,
-        default:()=>uuidv4(),
+        default: () => uuidv4().replace(/-/g, '').substring(0, 12).toUpperCase(),
+        // default: generateOrderId, 
         unique:true
+    },
+    userId: {
+        type:Schema.Types.ObjectId,
+        ref:"User",
+        required : true
     },
     orderedItems:[{
 
@@ -37,13 +48,19 @@ const orderSchema = new Schema({
         type:Number,
         required:true
     },
+    paymentMethod:{
+        type:String,
+        default:"COD",
+        required:true
+    },
     address:{
         type:Schema.Types.ObjectId,
         ref:'Address',
         required:true
     },
     invoiceDate:{
-        type:Date
+        type:Date,
+        default:Date.now
     },
     status:{
         type:String,
@@ -59,7 +76,8 @@ const orderSchema = new Schema({
         type:Boolean,
         default:false
     }
-})
+      
+    },{timestamps: true })
 
 const Order = mongoose.model("Order",orderSchema);
 module.exports = Order;

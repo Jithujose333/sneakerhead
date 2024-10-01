@@ -39,30 +39,45 @@ const login = async (req,res) => {
     }
     } catch (error) {
         console.error("login error",error)
-        return res.redirect('/pageError')
+        return res.redirect('/pageerror')
         
     }
     
 }
     
 
-const loadDashboard = async (req,res) => {
-    const admin = req.session.admin
+// const loadDashboard = async (req,res) => {
+//     const admin = req.session.admin
     
-    if(admin){
-    try {
+    
+//     try {
+//         if(admin){
       
-        res.render('dashboard',{admin:"admin"})
-    }
-    catch (error) {
+//         res.render('dashboard',{admin:"admin"})
+//     }
+//     catch (error) {
 
-    res.redirect('/pageError')
-     }
-   }
- else{
-    res.redirect('/admin/login')
-}
-}
+//     res.redirect('/pageError')
+//      }
+   
+ 
+// }
+// }
+const loadDashboard = async (req, res) => {
+    
+
+    try {
+        const admin = req.session.admin;
+        if (admin) {
+            // Render the dashboard if the user is an admin
+            res.render('dashboard', { admin: "admin" });
+        } 
+    } catch (error) {
+        console.error("Error loading dashboard:", error);
+        // Redirect to a generic error page if something goes wrong
+        res.redirect('/pageerror');
+    }
+};
 
 
    const logout = async (req,res) => {

@@ -87,7 +87,7 @@ const addProduct = async (req, res) => {
 const getAllProducts = async (req,res) => {
     try {
         const search = req.query.search || ""
-        const page = req.query.search || 1
+        const page = parseInt(req.query.page) || 1
         const limit = 4
 
         const productData = await Product.find({
@@ -126,6 +126,7 @@ if(category){
     }
     
 }
+
 
 
 
@@ -188,7 +189,16 @@ const editProduct = async (req,res) => {
         if(req.files && req.files.length>0){
             for(let i=0;i<req.files.length;i++){
                 
-                images.push(req.files[i].filename)
+                const orginalImagePath = req.files[i].path;
+                const resizedImagePath = path.join('public', 'uploads', 'product-images', req.files[i].filename);
+
+                try {
+                    await sharp(orginalImagePath).resize({ width: 440, height: 440 }).toFile(resizedImagePath);
+                } catch (err) {
+                    console.error("Sharp Error:", err);
+                }
+
+                images.push(req.files[i].filename);
             }
         }
 

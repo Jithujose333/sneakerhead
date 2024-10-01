@@ -1,0 +1,223 @@
+<%-include("../../views/partials/user/header") %>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
+  
+</head>
+<body>
+  <nav aria-label="breadcrumb">
+    <ol class="breadcrumb">
+      <li class="breadcrumb-item"><a href="/">Home</a></li>
+      <li class="breadcrumb-item"><a href="/userProfile">Profile</a></li>
+      <li class="breadcrumb-item active" aria-current="page">Orders</li>
+    </ol>
+  </nav>
+  <div class="container" style="display: flex; justify-content: space-around; margin: 20px;">
+    <div class="sidebar" style="width: 25%; margin-right: 20px;">
+      <h3>My Profile</h3>
+      <div class="profile-user">
+        <div class="user">
+          <img src="https://picsum.photos/id/1015/50/50" alt="Profile Picture" style="width: 100px; height: 100px; border-radius: 50%; object-fit: cover;">
+          <div class="name" style="color: #000000;margin-left: 2rem; font-weight: 500; text-transform: uppercase;"><%= firstName %></div>
+        </div>
+      </div>
+      <ul>
+        <li><a href="/editProfile"><i class="fas fa-user"></i> Edit Profile</a></li>
+        <li><a href="#"><i class="fas fa-wallet"></i> Your Wallet</a></li>
+        <li><a href="#"><i class="fas fa-shopping-cart"></i> Your Orders</a></li>
+        <!-- <li><a href="#"><i class="fas fa-shopping-cart"></i> Open Orders</a></li> -->
+        <!-- <li><a href="#"><i class="fas fa-shopping-cart"></i> Cancelled Orders</a></li> -->
+        <li><a href="#"><i class="fas fa-heart"></i> Wishlist</a></li>
+        <li><a href="/profile/address"><i class="fas fa-address-card"></i> Addresses</a></li>
+        <li><a href="#"><i class="fas fa-money-bill-wave"></i> Payment Options</a></li>
+        <!-- <li><a href="#"><i class="fas fa-lock"></i> Login & Security</a></li> -->
+        <li><a href="/logout"><i class="fas fa-sign-out-alt"></i> Logout</a></li>
+      </ul>
+    </div>
+    
+    <div class="orders" style="width: 70%;">
+      <h2>My Orders</h2>
+      
+      <% for (let i = orders.length - 1; i >= 0; i--) {
+        const order = orders[i]; %>
+        <div class="order-container">
+            <div class="order-header">
+                <div>
+                    <% if (order.orderedItems[0].product && order.orderedItems[0].product.productImage) { %>
+                        <img src="/uploads/re-image/<%= order.orderedItems[0].product.productImage %>" 
+                             alt="<%= order.orderedItems[0].product.productName %>" 
+                             style="width: 100px; height: auto;">
+                    <% } else { %>
+                        <img src="/path/to/placeholder-image.jpg" alt="No Image" style="width: 100px; height: auto;">
+                    <% } %>
+                </div>
+                <div class="order-title"><%= order.orderedItems[0].product.productName %></div>
+                <div class="order-status">Order Status :<%= order.status %></div>
+            </div>
+            <div class="order-details">
+                <p>Color: Red</p>
+                <p>₹<%= order.totalPrice %> </p>
+            </div>
+            <div class="order-actions">
+                <button>Cancel Order</button>
+            </div>
+        </div>
+    <% } %>
+    
+<%-include("../../views/partials/user/footer") %>
+
+<style>
+  .sidebar {
+    background-color: #fff;
+    padding: 20px;
+    border-radius: 5px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  }
+
+  .sidebar h3 {
+    margin-top: 0;
+  }
+
+  .sidebar ul {
+    list-style: none;
+    padding: 0;
+  }
+
+  .sidebar li {
+    margin-bottom: 10px;
+  }
+
+  .sidebar a {
+    display: flex;
+    align-items: center;
+    text-decoration: none;
+    color: #333;
+    padding: 10px;
+    border-radius: 5px;
+    transition: background-color 0.3s ease;
+  }
+
+  .sidebar a:hover {
+    background-color: #f0f0f0;
+  }
+
+  .sidebar i {
+    margin-right: 10px;
+    font-size: 18px;
+  }
+
+  .profile-user {
+    padding: 20px;
+    width: fit-content;
+    border-radius: 5px;
+  }
+
+  .profile h2 {
+    margin-top: 0;
+  }
+
+  .profile .user {
+    display: flex;
+    align-items: center;
+    margin-bottom: 20px;
+  }
+
+  .profile .user img {
+    width: 50px;
+    height: 50px;
+    border-radius: 50%;
+    margin-right: 10px;
+  }
+
+  .profile .user .name {
+    font-size: 18px;
+    font-weight: bold;
+  }
+
+  .profile .field {
+    margin-bottom: 15px;
+  }
+
+  .profile .field label {
+    display: block;
+    margin-bottom: 5px;
+    font-weight: bold;
+  }
+
+  .profile .field input {
+    width: 100%;
+    padding: 10px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    box-sizing: border-box;
+  }
+
+  .profile .buttons {
+    display: flex;
+    justify-content: flex-end;
+    margin-top: 20px;
+  }
+
+  .profile .buttons button {
+    padding: 10px 20px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+  }
+
+  .profile .buttons button:hover {
+    opacity: 0.8;
+  }
+
+  .profile .buttons button.cancel {
+    background-color: #ccc;
+    color: #333;
+  }
+
+  .profile .buttons button.save {
+    background-color: #f44336;
+    color: #fff;
+  }
+
+  .orders {
+    margin-left: 20px;
+  }
+
+  .order-container {
+    border: 1px solid #ccc;
+    margin-bottom: 20px;
+    padding: 20px;
+    border-radius: 5px;
+  }
+
+  .order-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 10px;
+  }
+
+  .order-title {
+    font-weight: bold;
+  }
+
+  .order-status {
+    color: #28a745;
+  }
+
+  .order-details {
+    margin-bottom: 10px;
+  }
+
+  .order-actions {
+    text-align: right;
+  }
+
+  .order-actions button {
+    background-color: #007bff;
+    color: white;
+    border: none;
+    padding: 5px 10px;
+    border-radius: 3px;
+    cursor: pointer;
+  }
+</style>

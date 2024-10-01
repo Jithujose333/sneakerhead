@@ -1,0 +1,254 @@
+<%- include("../../views/partials/user/header", { user: firstName }) %>
+
+<div class="breadcrumbs">
+    <div class="container">
+        <div class="row">
+            <div class="col">
+                <p class="bread"><span><a href="index.html">Home</a></span> / <span>Checkout</span></p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="colorlib-product">
+    <div class="container">
+        <div class="row row-pb-lg">
+            <div class="col-sm-10 offset-md-1">
+                <div class="process-wrap">
+                    <div class="process text-center active">
+                        <p><span>01</span></p>
+                        <h3>Shopping Cart</h3>
+                    </div>
+                    <div class="process text-center active">
+                        <p><span>02</span></p>
+                        <h3>Checkout</h3>
+                    </div>
+                    <div class="process text-center">
+                        <p><span>03</span></p>
+                        <h3>Order Complete</h3>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="row">
+            <div class="col-lg-8"> <!-- Left Column for Addresses -->
+                <h3>Select Address</h3>
+                <div style="padding: 20px;">
+                    <button style="background-color:#cfd6d4; border-radius: 1rem;">
+                        <a href="/profile/addAddress?from=checkout"><i class="fas fa-solid fa-plus"></i> NEW ADDRESS</a>
+                    </button>
+                </div>
+            
+                <table>
+                    <tbody style="color: #000000;">
+                        <% if (addresses.length === 0) { %>
+                            <tr>
+                                <td colspan="2">No addresses found.</td>
+                            </tr>
+                        <% } else { %>
+                            <% addresses.forEach(address => { %>
+                                <tr>
+                                    <td>
+                                        <input type="radio" name="selectedAddress" value="<%= address._id %>" id="address-<%= address._id %>" required>
+                                        
+                                        <label for="address-<%= address._id %>">
+                                            <%= address.name %> <br>
+                                            <%= address.houseName %>, <%= address.locality %>, <%= address.city %>, <%= address.state %>, <%= address.pincode %> <br>
+                                            Phone: <%= address.phone %><br>
+                                            <% if (address.altPhone) { %>
+                                                Alt Phone: <%= address.altPhone %><br>
+                                            <% } %>
+                                            <%= address.addressType %>
+                                        </label>
+                                    </td>
+                                    <td class="actions">
+                                       
+                                           
+                                                <button class="edit-btn" >
+                                                    <a href="/profile/editAddress?id=<%= address._id %>" style="color: #fff;">Edit</a>
+                                                </button>
+                                            </div>
+                                        </div>
+                                    </td>
+                                    
+                                </tr>
+                            <% }); %>
+                        <% } %>
+                    </tbody>
+                </table>
+            </div>
+            
+
+            <div class="col-lg-4"> <!-- Right Column for Cart Total and Payment Method -->
+                <div class="cart-detail">
+                    <h2>Cart Total</h2>
+                    <ul>
+                        <li>
+                            <span>Subtotal</span> 
+                            <span>₹<%= cartData.items.reduce((sum, item) => sum + item.totalPrice, 0) %></span>
+                            <ul>
+                                <% cartData.items.forEach(item => { %>
+                                    <li>
+                                        <span><%= item.quantity %> x<%= item.productId.productName%></span> 
+                                        <span>₹<%= item.totalPrice %></span>
+                                    </li>
+                                <% }) %>
+                            </ul>
+                        </li>
+                        <li><span>Shipping</span> <span>₹0.00</span></li>
+                        <li>
+                            <span>Order Total</span> 
+                            <span>₹<%= cartData.items.reduce((sum, item) => sum + item.totalPrice, 0) %></span>
+                        </li>
+                        
+                    </ul>
+                </div>
+
+                <!-- <div class="cart-detail">
+                    <h2>Payment Method</h2>
+                    <div class="form-group">
+                        <div class="col-md-12">
+                            <div class="radio">
+                                <label><input type="radio" name="optradio"> Card Payment</label>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <div class="col-md-12">
+                            <div class="radio">
+                                <label><input type="radio" name="optradio"> Cash on delivery</label>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="row">
+                    <div class="col-md-12 text-center">
+                        <p><a href="/orderComplete" class="btn btn-primary">Place an order</a></p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div> -->
+<div class="cart-detail">
+    <h2>Payment Method</h2>
+    <form id="checkoutForm" action="/placeOrder" method="POST">
+     
+        <!-- Payment Method Selection -->
+        <div class="form-group">
+            <div class="col-md-12">
+                <div class="radio">
+                    <label><input type="radio" name="paymentMethod" value="Card Payment" required> Card Payment</label>
+                </div>
+            </div>
+        </div>
+        <div class="form-group">
+            <div class="col-md-12">
+                <div class="radio">
+                    <label><input type="radio" name="paymentMethod" value="COD" required> Cash on Delivery</label>
+                </div>
+            </div>
+        </div>
+
+        <!-- Place Order Button -->
+        <div class="row">
+            <div class="col-md-12 text-center">
+                <button type="submit" class="btn btn-primary">Place an order</button>
+            </div>
+        </div>
+
+        <input type="hidden" name="addressId" id="addressId" value="<%=addressId%>">
+    </form>
+</div>
+</div>
+
+
+<%- include("../../views/partials/user/footer") %>
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+<!-- <script>
+    document.getElementById('placeOrderBtn').addEventListener('click', function() {
+        const selectedAddressId = document.querySelector('input[name="selectedAddress"]:checked');
+        const selectedPaymentMethod = document.querySelector('input[name="optradio"]:checked'); // Capture payment option
+        
+        // Check if an address is selected
+        if (!selectedAddressId) {
+            alert('Please select an address for delivery.');
+            return; // Prevent form submission if no address is selected
+        }
+
+        // Check if a payment method is selected
+        if (!selectedPaymentMethod) {
+            alert('Please select a payment method.');
+            return; // Prevent form submission if no payment method is selected
+        }
+        
+        const addressId = selectedAddressId.value;
+        const paymentMethod = selectedPaymentMethod.value; // Get the value of the selected payment option
+
+        // Redirect to the placeOrder route, passing the addressId and paymentMethod in the URL
+        window.location.href = `/placeOrder?addressId=${addressId}&paymentMethod=${paymentMethod}`;
+    });
+</script> -->
+<script>
+document.querySelector('#checkoutForm').addEventListener('submit', function(event) {
+    const selectedAddressId = document.querySelector('input[name="selectedAddress"]:checked');
+    const selectedPaymentMethod = document.querySelector('input[name="paymentMethod"]:checked');
+    
+    // Check if an address is selected
+    if (!selectedAddressId) {
+        alert('Please select an address for delivery.');
+        event.preventDefault(); // Prevent form submission if no address is selected
+        return;
+    }
+
+    // Set the selected address ID in the hidden input
+    document.getElementById('addressId').value = selectedAddressId.value;
+
+    const paymentMethod = selectedPaymentMethod.value; // Get the value of the selected payment option
+
+// Redirect to the placeOrder route, passing the addressId and paymentMethod in the URL
+// window.location.href = `/placeOrder?addressId=${addressId}&paymentMethod=${paymentMethod}`;
+});
+
+</script>
+
+
+
+<style>
+
+  /* Add some basic styling to the table */
+  table {
+    border-collapse: collapse;
+    width: 100%;
+  }
+
+  th, td {
+    border: 1px solid #ddd;
+    padding: 10px;
+    text-align: left;
+  }
+
+  th {
+    background-color: #f0f0f0;
+  }
+
+  .actions {
+    text-align: right;
+  }
+
+ 
+  .edit-btn{
+    background-color:#848884;
+    color: #fff;
+    margin-right: 3rem;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    
+  }
+
+
+</style>
+

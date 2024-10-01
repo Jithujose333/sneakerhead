@@ -143,9 +143,8 @@
                                <div class="row">
                                    <div class="card-body align-items-center" style="margin-bottom: 20px;">
                                        <img src="" alt="" id="imgView1">
-                                                                   <input class="form-control" type="file" name="images" id="input1"
-                                                                       accept="image/png, image/jpeg, image/jpg"
-                                                                       onchange="viewImage1(event), viewImage(event, 1)">
+                                       <input class="form-control" type="file" name="images" id="input1" accept="image/png, image/jpeg, image/jpg" onchange="validateImageFile(event, 1)">
+
                                                                        <div id="images-error" class="error-message"></div>
                                                                </div>
                                                                <div class="image-cropper d-flex align-items-center"
@@ -160,9 +159,8 @@
                                                                    <img src="" alt="" id="imgView2">
 
 
-                                                                   <input class="form-control" type="file" name="images" id="input2"
-                                                                       accept="image/png, image/jpeg, image/jpg"
-                                                                       onchange="viewImage2(event),viewImage(event, 2)">
+                                                                   <input class="form-control" type="file" name="images" id="input1" accept="image/png, image/jpeg, image/jpg" onchange="validateImageFile(event, 2)">
+
                                                                </div>
                                                                <div class="image-cropper d-flex align-items-center"
                                                                    style="display:none; width: 300px; height: 200px; margin-bottom: 20px;">
@@ -176,9 +174,8 @@
                                                                    <img src="" alt="" id="imgView3">
 
 
-                                                                   <input class="form-control" type="file" name="images" id="input3"
-                                                                       accept="image/png, image/jpeg, image/jpg"
-                                                                       onchange="viewImage3(event),viewImage(event, 3)">
+                                                                   <input class="form-control" type="file" name="images" id="input1" accept="image/png, image/jpeg, image/jpg" onchange="validateImageFile(event, 3)">
+
                                                                </div>
                                                                <div class="image-cropper d-flex align-items-center"
                                                                    style="display:none; width: 300px; height: 200px; margin-bottom: 20px;">
@@ -193,9 +190,8 @@
 
 
                                                           
-                                                                   <input class="form-control" type="file" name="images" id="input4"
-                                                                       accept="image/png, image/jpeg, image/jpg"
-                                                                       onchange="viewImage4(event),viewImage(event, 4)">
+                                                                   <input class="form-control" type="file" name="images" id="input1" accept="image/png, image/jpeg, image/jpg" onchange="validateImageFile(event, 4)">
+
                                                                </div>
                                                                <div class="image-cropper d-flex align-items-center"
                                                                    style="display:none; width: 300px; height: 200px; margin-bottom: 20px;">
@@ -245,7 +241,23 @@ function viewImage4(event){
     document.getElementById("imgView4").src = URL.createObjectURL(event.target.files[0])
 }
 
+function validateImageFile(event, index) {
+    const input = event.target;
+    const file = input.files[0];
+    const allowedExtensions = /(\.jpg|\.jpeg|\.png)$/i;
+    
+    if (!allowedExtensions.exec(file.name)) {
+        displayErrorMessage('images-error', 'Please select a valid image file (.jpg or .png).');
+        input.value = '';  // Clear the input field
+        return false;
+    }
+    
+    // Clear any previous error message
+    document.getElementById('images-error').innerText = '';
 
+    // Proceed with the preview if the file is valid
+    viewImage(event, index);
+}
 
 function viewImage(event, index) {
     let input = event.target;
