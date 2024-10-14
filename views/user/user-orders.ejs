@@ -1,7 +1,7 @@
-<%-include("../../views/partials/user/header") %>
+<%-include("../../views/partials/user/header",{user:firstName}) %>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
   
-</head>
+
 <body>
   <nav aria-label="breadcrumb">
     <ol class="breadcrumb">
@@ -20,49 +20,226 @@
         </div>
       </div>
       <ul>
-        <li><a href="/editProfile"><i class="fas fa-user"></i> Edit Profile</a></li>
-        <li><a href="#"><i class="fas fa-wallet"></i> Your Wallet</a></li>
-        <li><a href="#"><i class="fas fa-shopping-cart"></i> Your Orders</a></li>
-        <!-- <li><a href="#"><i class="fas fa-shopping-cart"></i> Open Orders</a></li> -->
-        <!-- <li><a href="#"><i class="fas fa-shopping-cart"></i> Cancelled Orders</a></li> -->
+        <li><a href="/userProfile"><i class="fas fa-user"></i> Edit Profile</a></li>
+        <li><a href="/profile/wallet"><i class="fas fa-wallet"></i> Your Wallet</a></li>
+        <li><a href="/profile/orders"><i class="fas fa-shopping-cart"></i> Your Orders</a></li>
+       
         <li><a href="#"><i class="fas fa-heart"></i> Wishlist</a></li>
         <li><a href="/profile/address"><i class="fas fa-address-card"></i> Addresses</a></li>
         <li><a href="#"><i class="fas fa-money-bill-wave"></i> Payment Options</a></li>
-        <!-- <li><a href="#"><i class="fas fa-lock"></i> Login & Security</a></li> -->
+        
         <li><a href="/logout"><i class="fas fa-sign-out-alt"></i> Logout</a></li>
       </ul>
     </div>
     
-    <div class="orders" style="width: 70%;">
+    <!-- <div class="orders" style="width: 70%;">
       <h2>My Orders</h2>
       
       <% for (let i = orders.length - 1; i >= 0; i--) {
         const order = orders[i]; %>
         <div class="order-container">
             <div class="order-header">
-                <div>
+             
+                <div >
                     <% if (order.orderedItems[0].product && order.orderedItems[0].product.productImage) { %>
-                        <img src="/uploads/re-image/<%= order.orderedItems[0].product.productImage %>" 
+                        <img src="/uploads/re-image/<%= order.orderedItems[0].product.productImage[0] %>" 
                              alt="<%= order.orderedItems[0].product.productName %>" 
                              style="width: 100px; height: auto;">
                     <% } else { %>
                         <img src="/path/to/placeholder-image.jpg" alt="No Image" style="width: 100px; height: auto;">
                     <% } %>
                 </div>
+                <div class="order-title">OrderId :<%= order.orderId %></div>
                 <div class="order-title"><%= order.orderedItems[0].product.productName %></div>
-                <div class="order-status">Order Status :<%= order.status %></div>
+                <div class="order-status">Order Status :<%= order.orderStatus %></div>
+                <div class="order-status">Payment Status :<%= order.paymentStatus %></div>
             </div>
             <div class="order-details">
-                <p>Color: Red</p>
-                <p>₹<%= order.totalPrice %> </p>
+              <p>Quantity: <%=order.orderedItems[0].quantity%></p>
+                <p>Color: <%=order.orderedItems[0].product.color%></p>
+                <p>Total price:₹<%= order.totalPrice %> </p>
             </div>
             <div class="order-actions">
                 <button>Cancel Order</button>
             </div>
         </div>
     <% } %>
+    </div> -->
+
+
+    <div class="orders" style="width: 70%;">
+      <h2>My Orders</h2>
     
+      <% for (let i = orders.length - 1; i >= 0; i--) {
+        const order = orders[i]; %>
+        <div class="order-container">
+          <div class="order-header">
+            <div class="order-title">Order ID:<span style="margin-left: 5px;"></span>  <%= order.orderId %></div>
+            <div class="order-status">Order Status:<span style="margin-left: 5px;"></span><%= order.orderStatus %></div>
+            <!-- <div class="order-status">Payment Status:<span style="margin-left: 5px;"></span> <%= order.paymentStatus %></div> -->
+          </div>
+    
+          <!-- Loop through orderedItems -->
+          <% order.orderedItems.forEach(item => { %>
+          <div class="ordered-item" style="display: flex; align-items: center; margin-top: 20px;">
+            <div>
+              <% if (item.product && item.product.productImage) { %>
+                <img src="/uploads/re-image/<%= item.product.productImage[0] %>" 
+                     alt="<%= item.product.productName %>" 
+                     style="width: 100px; height: auto;">
+              <% } else { %>
+                <img src="/path/to/placeholder-image.jpg" alt="No Image" style="width: 100px; height: auto;">
+              <% } %>
+            </div>
+            <div style="margin-left: 20px;    ">
+              <p>Item OrderID:<span style="margin-left: 5px;"></span>  <%= item.itemOrderId %></p>
+              <p>Product Name: <span style="margin-left: 5px;"></span><%= item.product.productName %></p>
+              <p>Quantity: <span style="margin-left: 5px;"></span><%= item.quantity %></p>
+              <p>Color:<span style="margin-left: 5px;"></span> <%= item.product.color %></p>
+             
+            </div>
+          </div>
+          <% }) %>
+    <br>
+          <div class="order-details">
+            <p>Payment Method: <span style="margin-left: 5px;"></span><%= order.paymentMethod %></p>
+            <p>Total Price: ₹<span style="margin-left: 5px;"></span><%= order.finalAmount %> </p>
+          </div>
+         
+
+
+
+      <div class="order-actions">
+        <% if (order.orderStatus === 'Cancelled'|| order.orderStatus === 'Returned') { %>
+          <!-- Show a disabled 'Cancelled' button if the order is already cancelled -->
+          <button class="btn btn-secondary" disabled style="width: 100px;">
+            Cancelled
+          </button>
+        <% } else if (order.orderStatus === 'Delivered' && order.paymentStatus === 'Completed') { %>
+          <!-- Show 'Return Product' button if the order is delivered and payment is completed -->
+          <button class="btn btn-warning return-btn" data-id="<%= order._id %>" style="width: 100px;">
+            Return 
+        </button>
+        <% } else { %>
+          <!-- Show 'Cancel' button if the order is not delivered or already cancelled -->
+          <button class="btn btn-danger cancel-btn" data-id="<%= order._id %>" style="width: 100px;">
+            Cancel
+          </button>
+        <% } %>
+      </div>
+      
+        </div>
+      <% } %>
+    </div>
+    
+    </div>
+    </body>
 <%-include("../../views/partials/user/footer") %>
+
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@10"></script>
+<script>
+   document.querySelectorAll('.cancel-btn').forEach(button => {
+        button.addEventListener('click', function() {
+            const orderId = this.getAttribute('data-id');
+
+            Swal.fire({
+                title: 'Are you sure?',
+                text: "You won't be able to revert this!",
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#d33',
+                cancelButtonColor: '#3085d6',
+                confirmButtonText: 'Yes, cancel it!'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    // Make a request to cancel the order
+                    fetch(`/profile/cancelOrder/${orderId}`, {
+                        method: 'POST', // Or 'GET' if you're using GET to cancel
+                        headers: {
+                            'Content-Type': 'application/json'
+                        }
+                    }).then(response => response.json())
+                    .then(data => {
+                        if (data.success) {
+                            Swal.fire(
+                                'Cancelled!',
+                                'The order has been cancelled.',
+                                'success'
+                            ).then(() => {
+                                location.reload(); // Reload the page to reflect changes
+                            });
+                        } else {
+                            Swal.fire(
+                                'Error!',
+                                'Unable to cancel the order. Please try again.',
+                                'error'
+                            );
+                        }
+                    }).catch(err => {
+                        Swal.fire(
+                            'Error!',
+                            'Something went wrong. Please try again.',
+                            'error'
+                        );
+                    });
+                }
+            });
+        });
+    });
+
+
+
+
+
+    document.querySelectorAll('.return-btn').forEach(button => {
+    button.addEventListener('click', function() {
+        const orderId = this.getAttribute('data-id');
+
+        Swal.fire({
+            title: 'Are you sure?',
+            text: "You won't be able to revert this!",
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: '#d33',
+            cancelButtonColor: '#3085d6',
+            confirmButtonText: 'Yes, return it!'
+        }).then((result) => {
+            if (result.isConfirmed) {
+                // Make a request to return the order
+                fetch(`/profile/returnOrder/${orderId}`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    }
+                }).then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        Swal.fire(
+                            'Returned!',
+                            'The order return request successful.',
+                            'success'
+                        ).then(() => {
+                            location.reload(); // Reload the page to reflect changes
+                        });
+                    } else {
+                        Swal.fire(
+                            'Error!',
+                            data.message,
+                            'error'
+                        );
+                    }
+                }).catch(err => {
+                    Swal.fire(
+                        'Error!',
+                        'Something went wrong. Please try again.',
+                        'error'
+                    );
+                });
+            }
+        });
+    });
+});
+</script>
 
 <style>
   .sidebar {
@@ -202,6 +379,7 @@
 
   .order-status {
     color: #28a745;
+    font-weight: 600;
   }
 
   .order-details {
@@ -220,4 +398,15 @@
     border-radius: 3px;
     cursor: pointer;
   }
+  p{
+    margin-bottom: 0rem;
+    font-weight: 500;
+  }
+
+
+
+
+
+
+  
 </style>

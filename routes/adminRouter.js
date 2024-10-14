@@ -6,6 +6,8 @@ const customerController = require('../controllers/admin/customerController')
 const categoryController = require('../controllers/admin/categoryController')
 const productController = require('../controllers/admin/productController')
 const orderController = require('../controllers/admin/orderController')
+const offerController = require('../controllers/admin/offerController')
+const salesController = require('../controllers/admin/salesController')
 const {userAuth,adminAuth} = require('../middlewares/auth')
 const multer = require('multer')
 const storage = require('../helpers/multer')
@@ -16,7 +18,7 @@ const uploads = multer({storage:storage})
 router.get('/pageerror',adminController.pageError)
 router.get('/login',adminController.loadLogin);
 router.post('/login',adminController.login)
-router.get('/dashboard',adminController.loadDashboard)
+router.get('/dashboard',adminAuth,adminController.loadDashboard)
 router.get('/logout',adminController.logout)
 //user management
 router.get('/users',adminAuth,customerController.customerInfo)
@@ -41,10 +43,29 @@ router.post('/editProduct/:id',adminAuth,uploads.array("images",4),productContro
 router.post('/deleteImage',adminAuth,productController.deleteSingleImage)
 
 
-
+// order management
 router.get('/orders',adminAuth,orderController.getOrders)
 router.post('/cancelOrder/:id',adminAuth,orderController.cancelOrder)
 router.post('/updateOrderStatus/:id', adminAuth, orderController.updateOrderStatus);
+
+// coupon management
+router.get('/coupons',adminAuth,offerController.getCoupon)
+router.get('/coupons/createcoupon',adminAuth,offerController.getCreateCoupon)
+router.post('/coupons/createcoupon',adminAuth,offerController.createCoupon)
+router.post('/coupons/updateListingStatus/:id',adminAuth,offerController.updateCoupon)
+
+// offer management
+router.get('/offers/createOffer',adminAuth, offerController.getCreateOffer);
+router.post('/offers/createOffer', adminAuth,offerController.createOffer);
+router.get('/offers', adminAuth,offerController.getAllOffers);
+router.delete('/offers/deleteOffer/:id', adminAuth,offerController.deleteOffer);
+
+//salesmanagement
+
+router.get('/salesreport',adminAuth,salesController.getSalesReport)
+// router.get('/salesdata',adminAuth,salesController.getSalesData)
+router.get('/salesreport/pdf',adminAuth,salesController.getPdf)
+router.get('/salesreport/excel',adminAuth,salesController.getExcel)
 
 
 

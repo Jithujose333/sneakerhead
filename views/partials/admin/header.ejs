@@ -46,7 +46,11 @@
 				<div class="container">
 					<div class="row">
 						<div class="col-sm-7 col-md-9">
-							<div id="colorlib-logo"><a href="/admin/login">Sneakerhead</a></div>
+							<div id="colorlib-logo" style="display: flex;"><a href="/admin/login">Sneakerhead
+								
+							</a><h5 style="display: flex; color: rgba(147, 167, 125, 0.678);
+							font-weight: 700;
+						">ADMIN</h5></div>
 						</div>
 						<div class="col-sm-5 col-md-3">
 			            <form action="#" class="search-wrap">
@@ -75,16 +79,17 @@
 								<li><a href="/admin/orders">order</a></li>
 								<li><a href="/admin/category">category</a></li>
 								<li><a href="/admin/users">User</a></li>
+								<li><a href="/admin/coupons">Coupon</a></li>
 								
-								<li class="cart"><a href="cart.html"> Profile</a></li>
+								<li class="cart"><a href="/admin/offers"> Offers</a></li>
 								
 								<% if (locals.admin) { %>
-									<li><a href="/logout">offers</a></li>
+									
 									<li class="has-dropdown" >
 										<a href="#" style="margin-left: 18rem;"><%=admin %></a>
 										
 										<ul class="dropdown" style="margin-left: 18rem;">
-											<li><a href="/userProfile">Profile</a></li>
+											<li><a href="/admin/salesreport">SalesReport</a></li>
 											<li><a href="/admin/logout">Logout</a></li>
 										</ul>
 									</li>

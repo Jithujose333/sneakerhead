@@ -1,4 +1,4 @@
-<%-include("../../views/partials/user/header",{user:firstName}) %>
+<%- include("../../views/partials/user/header", { user: firstName }) %>
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
 
 <nav aria-label="breadcrumb">
@@ -10,21 +10,22 @@
 </nav>
 
 <body>
-  <div class="container" style="display: flex; justify-content: space-around; margin: 20px;">
+  <div class="container" style="display: flex; justify-content: space-between; margin: 20px 0;">
     <div class="sidebar">
       <h3>My Profile</h3>
       <div class="profile-user">
-        <div class="user">
-          <img src="https://picsum.photos/id/1015/50/50" alt="Profile Picture" style="width: 100px; height: 100px; border-radius: 50%; object-fit: cover;">
-          <div class="name" style="color: #000000;margin-left: 2rem;    font-weight: 500;
-    text-transform: uppercase;"><%= firstName %></div>
+        <div class="user" style="display: flex; align-items: center;">
+          <img src="https://picsum.photos/id/1015/100/100" alt="Profile Picture" style="border-radius: 50%; object-fit: cover;">
+          <div class="name" style="color: #000000; margin-left: 1.5rem; font-weight: 500; text-transform: uppercase;">
+            <%= firstName %>
+          </div>
         </div>
       </div>
       <ul>
         <li><a href="/userProfile"><i class="fas fa-user"></i> Edit Profile</a></li>
-        <li><a href="#"><i class="fas fa-wallet"></i> Your Wallet</a></li>
+        <li><a href="/profile/wallet"><i class="fas fa-wallet"></i> Your Wallet</a></li>
         <li><a href="/profile/orders"><i class="fas fa-shopping-cart"></i> Your Orders</a></li>
-        <li><a href="#"><i class="fas fa-heart"></i> Wishlist</a></li>
+        <li><a href="/wishlist"><i class="fas fa-heart"></i> Wishlist</a></li>
         <li><a href="/profile/address"><i class="fas fa-address-card"></i> Addresses</a></li>
         <li><a href="#"><i class="fas fa-money-bill-wave"></i> Payment Options</a></li>
         <li><a href="/logout"><i class="fas fa-sign-out-alt"></i> Logout</a></li>
@@ -33,153 +34,137 @@
 
     <div class="profile">
       <h2>Addresses</h2>
-      <div style="padding: 20px;">
-        <button style="background-color:#cfd6d4; border-radius: 1rem; ">
-            <a href="/profile/addAddress"><i class="fas fa-solid fa-plus"></i>  NEW ADDRESS</a></button>
+      <div style="padding: 20px 0;">
+        <button style="background-color: #cfd6d4; border-radius: 1rem;">
+          <a href="/profile/addAddress?from=profile"><i class="fas fa-solid fa-plus"></i> NEW ADDRESS</a>
+        </button>
       </div>
 
-      <table>
-        <!-- <thead>
-          <tr>
-            <th>Address</th>
-            <th>Actions</th>
-          </tr>
-        </thead> -->
+      <table style="width: 100%; border-collapse: collapse;">
         <tbody style="color: #000000;">
           <% if (addresses.length === 0) { %>
             <tr>
-              <td colspan="2">No addresses found.</td>
+              <td colspan="2" style="text-align: center; padding: 20px;">No addresses found.</td>
             </tr>
           <% } else { %>
-            <% addresses.forEach(address => { %> <!-- Looping through each Address document -->
-              <tr>
-                <td>
-                  <%= address.name %> <br>
+            <% addresses.forEach(address => { %>
+              <tr style="border-bottom: 1px solid #ddd;">
+                <td style="padding: 15px;">
+                  <strong><%= address.name %></strong> <br>
                   <%= address.houseName %>, <%= address.locality %>, <%= address.city %>, <%= address.state %>, <%= address.pincode %> <br>
-                  Phone: <%= address.phone %><br>
+                  Phone: <%= address.phone %> <br>
                   <% if (address.altPhone) { %>
-                    Alt Phone: <%= address.altPhone %><br>
+                    Alt Phone: <%= address.altPhone %> <br>
                   <% } %>
                   <%= address.addressType %>
                 </td>
-                <td class="actions">
-                  <div class="dropdown">
-                    <button class="dots-btn">
+                <td style="text-align: right; padding: 15px;">
+                  <div class="dropdown" style="position: relative;">
+                    <button class="dots-btn" style="background: none; border: none; font-size: 20px; cursor: pointer;">
                       <i class="fas fa-ellipsis-v" style="color: gray;"></i>
                     </button>
-                    <div class="dropdown-content">
-                      <!-- Use the address ID here -->
-                      <button class="edit-btn">
-                        <a href="/profile/editAddress?id=<%= address._id %>">Edit</a>
+                    <div class="dropdown-content" style="display: none; position: absolute; right: 0; background-color: #fff; border-radius: 5px; box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);">
+                      <button class="edit-btn" style="background: none; border: none; padding: 10px; width: 100%; text-align: left;">
+                        <a href="/profile/editAddress?id=<%= address._id %>&from=profile %>" style="color: #000;">Edit</a>
                       </button>
-                      <button class="delete-btn" data-id="<%= address._id %>">Delete</button>
+                      <button class="delete-btn" data-id="<%= address._id %>" style="background: none; border: none; padding: 10px; width: 100%; text-align: left;">
+                        Delete
+                      </button>
                     </div>
                   </div>
                 </td>
               </tr>
-            <% }); %> <!-- End of Address documents loop -->
+            <% }); %>
           <% } %>
         </tbody>
-        
       </table>
     </div>
   </div>
 </body>
 
+<%- include("../../views/partials/user/footer") %>
 
-<%-include("../../views/partials/user/footer") %>
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-  <script>
-    // Function to toggle the dropdown
-    document.querySelectorAll('.dots-btn').forEach(button => {
-      button.addEventListener('click', function() {
-        const dropdownContent = this.nextElementSibling;
-        dropdownContent.style.display = dropdownContent.style.display === 'block' ? 'none' : 'block';
-      });
+<script>
+  document.querySelectorAll('.dots-btn').forEach(button => {
+    button.addEventListener('click', function() {
+      const dropdownContent = this.nextElementSibling;
+      dropdownContent.style.display = dropdownContent.style.display === 'block' ? 'none' : 'block';
     });
+  });
 
-    // Close the dropdown if clicked outside
-    window.onclick = function(event) {
-      if (!event.target.matches('.dots-btn')) {
-        document.querySelectorAll('.dropdown-content').forEach(dropdown => {
-          dropdown.style.display = 'none';
-        });
-      }
-
+  window.onclick = function(event) {
+    if (!event.target.matches('.dots-btn')) {
+      document.querySelectorAll('.dropdown-content').forEach(dropdown => {
+        dropdown.style.display = 'none';
+      });
     }
-
+  }
 
   document.querySelectorAll('.delete-btn').forEach(button => {
     button.addEventListener('click', async function() {
-        const addressId = this.getAttribute('data-id');
+      const addressId = this.getAttribute('data-id');
 
-        const confirmed = await Swal.fire({
-            title: 'Are you sure?',
-            text: "You won't be able to revert this!",
-            icon: 'warning',
-            showCancelButton: true,
-            confirmButtonText: 'Yes, delete it!',
-            cancelButtonText: 'No, cancel!',
-        });
+      const confirmed = await Swal.fire({
+        title: 'Are you sure?',
+        text: "You won't be able to revert this!",
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonText: 'Yes, delete it!',
+        cancelButtonText: 'No, cancel!',
+      });
 
-        if (confirmed.isConfirmed) {
-            try {
-                // Send a DELETE request to the server
-                const response = await fetch(`/profile/deleteAddress/${addressId}`, {
-                    method: 'DELETE',
-                });
+      if (confirmed.isConfirmed) {
+        try {
+          const response = await fetch(`/profile/deleteAddress/${addressId}`, {
+            method: 'DELETE',
+          });
 
-                const result = await response.json();
+          const result = await response.json();
 
-                if (response.ok) {
-                    // Show success message and remove the address from the UI
-                    Swal.fire({
-                        icon: 'success',
-                        title: 'Deleted!',
-                        text: 'Your address has been deleted.',
-                        showConfirmButton: false,
-                        timer: 1500
-                    });
+          if (response.ok) {
+            Swal.fire({
+              icon: 'success',
+              title: 'Deleted!',
+              text: 'Your address has been deleted.',
+              showConfirmButton: false,
+              timer: 1500
+            });
 
-                    // Optionally, remove the deleted address from the DOM
-                    this.parentElement.remove();
-                    setTimeout(() => {
-                        window.location.reload(); // Refresh the page after 1.5 seconds
-                    }, 1500);
-                } else {
-                    // Handle error from the server
-                    Swal.fire({
-                        icon: 'error',
-                        title: 'Error',
-                        text: result.error || 'An error occurred while deleting the address.',
-                    });
-                }
-            } catch (error) {
-                // Handle unexpected errors
-                Swal.fire({
-                    icon: 'error',
-                    title: 'Error',
-                    text: 'Something went wrong. Please try again.',
-                });
-            }
+            setTimeout(() => {
+              window.location.reload();
+            }, 1500);
+          } else {
+            Swal.fire({
+              icon: 'error',
+              title: 'Error',
+              text: result.error || 'An error occurred while deleting the address.',
+            });
+          }
+        } catch (error) {
+          Swal.fire({
+            icon: 'error',
+            title: 'Error',
+            text: 'Something went wrong. Please try again.',
+          });
         }
+      }
     });
-});
-  </script>
-
-
+  });
+</script>
 
 <style>
+  .container {
+    max-width: 1200px;
+    margin: auto;
+  }
+
   .sidebar {
     background-color: #fff;
     padding: 20px;
     width: 250px;
     border-radius: 5px;
     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-  }
-
-  .sidebar h3 {
-    margin-top: 0;
   }
 
   .sidebar ul {
@@ -213,93 +198,41 @@
   .profile {
     background-color: #fff;
     padding: 20px;
-    width: 500px;
+    width: 70%;
     border-radius: 5px;
     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
   }
 
-  .profile-user {
-    padding: 20px;
-    width: fit-content;
-    border-radius: 5px;
-  }
-
-  .profile h2 {
-    margin-top: 0;
-  }
-
-  /* Style for dropdown (3 dots and menu) */
-  .dropdown {
-    position: relative;
-    display: inline-block;
-  }
-
-  .dropdown-content {
-    display: none;
-    position: absolute;
-    background-color: #f9f9f9;
-    min-width: 120px;
-    box-shadow: 0px 8px 16px rgba(0, 0, 0, 0.1);
-    z-index: 1;
-    border-radius: 5px;
-    right: 0;
-  }
-
-  .dropdown-content button {
-    background-color: #fff;
-    color: #000000;
-    padding: 10px;
-    width: 100%;
-    border: none;
-    border-radius: 5px;
-    text-align: left;
-    cursor: pointer;
-  }
-
-  .dropdown-content button:hover {
-    background-color: #ffffff;
-    
-  }
-
-  .dropdown .dots-btn {
-    background-color: transparent;
-    border: none;
-    font-size: 20px;
-    cursor: pointer;
-  }
-
-  /* Add some basic styling to the table */
   table {
     border-collapse: collapse;
     width: 100%;
+    margin-top: 20px;
   }
 
-  th, td {
-    border: 1px solid #ddd;
-    padding: 10px;
+  td {
+    border-bottom: 1px solid #ddd;
+    padding: 15px;
     text-align: left;
   }
 
-  th {
+  .dropdown-content button {
+    background: none;
+    color: #000;
+    padding: 10px;
+    width: 100%;
+    border: none;
+    text-align: left;
+  }
+
+  .dropdown-content button:hover {
     background-color: #f0f0f0;
   }
 
-  .actions {
-    text-align: right;
-  }
-
-  /* Style the action buttons hidden in 3 dots */
-  .edit-btn, .delete-btn {
-    background-color: #4CAF50;
-    color: #fff;
-    padding: 10px 20px;
+  .dots-btn {
+    background: none;
     border: none;
-    border-radius: 5px;
     cursor: pointer;
+    font-size: 20px;
+    color: gray;
   }
-
-  .delete-btn {
-    background-color: #ff0000;
-  }
-
 </style>

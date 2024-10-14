@@ -1,0 +1,282 @@
+<%- include("../../views/partials/admin/header", { admin: "admin" }) %>
+
+<title>Create New Offer</title>
+<style>
+    body {
+        font-family: 'Arial', sans-serif;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        min-height: 100vh;
+        margin: 0;
+        background-color: #f4f4f9;
+    }
+
+    .offer-container {
+        width: 100%;
+        max-width: 700px;
+        padding: 40px;
+        background-color: white;
+        border-radius: 10px;
+        box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+        margin-left: 20rem;
+        margin-top: 3rem;
+    }
+
+    h3 {
+        text-align: center;
+        margin-bottom: 20px;
+        font-size: 24px;
+        color: #333;
+    }
+
+    .form-wrapper {
+        display: flex;
+        justify-content: space-between;
+        margin-bottom: 20px;
+        align-items: flex-start;
+    }
+
+    .field-wrapper {
+        display: flex;
+        flex-direction: column;
+        width: 100%;
+    }
+
+    .left-side, .right-side {
+        display: flex;
+        flex-direction: column;
+        gap: 15px;
+        flex: 1;
+    }
+
+    label {
+        font-size: 14px;
+        color: #333;
+        margin-bottom: 5px;
+        font-weight: bold;
+    }
+
+    input[type="text"], 
+    input[type="date"], 
+    input[type="number"], 
+    textarea {
+        width: calc(100% - 24px);
+        height: 50px;
+        box-sizing: border-box;
+        padding: 12px 15px;
+        border: 1px solid #ccc;
+        border-radius: 5px;
+        font-size: 14px;
+        transition: border 0.3s ease;
+    }
+
+    input[type="text"]:focus, 
+    input[type="date"]:focus, 
+    input[type="number"]:focus, 
+    textarea:focus {
+        border-color: #007bff;
+        outline: none;
+    }
+
+    .submit-button {
+        background-color: #007bff;
+        color: white;
+        padding: 12px;
+        border: none;
+        border-radius: 5px;
+        font-size: 16px;
+        cursor: pointer;
+        display: block;
+        margin: 0 auto;
+        transition: background-color 0.3s ease;
+        width: 40%;
+    }
+
+    .submit-button:hover {
+        background-color: #0056b3;
+    }
+
+    @media (max-width: 1024px) {
+        .offer-container {
+            margin-left: 0;
+            margin-top: 2rem;
+        }
+    }
+
+    @media (max-width: 768px) {
+        .offer-container {
+            padding: 20px;
+        }
+
+        .form-wrapper {
+            flex-direction: column;
+        }
+
+        input[type="text"], 
+        input[type="date"], 
+        input[type="number"], 
+        textarea {
+            font-size: 14px;
+        }
+
+        .submit-button {
+            font-size: 14px;
+        }
+    }
+
+    @media (max-width: 480px) {
+        h3 {
+            font-size: 20px;
+        }
+
+        input[type="text"], 
+        input[type="date"], 
+        input[type="number"], 
+        textarea {
+            font-size: 13px;
+            padding: 10px;
+        }
+
+        .submit-button {
+            padding: 10px;
+            font-size: 14px;
+        }
+    }
+</style>
+</head>
+<body>
+    <div class="offer-container">
+        <h3>Create New Offer</h3>
+        <form id="offer-form" action="/admin/offers/createoffer" method="POST"> 
+            <div class="form-wrapper">
+                <div class="left-side">
+                    <div class="field-wrapper">
+                        <label for="offer-name">Offer Name</label>
+                        <input type="text" id="offer-name" name="offerName" placeholder="Enter Offer Name" required>
+                    </div>
+                    <div class="field-wrapper">
+                        <label for="start-date">Start Date</label>
+                        <input type="date" id="start-date" name="startDate" required>
+                    </div>
+                    <div class="field-wrapper">
+                        <label for="category">Category for Offer</label>
+                        <select id="category"  name="category" required style="width: 93%;
+                        height: 3rem;
+                        border-radius: 5px;">
+                            <option value="">Select a Category</option>
+                            <option value="all">All Categories</option> <!-- Option to select all categories -->
+                            <% categories.forEach(category => { %>
+                                <option value="<%= category._id %>"><%= category.name %></option>
+                            <% }) %>
+                        </select>
+                    </div>
+                    
+                </div>
+                <div class="right-side">
+                    <div class="field-wrapper">
+                        <label for="offer-code">Description</label>
+                        <input type="text" id="offer-code" name="offerCode" placeholder="Enter Description" required>
+                    </div>
+                    <div class="field-wrapper">
+                        <label for="end-date">End Date</label>
+                        <input type="date" id="end-date" name="endDate" required>
+                    </div>
+                    <div class="field-wrapper">
+                        <label for="discount">Discount in %</label>
+                        <input type="number" id="discount" name="discount" placeholder="Discount in %" required>
+                    </div>
+                </div>
+            </div>
+            <button type="submit" id="submit-button" class="submit-button">Create Offer</button>
+        </form>
+    </div>
+</body>
+
+<%- include("../../views/partials/admin/footer") %>
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+<script>
+document.getElementById("offer-form").addEventListener("submit", async function (event) {
+    event.preventDefault();
+
+    const submitButton = document.getElementById("submit-button");
+    submitButton.disabled = true;
+
+    const offerName = document.getElementById("offer-name").value.trim();
+    const offerCode = document.getElementById("offer-code").value.trim();
+    const startDate = document.getElementById("start-date").value;
+    const endDate = document.getElementById("end-date").value;
+    const category = document.getElementById("category").value; // Selected category
+    const discount = document.getElementById("discount").value;
+
+    // Validation checks
+    if (!offerName || !offerCode || !startDate || !endDate || !category || !discount) {
+        Swal.fire("Validation Error", "All fields are required.", "error");
+        submitButton.disabled = false;
+        return;
+    }
+
+    if (isNaN(discount) || discount <= 0 || discount > 100) {
+        Swal.fire("Validation Error", "Discount must be between 0 and 100%.", "error");
+        submitButton.disabled = false;
+        return;
+    }
+
+    if (new Date(startDate) >= new Date(endDate)) {
+        Swal.fire("Validation Error", "Start date must be before end date.", "error");
+        submitButton.disabled = false;
+        return;
+    }
+
+    // Show SweetAlert for confirmation
+    const confirmation = await Swal.fire({
+        title: "Are you sure?",
+        text: "Once submitted, you will not be able to change this offer!",
+        icon: "warning",
+        showCancelButton: true,
+        confirmButtonColor: "#DD6B55",
+        confirmButtonText: "Yes, create it!",
+        cancelButtonText: "No, cancel!",
+    });
+
+    if (confirmation.isConfirmed) {
+        const formData = {
+            offerName,
+            offerCode,
+            startDate,
+            endDate,
+            category, // Pass the selected category ID
+            discount
+        };
+
+        try {
+            const response = await fetch("/admin/offers/createoffer", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json"
+                },
+                body: JSON.stringify(formData)
+            });
+
+            if (response.ok) {
+                Swal.fire("Success", "Offer created successfully!", "success");
+                setTimeout(() => {
+                    window.location.href = "/admin/offers";
+                }, 1500);
+            } else {
+                const errorData = await response.json();
+                Swal.fire("Error", errorData.message || "An error occurred while creating the offer.", "error");
+            }
+        } catch (error) {
+            console.error('Error:', error);
+            Swal.fire("Error", "An error occurred while creating the offer.", "error");
+        } finally {
+            submitButton.disabled = false;
+        }
+    } else {
+        Swal.fire("Cancelled", "Your offer was not created.", "error");
+        submitButton.disabled = false;
+    }
+});
+
+</script>

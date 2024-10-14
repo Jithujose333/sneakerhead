@@ -69,13 +69,16 @@
                       
                         <div class="product-img" ;>
                             <% if (item.productId.productImage && item.productId.productImage.length > 0) { %>
+                                <a href="/products/<%= item.productId._id %>" class="prod-img">
                                 <img src="/uploads/re-image/<%= item.productId.productImage[0] %>" alt="Product Image" style="height: 100px ;width: 100px;">
                                 
                                 
                             
                             <% } else { %>
                                 <img src="/path/to/default-image.jpg" alt="Default Image"> 
-                            <% } %>                        </div>
+                            <% } %>  
+                        </a>
+                     </div>
                         <div class="display-tc">
                             <h3><%=item.productId.productName%></h3>
                         </div>
@@ -85,18 +88,42 @@
                             <span class="price">₹<%= item.price %></span>
                         </div>
                     </div>
+
+
+                  
                     <div class="one-eight text-center">
-                        <div class="display-tc">
-                            <input type="text" id="quantity" name="quantity" class="form-control input-number text-center" value="<%= item.quantity %>" min="1" max="100">
+                        <div class="display-tc d-flex justify-content-center align-items-center quantity-control">
+                            <!-- Decrement Button -->
+                            <button type="button" class="btn quantity-left-minus" data-type="minus" data-field="" style="border: none; background-color: #f8f9fa; cursor: pointer;">
+                                <i class="icon-minus2"></i>
+                            </button>
+                    
+                            <!-- Quantity Input Field -->
+                            <input type="text" id="quantity-<%= item._id %>" name="quantity" class="form-control input-number text-center" value="<%= item.quantity %>" min="1" max="<%= item.stock%>" data-stock="<%= item.stock %>" readonly style="width: 60px; border: none;">
+                    
+                            <!-- Increment Button -->
+                            <button type="button" class="btn quantity-right-plus" data-type="plus" data-field="" style="border: none; background-color: #f8f9fa; cursor: pointer;">
+                                <i class="icon-plus2"></i>
+                            </button>
                         </div>
                     </div>
+                    
+
+                   
+                    <!-- <div class="one-eight text-center">
+                        <div class="display-tc">
+                       <input type="text" id="quantity" name="quantity" class="form-control input-number text-center" value="<%= item.quantity %>" min="1" max="100">
+                        </div>
+                    </div> -->
+
+                    
                     <div class="one-eight text-center">
                         <div class="display-tc">
                             <span class="price"><%= item.price * item.quantity%></span>
                         </div>
                     </div>
                     <div class="one-eight text-center">
-                        <div class="display-tc">
+                        <div class="display">      <!--changed from display-tc--> 
                             <button class="closed" data-id="<%= item._id %>"  onclick="removeItem(this)"  style="display: contents; cursor: pointer;"><i class="fa-solid fa-xmark"></i></button>
                         </div>
                     </div>
@@ -108,22 +135,50 @@
                 
             </div>
         </div>
-        <div class="row row-pb-lg">
-            <div class="col-md-12">
-                <div class="total-wrap">
-                    <div class="row">
-                        <div class="col-sm-8">
-                            <form action="#">
-                                <div class="row form-group">
-                                    <div class="col-sm-9">
-                                        <input type="text" name="quantity" class="form-control input-number" placeholder="Your Coupon Number...">
-                                    </div>
-                                    <div class="col-sm-3">
-                                        <input type="submit" value="Apply Coupon" class="btn btn-primary">
-                                    </div>
-                                </div>
-                            </form>
-                        </div>
+      
+
+
+
+                        <div class="row row-pb-lg">
+                            <div class="col-md-12">
+                                <div class="total-wrap">
+                                    <div class="row">
+                                        <div class="col-sm-8">
+                                            <!-- Apply Coupon Form -->
+                                            <% if (cart.appliedCoupon === false) { %>
+                                            <form id="applyCouponForm" action="/coupon" method="post">
+                                                <div class="row form-group">
+                                                    <div class="col-sm-9">
+                                                        <input type="text" id="couponCode" name="code" class="form-control input-number" placeholder="Your Coupon Code">
+                                                    </div>
+                                                    <div class="col-sm-3">
+                                                        <input type="submit" id="applyCouponButton" value="Apply Coupon" class="btn btn-primary">
+                                                    </div>
+                                                </div>
+                                            </form>
+                                            <% } %>
+                                        
+                                            <!-- Remove Coupon Form -->
+                                            <% if (cart.appliedCoupon === true) { %>
+                                            <form id="removeCouponForm" action="/coupon/remove/<%= cart.couponName %>" method="post">
+                                                <div class="row form-group">
+                                                    <div class="col-sm-9">
+                                                        <p style="color: blueviolet; font-weight: 500;">Coupon <%= cart.couponName %> applied. Discount: <%= cart.discount %>%</p>
+                                                    </div>
+                                                    <div class="col-sm-3">
+                                                        <input type="submit" id="removeCouponButton" class="btn btn-danger" value="Remove Coupon">
+                                                    </div>
+                                                </div>
+                                            </form>
+                                            <% } %>
+                                        </div>
+                                        
+
+                                       
+
+                    
+
+
                         <div class="col-sm-4 text-center">
                             <div class="total">
                                 <div class="sub">
@@ -150,7 +205,7 @@
             </div>
         </div>
         
-					<div class="row row-pb-md">
+					<!-- <div class="row row-pb-md">
 						<% products.forEach((product, i) => { %>
 						  <% if (product) { %>
 							<div class="col-lg-3 mb-4 text-center">
@@ -170,11 +225,129 @@
 							</div>
 						  <% } %>
 						<% }); %>
+					  </div> -->
+                      <div class="row row-pb-md">
+						<% products.forEach((product, i) => { %>
+						  <% if (product) { %>
+							<div class="col-lg-3 mb-4 text-center">
+							  <div class="product-entry border">
+								<a href="/products/<%= product._id %>" class="prod-img">
+								  <% if (product.productImage && product.productImage.length > 0) { %>
+									<img src="/uploads/re-image/<%= product.productImage[0] %>" class="img-fluid" alt="<%= product.productName %>">
+								  <% } else { %>
+									<img src="/path/to/default/image.jpg" class="img-fluid" alt="No Image Available">
+								  <% } %>
+								</a>
+								<div class="desc">
+								  <h2><a href="/products/<%= product._id %>"><%= product.productName %></a></h2>
+								  <span style="text-decoration: line-through;">₹<%= product.regularPrice %></span>
+								  <span class="price">
+									₹<%= product.offerPrice > 0 ? Math.min(product.offerPrice, product.salePrice || Infinity) : product.salePrice %>
+									
+								  </span>
+								  
+								</div>
+								<a href="javascript:void(0)" onclick="addToWishlist('<%= product._id %>')" >
+								<i class="fa-regular fa-heart heart-icon" style="    display: inline-flex;"></i>
+							</a>
+							  </div>
+							  
+							</div>
+						  <% } %>
+						<% }); %>
 					  </div>
     </div>
 </div>
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 <script>
+const quantityInput = document.getElementById('quantity');
+
+
+
+
+// Decrement quantity
+document.querySelectorAll('.quantity-left-minus').forEach(button => {
+    button.addEventListener('click', function () {
+        const quantityInput = this.parentNode.querySelector('input[name="quantity"]'); // Get the associated input field
+        const productId = quantityInput.id.split('-')[1]; // Extract product ID from input field ID
+        let quantity = parseInt(quantityInput.value);
+        
+        if (quantity > 1) {
+            quantityInput.value = quantity - 1;
+            updateQuantityInDB(productId, quantityInput.value); // Send new quantity to the server
+        }
+    });
+});
+
+// Increment quantity with stock check
+document.querySelectorAll('.quantity-right-plus').forEach(button => {
+    button.addEventListener('click', function () {
+        const quantityInput = this.parentNode.querySelector('input[name="quantity"]'); // Get the associated input field
+        const productId = quantityInput.id.split('-')[1]; // Extract product ID from input field ID
+        const stock = parseInt(quantityInput.getAttribute('data-stock')); // Get the available stock from data attribute
+        let quantity = parseInt(quantityInput.value);
+
+        if (quantity < product.stock) {
+            quantityInput.value = quantity + 1;
+            updateQuantityInDB(productId, quantityInput.value); // Send new quantity to the server
+        } else {
+            Swal.fire({
+                icon: 'warning',
+                title: 'Out of Stock',
+                text: 'The requested quantity exceeds available stock.',
+                confirmButtonText: 'OK',
+                confirmButtonColor: '#d33'
+            });
+        }
+    });
+});
+
+// Function to send AJAX request to update quantity in the database
+function updateQuantityInDB(productId, newQuantity) {
+    fetch('/update-quantity', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+            productId: productId,
+            quantity: newQuantity,
+        }),
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            Swal.fire({
+                icon: 'success',
+                title: 'Quantity Updated',
+                text: 'The quantity has been updated successfully.',
+                confirmButtonText: 'OK',
+                confirmButtonColor: '#28a745'
+            });
+        } else {
+            Swal.fire({
+                icon: 'error',
+                title: 'Update Failed',
+                text: data.message,  // Show the error message from the server
+                confirmButtonText: 'OK',
+                confirmButtonColor: '#d33'
+            });
+        }
+    })
+    .catch(error => {
+        Swal.fire({
+            icon: 'error',
+            title: 'Error',
+            text: 'An error occurred while updating the quantity.',
+            confirmButtonText: 'OK',
+            confirmButtonColor: '#d33'
+        });
+        console.error("Error updating quantity:", error);
+    });
+}
+
+
+
 async function removeItem(button) {
     try {
         const itemId = button.dataset.id; // Get the item ID from the button's dataset
@@ -226,5 +399,146 @@ async function removeItem(button) {
         Swal.fire('Error', 'An error occurred. Please try again.', 'error');
     }
 }
+
+
+
+
+ // Handle Apply Coupon Button
+document.getElementById('applyCouponButton').addEventListener('click', async function (event) {
+    event.preventDefault(); // Prevent the default form submission
+
+    const couponCode = document.getElementById('couponCode').value;
+
+    if (!couponCode) {
+        Swal.fire({
+            icon: 'warning',
+            title: 'Coupon Code Required',
+            text: 'Please enter a coupon code before applying.',
+        });
+        return;
+    }
+
+    try {
+        const response = await fetch('/coupon', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ code: couponCode }),
+        });
+
+        const result = await response.json();
+
+        if (response.ok) {
+            Swal.fire({
+                icon: 'success',
+                title: 'Coupon Applied',
+                text: `Discount applied: ${result.discount}%`,
+            }).then(() => {
+                window.location.reload();
+            });
+        } else {
+            Swal.fire({
+                icon: 'error',
+                title: 'Coupon Error',
+                text: result.message,
+            });
+        }
+    } catch (error) {
+        Swal.fire({
+            icon: 'error',
+            title: 'Error',
+            text: 'An error occurred while applying the coupon. Please try again later.',
+        });
+    }
+});
+
+
+// Handle Remove Coupon Button
+// document.querySelector('.btn.btn-danger').addEventListener('click', async function (event) {
+//     const couponName = cart.couponName
+//     console.log(couponName)
+//     try {
+//         const response = await fetch(`/coupon/remove/${couponName}`, {
+//             method: 'POST',
+//         });
+
+//         if (!response.ok) {
+//             throw new Error(`Error removing coupon: ${response.status}`);
+//         }
+
+//         const result = await response.json();
+
+//         console.log('Result:', result); // Add this line to check the result
+
+//         if (result.message) {
+//             Swal.fire({
+//                 icon: 'success',
+//                 title: 'Coupon Removed',
+//                 text: result.message,
+//             }).then(() => {
+//                 window.location.reload(); // Reload the page after showing the alert
+//             });
+//         } else {
+//             Swal.fire({
+//                 icon: 'error',
+//                 title: 'Coupon Removal Error',
+//                 text: 'An unknown error occurred.',
+//             });
+//         }
+//     } catch (error) {
+//         console.error('Error removing coupon:', error);
+//         Swal.fire({
+//             icon: 'error',
+//             title: 'Error',
+//             text: 'An error occurred while removing the coupon. Please try again later.',
+//         });
+//     }
+// });
+
 </script>
+
 <%- include("../../views/partials/user/footer") %>
+<style>
+    
+.heart-icon {
+  position: absolute;
+  bottom: 0; /* Positions the icon at the top */
+  right: 0; /* Positions the icon at the right end */
+  padding: 5px; /* Adjust padding for spacing */
+  font-size: 20px; /* Adjust icon size */
+  color: #525252; /* Set the icon color */
+  cursor: pointer;
+  margin-right: 1rem; /* Change cursor on hover to indicate it's clickable */
+}
+.quantity-control {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    width: 120px; /* Adjust width as needed */
+}
+
+.quantity-left-minus,
+.quantity-right-plus {
+    width: 30px; /* Adjust width to match the input size */
+    height: 40px;
+    font-size: 20px;
+    color: #555;
+    background-color: #f8f9fa;
+    border-radius: 4px;
+    border: 1px solid #ddd;
+}
+
+.quantity-left-minus:hover,
+.quantity-right-plus:hover {
+    background-color: #e9ecef; /* Slightly darker on hover */
+    cursor: pointer;
+}
+
+input.input-number {
+    text-align: center;
+    border: none;
+    border-top: 1px solid #ddd;
+    border-bottom: 1px solid #ddd;
+}
+</style>

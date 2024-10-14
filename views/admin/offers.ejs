@@ -1,0 +1,201 @@
+<%- include("../../views/partials/admin/header", { admin: "admin" }) %>
+<head>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@10/dist/sweetalert2.min.css">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+</head>
+
+<div class="content-header"></div>
+<div class="d-flex justify-content-between align-items-center flex-wrap">
+    <h2 class="content-title card-title">Offers</h2>
+    <button class="btn btn-primary mt-2 mt-md-0" style="border-radius: 25px; padding: 10px 20px; margin-right: 2rem;">
+        <a href="/admin/offers/createOffer" style="color: white; text-decoration: none;">Create Offer</a>
+    </button>
+</div>
+
+<header class="card-header text-center mb-20">
+    <form action="/admin/offers" method="get" class="d-inline">
+        <div class="input-group input-group-sm border border-1 border-grey rounded-pill mx-auto" style="max-width: 100%; width: 500px;">
+            <input type="text" class="form-control border-0 rounded-pill" placeholder="Search offers" name="search">
+            <button class="btn border-0" type="submit">Search</button>
+        </div>
+    </form>
+</header>
+
+<div class="table-responsive mt-5" style="margin-top: 0rem;">
+    <table class="table table-striped text-center">
+        <thead>
+            <tr>
+                <th scope="col"><b>Offer Name</b></th>
+                <th scope="col"><b>Description</b></th>
+                <th scope="col"><b>Start Date</b></th>
+                <th scope="col"><b>End Date</b></th>
+                <th scope="col"><b>Category</b></th>
+                <th scope="col"><b>Discount %</b></th>
+                <th scope="col"><b>Status</b></th>
+                <th scope="col"><b>Action</b></th>
+            </tr>
+        </thead>
+        <tbody>
+            <% offers.forEach(offer => { %>
+                <tr>
+                    <td><%= offer.offerName %></td>
+                    <td><%= offer.description %></td>
+                    <td><%= offer.startDate.toLocaleDateString() %></td>
+                    <td><%= offer.endDate.toLocaleDateString() %></td>
+                    <td><%= offer.categoryName %></td>
+                    <td><%= offer.discount %></td>
+                    <td><%= offer.isActive ? 'Active' : 'Expired' %></td>
+                    <td>
+                        <% if (offer.isActive) { %>
+                            <button class="btn btn-warning" onclick="updateOfferStatus('<%= offer._id %>', false)">Delete</button>
+                        <% } else { %>
+                            <button class="btn btn-success" onclick="updateOfferStatus('<%= offer._id %>', true)">Delete</button>
+                        <% } %>
+                    </td>
+                </tr>
+            <% }) %>
+        </tbody>
+    </table>
+</div>
+
+<div class="container mt-3">
+    <nav aria-label="Page navigation">
+        <ul class="pagination justify-content-center mb-20">
+            <% for (let i = 1; i <= totalPages; i++) { %>
+                <li class="page-item <%= (i === currentPage) ? 'active' : '' %>">
+                    <a class="page-link" href="?page=<%= i %>&search=<%= search %>"><%= i %></a>
+                </li>
+            <% } %>
+        </ul>
+    </nav>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@10/dist/sweetalert2.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
+<%- include("../../views/partials/admin/footer") %>
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@10"></script>
+<script>
+  async function updateOfferStatus(offerId, shouldActivate) {
+    try {
+        const response = await fetch(`/admin/offers/deleteOffer/${offerId}`, {
+            method: 'DELETE',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ isActive: shouldActivate }),
+        });
+
+        if (!response.ok) {
+            throw new Error('Error updating offer status');
+        }
+
+        const data = await response.json();
+
+        Swal.fire({
+            icon: 'success',
+            title: 'Success!',
+            text: data.message,
+            confirmButtonText: 'OK'
+        }).then(() => {
+            location.reload();
+        });
+    } catch (error) {
+        console.error('Error:', error);
+
+        Swal.fire({
+            icon: 'error',
+            title: 'Error!',
+            text: 'Failed to update offer status. Please try again.',
+            confirmButtonText: 'OK'
+        });
+    }
+}
+</script>
+
+<style>
+    .table {
+        border-collapse: collapse;
+        width: 100%;
+        margin-top: 20px;
+    }
+
+    .table th, .table td {
+        padding: 15px;
+        text-align: center;
+        border-bottom: 1px solid #ddd;
+    }
+
+    .table tbody {
+        color: black;
+        font-weight: 400;
+    }
+
+    .table th {
+        background-color: #f8f9fa;
+        font-weight: bold;
+    }
+
+    .table tr:hover {
+        background-color: #f1f1f1;
+    }
+
+    .btn {
+        border-radius: 25px;
+        padding: 10px 20px;
+        transition: background-color 0.3s;
+    }
+
+    .btn:hover {
+        opacity: 0.9;
+        
+    }
+
+    .btn-warning {
+        background-color: #ff0707;
+        color: white;
+    }
+
+    .btn-success {
+        background-color: #727573;
+        color: rgb(255, 255, 255);
+    }
+
+    .btn-primary {
+        background-color: #007bff;
+        color: white;
+    }
+
+    .pagination .page-item.active .page-link {
+        background-color: #007bff;
+        color: white;
+    }
+
+    .pagination .page-link {
+        border-radius: 25px;
+    }
+
+    a {
+        color: inherit;
+        text-decoration: none;
+    }
+
+    @media (max-width: 768px) {
+        .input-group {
+            width: 100% !important;
+            margin-left: 0;
+        }
+
+        .table-responsive {
+            overflow-x: auto;
+        }
+
+        .btn-primary {
+            margin-left: auto;
+            margin-right: 0;
+        }
+
+        .pagination {
+            justify-content: center;
+        }
+    }
+</style>

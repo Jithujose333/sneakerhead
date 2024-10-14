@@ -31,7 +31,7 @@
    </style>
    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/cropperjs/dist/cropper.min.css">
 </head>
-   <section class="content-main">
+   <section class="content-main" style="justify-content: center;">
        <div class="row">
            <div class="col-9">
                <div class="content-header">
@@ -40,7 +40,7 @@
 
                </div>
            </div>
-           <div class="col-lg-6">
+           <div class="col-lg-6" style=" margin-left: 22rem;color: black;font-weight: 500;">
                <div class="card mb-4">
 
 
@@ -53,19 +53,7 @@
                                    class="form-control border" id="product_name">
                                    <div id="productName-error" class="error-message"></div>
                            </div>
-                           <!-- <div class="col-lg-4 mb-4">
-                               <label class="form-label">Brand</label>
-                               <select class="form-select border" name="brand">
-                                  
-                                       <option value="">
-                                          
-                                       </option>
-                                      
-                               </select>
-                               <div id="brand-error" class="error-message"></div>
-
-
-                           </div> -->
+                          
                            <div class="mb-4">
                                <label class="form-label">Full description</label>
                                <input name="descriptionData" value="<%=product.description%>"  class="form-control border"
@@ -138,14 +126,14 @@
 
                                <% for (let i = 0; i < product.productImage.length; i++) { %>
                                 <div class="col-md-12">
-                                    <div class="mb-4" style="position: relative;"> <!-- Add relative positioning here -->
+                                    <div class="mb-4" style="position: relative;">
                                         <input type="hidden" value="<%= product.productImage[i] %>" id="imageDatas">
                                         <img class="rounded" style="width: 50px; height: 60px;" 
                                              src="/uploads/re-image/<%= product.productImage[i] %>" alt="">
                                              <i onclick="deleteSingleImage('<%= product.productImage[i] %>', '<%= product._id %>')" 
                                                 style="position: absolute; top: 5px; right: 5px; cursor: pointer;" 
                                                 class="fa fa-times"></i>
-                                             <!-- Adjust positioning if needed -->
+                                            
                                     </div>
                                 </div>
                             <% } %>
@@ -219,6 +207,13 @@
 <%- include("../../views/partials/admin/footer") %>
 
 
+
+
+
+
+
+
+
     
 
 
@@ -236,76 +231,7 @@ if (validateForm()) {
 
 
 
-// function validateForm() {
-//    let imageDatas = false
-//            console.log("validate form");
-//            clearErrorMessages();
-//            const name = document.getElementsByName('productName')[0].value;
-//            const description = document.getElementsByName('descriptionData')[0].value;
-//            const brand = document.getElementsByName('brand')[0].value;
-//            const price = document.getElementsByName('regularPrice')[0].value;
-//            const saleprice = document.getElementsByName('salePrice')[0].value;
-//            const color = document.getElementsByName('color')[0].value;
-//            const category = document.getElementsByName('category')[0].value;
-//            const images = document.getElementById('input1')
-//            const quantity=document.getElementsByName('quantity')
-// imageDatas = document.getElementById("imageDatas")?.value;
-//            let isValid = true;    
-//            if (name === "") {
-//    displayErrorMessage('productName-error', 'Please enter a product name.');
-//    isValid = false;
-// }
-          
-//            if (description=== '') {
-//                displayErrorMessage('description-error', 'Please enter a product description.');
-//                isValid = false;
-//            } 
 
-
-//            if ( parseInt(quantity) < 0) {
-//                displayErrorMessage('quantity-error', 'Please enter a valid non-negative quantity.');
-//                isValid = false;
-//            }
-
-
-
-
-//            if (!/^\d+(\.\d{1,2})?$/.test(price) || parseFloat(price) < 0) {
-//                displayErrorMessage('regularPrice-error', 'Please enter a valid non-negative price.');
-//                isValid = false;
-//            }
-//           if (!/^\d+(\.\d{1,2})?$/.test(saleprice) || parseFloat(saleprice) < 0) {
-//                displayErrorMessage('salePrice-error', 'Please enter a valid non-negative price.');
-//                isValid = false;
-//            }
-          
-//            if (color.trim() === "") {
-//                displayErrorMessage('color-error', 'Please enter a color.');
-//                isValid = false;
-//            }
-//            if (!imageDatas && images.files.length === 0) {
-//                displayErrorMessage("images-error",'Please select an image.');
-//                isValid = false;
-//            }
-//            return isValid;
-//        }
-      
-//        function displayErrorMessage(elementId, message) {
-//            var errorElement = document.getElementById(elementId);
-//            errorElement.innerText = message;
-//            errorElement.style.display = "block";
-//        }
-
-
-//        function clearErrorMessages() {
-//            const errorElements = document.getElementsByClassName('error-message');
-//            Array.from(errorElements).forEach(element => {
-//                element.innerText = '';
-//            });
-//            const errorMessage = document.getElementById('errorMessage');
-
-
-//        }
 
 function validateForm() {
     let imageDatas = false;

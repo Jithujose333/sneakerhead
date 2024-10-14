@@ -1,4 +1,8 @@
 <%-include("../../views/partials/user/header")%>
+<head>
+	<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+  </head>
+  
 	<body>
 		
 	
@@ -97,10 +101,28 @@
 		<div class="colorlib-product">
 			<div class="container">
 				<div class="row">
+
 					<div class="col-sm-8 offset-sm-2 text-center colorlib-heading">
 						<h2>Best Sellers</h2>
 					</div>
 				</div>
+
+
+
+				<div class="category-dropdown" style="position: relative;">
+					<span style="font-weight: 700;">CATEGORIES</span> <i class="fa fa-chevron-down"></i>
+					<ul class="hidden" style="list-style: none; background-color: #fff; box-shadow: 0px 4px 8px rgba(0,0,0,0.1); padding: 10px; display: none;">
+						<li><a href="/?category=all">All Categories</a></li> <!-- Option for All Categories -->
+						<% if (categories && categories.length > 0) { %>
+							<% for (let i = 0; i < categories.length; i++) { %>
+								<li><a href="/?category=<%= categories[i].name %>"><%= categories[i].name %> </a></li>
+							<% } %>
+						<% } else { %>
+							<li>No categories available</li>
+						<% } %>
+					</ul>
+				</div>
+				
 				
 				<div class="sort-options">
 					<label for="sort">Sort by:</label>
@@ -117,7 +139,6 @@
 				</div>
 
 
-
 					<div class="row row-pb-md">
 						<% products.forEach((product, i) => { %>
 						  <% if (product) { %>
@@ -132,9 +153,18 @@
 								</a>
 								<div class="desc">
 								  <h2><a href="/products/<%= product._id %>"><%= product.productName %></a></h2>
-								  <span class="price">₹<%= product.salePrice || product.regularPrice %>.00</span>
+								  <span style="text-decoration: line-through;">₹<%= product.regularPrice %></span>
+								  <span class="price">
+									₹<%= product.offerPrice > 0 ? Math.min(product.offerPrice, product.salePrice || Infinity) : product.salePrice %>
+									
+								  </span>
+								  
 								</div>
+								<a href="javascript:void(0)" onclick="addToWishlist('<%= product._id %>')" >
+								<i class="fa-regular fa-heart heart-icon" style="    display: inline-flex;"></i>
+							</a>
 							  </div>
+							  
 							</div>
 						  <% } %>
 						<% }); %>
@@ -178,6 +208,7 @@
 		</div>
 
 		<%-include("../../views/partials/user/footer")%>
+		<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 		<script>
 			function applySorting() {
 				const sortValue = document.getElementById('sort').value;
@@ -185,8 +216,99 @@
 			}
 
 
+
+
+
+		
+  const categoryDropdown = document.querySelector('.category-dropdown');
+  const categoryDropdownArrow = categoryDropdown.querySelector('.fa-chevron-down');
+  const categoryDropdownList = categoryDropdown.querySelector('ul');
+
+  // Toggle the dropdown list visibility
+  categoryDropdown.addEventListener('click', (e) => {
+    e.stopPropagation(); // Prevents the event from bubbling up to the body
+    categoryDropdownList.classList.toggle('hidden');
+    categoryDropdownList.style.display = categoryDropdownList.classList.contains('hidden') ? 'none' : 'block';
+    categoryDropdownArrow.classList.toggle('fa-chevron-up');
+  });
+
+  // Close the dropdown if clicking outside of it
+  document.addEventListener('click', () => {
+    if (!categoryDropdownList.classList.contains('hidden')) {
+      categoryDropdownList.classList.add('hidden');
+      categoryDropdownList.style.display = 'none';
+      categoryDropdownArrow.classList.remove('fa-chevron-up');
+    }
+  });
+
+
+
+
+
+
+  async function addToWishlist(productId) {
+    try {
+        // Send a POST request to the server to add the item to the wishlist
+        const response = await fetch('/wishlist', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ productId }),
+        });
+
+        // Check if the request was successful
+        if (response.ok) {
+            const result = await response.json();
+            
+            // SweetAlert success notification
+            Swal.fire({
+                title: 'Added to Wishlist!',
+                text: result.message || 'The product was added to your wishlist.',
+                icon: 'success',
+                confirmButtonText: 'Continue Shopping',
+                timer: 3000,
+                timerProgressBar: true,
+            });
+        } else {
+            // SweetAlert error notification
+            Swal.fire({
+                title: 'Error',
+                text: 'Error adding product to wishlist',
+                icon: 'error',
+                confirmButtonText: 'Try Again'
+            });
+        }
+    } catch (error) {
+        console.error('Error adding to wishlist:', error);
+        // SweetAlert error notification for unexpected errors
+        Swal.fire({
+            title: 'Error',
+            text: 'An error occurred. Please try again later.',
+            icon: 'error',
+            confirmButtonText: 'OK'
+        });
+    }
+}
+
+
+
+
 		</script>
 		<style>
+.heart-icon {
+  position: absolute;
+  bottom: 0; /* Positions the icon at the top */
+  right: 0; /* Positions the icon at the right end */
+  padding: 5px; /* Adjust padding for spacing */
+  font-size: 20px; /* Adjust icon size */
+  color: #525252; /* Set the icon color */
+  cursor: pointer;
+  margin-right: 1rem; /* Change cursor on hover to indicate it's clickable */
+}
+
+
+
 			.header__nav__option .sign-in-link {
 		font-size: 16px;
 		color: #333;
@@ -233,5 +355,21 @@
 		position: relative;
 		z-index: 500;
 	 }
+	 .category-dropdown {
+    position: relative;
+    z-index: 1001; /* Higher than sort options */
+}
+
+.category-dropdown ul {
+    position: absolute;
+    z-index: 1000; /* Ensure it pops up above other elements */
+    display: none; /* Keep it hidden initially */
+}
+
+.sort-options {
+    position: relative;
+    z-index: 500; /* Lower z-index than category dropdown */
+}
+
 	 </style>
 	 

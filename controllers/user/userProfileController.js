@@ -2,6 +2,10 @@ const User = require('../../models/userSchema')
 const Address = require('../../models/addressSchema')
 const bcrypt = require('bcrypt')
 const Cart = require('../../models/cartSchema')
+const crypto = require('crypto');
+
+const dotenv = require('dotenv').config();
+const nodemailer = require('nodemailer');
 
 
 
@@ -28,48 +32,51 @@ if(req.user){
 
  
 
+
+
+
+
 const editProfile = async (req, res) => {
   try {
-    const userId = req.session.user;
+    const userId = req.session.user; 
     const { name, email, mobile, currentPassword, newPassword } = req.body;
 
-     const userData = await User.findOne({ _id: userId, isBlocked: false });
+    
+
+    const userData = await User.findOne({ _id: userId, isBlocked: false });
 
     if (!userData) {
-      return res.status(404).send('User not found or blocked');
+      return res.status(404).json({ success: false, message: 'User not found or blocked' });
     }
 
-    
     const updates = {};
     if (name) updates.name = name;
     if (email) updates.email = email;
     if (mobile) updates.phone = mobile;
 
-
+    // Password handling
     if (newPassword) {
-      
       const isMatch = await bcrypt.compare(currentPassword, userData.password);
       if (!isMatch) {
-        return res.status(400).json('Current password is incorrect');
+        return res.status(400).json({ success: false, message: 'Current password is incorrect' });
       }
-
-      // Hash the new password
       const hashedPassword = await bcrypt.hash(newPassword, 10);
       updates.password = hashedPassword;
     }
 
+    
+
     // Perform the update
     await User.updateOne({ _id: userId }, { $set: updates });
 
-    // Send success response
-    // res.status(200).json({ success: true,message:'Profile updated successfully'});
-    res.status(200)
-    console.log("profile updated succesfully")
+    return res.json({ success: true, message: 'Profile updated successfully' });
   } catch (error) {
     console.error('Error updating profile:', error);
-    res.status(500).send('Server error');
+    res.status(500).json({ success: false, message: 'Server error' });
   }
 };
+
+
 
 
 
@@ -102,11 +109,14 @@ const getAddress = async (req, res) => {
 
 const getaddAddress = async (req,res) => {
   try {
+    const from = req.query.from || 'profile';
     const userId = req.session.user
     const userData = await User.findOne({_id:userId})
     
     const firstName = userData.name.split(' ')[0];
-    res.render('add-address',{userData,firstName})
+    const cartId = req.query.cartId;
+    
+    res.render('add-address',{userData,firstName,from:req.query.from,cartId})
 
   } catch (error) {
     res.status(500).redirect('/pageNotFound')
@@ -171,7 +181,7 @@ const addAddress = async (req, res) => {
 
    
     await userData.save();
-    if (req.query.from === 'checkout') {
+    if (req.body.from === 'checkout') {
       const cart= await Cart.findOne({userId})
       const cartId = cart._id
       // Redirect to the checkout page if adding an address for checkout
@@ -211,7 +221,7 @@ console.log(addressData)
     }
 
     const firstName = userData.name.split(' ')[0]; // Extract first name
-    res.render('edit-address', { address: addressData, firstName }); // Pass address data and first name to the template
+    res.render('edit-address', { address: addressData, firstName,from:req.query.from,cartId: req.query.cartId  }); // Pass address data and first name to the template
   } catch (error) {
     console.error("Error fetching address for editing:", error);
     res.status(500).send('Server error'); // Handle error appropriately
@@ -227,8 +237,9 @@ console.log(addressData)
 const editAddress = async (req, res, next) => {
   try {
       const id = req.params.id; // Get address ID from request parameters
-      const { name, houseName, locality, city, state, pincode, phone, altPhone } = req.body;
-
+      const { name, houseName, locality, city, state, pincode, phone, altPhone ,from,cartId} = req.body;
+      // const from = req.body.from || 'profile'; // Define from with a default value
+      // const cartId = req.body.cartId;
       // Find existing address
       const existingAddress = await Address.findById(id);
       if (!existingAddress) {
@@ -247,8 +258,13 @@ const editAddress = async (req, res, next) => {
           altPhone 
       }, { new: true });
 
+      if (from === 'checkout') {
+        return res.status(201).json({ message: "Address updated successfully", redirect: `/cart/checkout/${cartId}` });
+       } else {
+        return res.status(201).json({ message: "Address updated successfully", redirect: '/profile/address' });
+       }
       // Return success response
-      return  res.status(201).redirect('/profile/address');
+      // return  res.status(201).redirect('/profile/address');
   } catch (error) {
       console.error("Error updating address:", error);
       return next(error);
@@ -272,6 +288,10 @@ const deleteAddress = async (req,res) => {
 }
 
 
+
+
+
+
 module.exports = {
     getProfile,
     editProfile,
@@ -280,5 +300,6 @@ module.exports = {
     addAddress,
     getEditAddress,
     editAddress,
-    deleteAddress
+    deleteAddress,
+   
 }

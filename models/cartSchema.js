@@ -9,6 +9,25 @@ const cartSchema = new Schema({
         ref:"User",
         required:true
     },
+    discount :{
+   type : Number,
+   required:true,
+   default:0,
+
+    },
+    appliedCoupon :{
+        type : Boolean,
+         default:false,
+     
+         },
+         couponName :{
+            type : String,
+             required:false,
+         
+             },
+    
+
+        
     items:[{
         productId:{
             type:Schema.Types.ObjectId,

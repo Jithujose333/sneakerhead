@@ -37,7 +37,7 @@ const adminAuth = (req, res, next) => {
    try {
     
   
-    if (req.session.admin && !req.user) {
+    if (req.session.admin  ) {
       
         return next();
     } else {

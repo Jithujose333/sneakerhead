@@ -25,14 +25,13 @@
     </div>
       <ul>
         <li><a href="/editProfile"><i  class="fas fa-user"></i> Edit Profile</a></li>
-        <li><a href="#"><i class="fas fa-wallet"></i> Your Wallet</a></li>
+        <li><a href="/profile/wallet"><i class="fas fa-wallet"></i> Your Wallet</a></li>
         <li><a href="/profile/orders"><i class="fas fa-shopping-cart"></i> Your Orders</a></li>
-        <!-- <li><a href="#"><i class="fas fa-shopping-cart"></i> Open Orders</a></li> -->
-        <!-- <li><a href="#"><i class="fas fa-shopping-cart"></i> Cancelled Orders</a></li> -->
-        <li><a href="#"><i class="fas fa-heart"></i> Wishlist</a></li>
+       
+        <li><a href="/wishlist"><i class="fas fa-heart"></i> Wishlist</a></li>
         <li><a href="/profile/address"><i class="fas fa-address-card"></i> Addresses</a></li>
         <li><a href="#"><i class="fas fa-money-bill-wave"></i> Payment Options</a></li>
-        <!-- <li><a href="#"><i class="fas fa-lock"></i> Login & Security</a></li> -->
+  
         <li><a href="/logout"><i class="fas fa-sign-out-alt"></i> Logout</a></li>
       </ul>
     </div>
@@ -91,8 +90,14 @@
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
 <script>
- // Profile form validation
+
+
+
+
+
 document.getElementById('profileForm').addEventListener('submit', function(event) {
+  event.preventDefault(); // Prevent default form submission
+
   // Get profile field values
   const name = document.getElementById('firstName').value.trim();
   const email = document.getElementById('email').value.trim();
@@ -100,28 +105,70 @@ document.getElementById('profileForm').addEventListener('submit', function(event
 
   // Validate the profile form fields
   if (!name && !email && !mobile) {
-    event.preventDefault(); // Prevent form submission if no field is updated
     document.getElementById('errorProfile').textContent = 'Please update at least one profile field.';
+    return; // Exit the function early
   } else {
     document.getElementById('errorProfile').textContent = ''; // Clear the error if validation passes
-  
-    Swal.fire({
-      icon: 'success',
-      title: 'Profile Updated',
-      text: 'Your profile information has been successfully updated!',
-      confirmButtonText: 'OK'
+
+    // Create a plain object to hold the data
+    const data = {
+      name: name,
+      email: email,
+      mobile: mobile
+    };
+
+    // Send a request to the server using fetch
+    fetch('/userProfile', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json' // Indicate that we are sending JSON
+      },
+      body: JSON.stringify(data) // Convert data to JSON
+    })
+    .then(response => response.json())
+    .then(data => {
+      // Show SweetAlert based on the response
+      if (data.success) {
+        Swal.fire({
+          icon: 'success',
+          title: 'Profile Updated',
+          text: data.message, // Display the JSON message from the backend
+          confirmButtonText: 'OK'
+        }).then(() => {
+          location.reload(); // Reload the page after successful update
+        });
+      } else {
+        Swal.fire({
+          icon: 'error',
+          title: 'Error',
+          text: data.message, // Display the JSON message from the backend
+          confirmButtonText: 'OK'
+        });
+      }
+    })
+    .catch(error => {
+      console.error('Error updating profile:', error);
+      Swal.fire({
+        icon: 'error',
+        title: 'Error',
+        text: 'An error occurred while updating your profile. Please try again later.',
+        confirmButtonText: 'OK'
+      });
     });
-    this.submit();
-  
   }
-
-
-
-  
 });
 
-  // Password form validation
+
+
+
+
+
+
+
+
 document.getElementById('passwordForm').addEventListener('submit', function(event) {
+  event.preventDefault(); // Prevent the default form submission
+
   // Get password field values
   const currentPassword = document.getElementById('currentPassword').value.trim();
   const newPassword = document.getElementById('newPassword').value.trim();
@@ -129,29 +176,70 @@ document.getElementById('passwordForm').addEventListener('submit', function(even
 
   // Validate the password form fields
   if (!currentPassword || !newPassword || !confirmPassword) {
-    event.preventDefault(); // Prevent form submission
     document.getElementById('errorPassword').textContent = 'Please fill out all password fields.';
-  } else if (newPassword !== confirmPassword) {
-    event.preventDefault(); // Prevent form submission if passwords don't match
+    return; // Exit the function early
+  } 
+  if (newPassword !== confirmPassword) {
     document.getElementById('errorPassword').textContent = 'New password and confirmation do not match.';
-  } else if (currentPassword == newPassword) {
-    event.preventDefault(); // Prevent form submission if passwords don't match
-    document.getElementById('errorPassword').textContent = 'current and new password are same';
-  }else if (newPassword.length < 6) { // Optional: Check for minimum password length
-    event.preventDefault(); 
+    return; // Exit the function early
+  } 
+  if (currentPassword === newPassword) {
+    document.getElementById('errorPassword').textContent = 'Current and new passwords cannot be the same.';
+    return; // Exit the function early
+  } 
+  if (newPassword.length < 6) {
     document.getElementById('errorPassword').textContent = 'Password should be at least 6 characters long.';
-  } else {
-    document.getElementById('errorPassword').textContent = ''; // Clear the error if validation passes
+    return; // Exit the function early
+  } 
+
+  document.getElementById('errorPassword').textContent = ''; // Clear the error if validation passes
+
+  // Create a plain object to hold the data
+  const data = {
+    currentPassword: currentPassword,
+    newPassword: newPassword
+  };
+
+  // Send a request to the server using fetch
+  fetch('/userProfile', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json' // Indicate that we are sending JSON
+    },
+    body: JSON.stringify(data) // Convert data to JSON
+  })
+  .then(response => response.json())
+  .then(data => {
+    // Show SweetAlert based on the response
+    if (data.success) {
+      Swal.fire({
+        icon: 'success',
+        title: 'Password Updated',
+        text: data.message,
+        confirmButtonText: 'OK'
+      }).then(() => {
+        location.reload(); // Reload the page after successful update
+      });
+    } else {
+      Swal.fire({
+        icon: 'error',
+        title: 'Error',
+        text: data.message,
+        confirmButtonText: 'OK'
+      });
+    }
+  })
+  .catch(error => {
+    console.error('Error updating password:', error);
     Swal.fire({
-      icon: 'success',
-      title: 'Password Changed',
-      text: 'Your password has been successfully updated!',
+      icon: 'error',
+      title: 'Error',
+      text: 'An error occurred while updating your password. Please try again later.',
       confirmButtonText: 'OK'
     });
-    this.submit()
-  
-  }
+  });
 });
+
 
 </script>
 

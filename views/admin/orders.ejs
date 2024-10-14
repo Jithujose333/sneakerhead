@@ -55,10 +55,10 @@
                         <% } else { %>
                             <td colspan="3">No Ordered Items</td>
                         <% } %>
-                        <td><%= data[i].status %></td>
+                        <td><%= data[i].orderStatus %></td>
                         <td><%= data[i].paymentMethod %></td>
                         <td>
-                            <% if (data[i].status !== "Cancelled" && data[i].status !== "Shipped" && data[i].status !== "Delivered") { %>
+                            <% if (data[i].orderStatus !== "Cancelled" && data[i].orderStatus !== "Shipped" && data[i].orderStatus !== "Delivered") { %>
                                 <button class="btn btn-danger cancel-btn" data-id="<%= data[i]._id %>" style="width: 100px;">
                                     Cancel
                                 </button>
@@ -72,10 +72,12 @@
                        
                             <td>
                                 <select name="status" class="form-control" onchange="updateStatus('<%= data[i]._id %>', this.value)">
-                                    <option value="Pending" <%= data[i].status === 'Pending' ? 'selected' : '' %>>Pending</option>
-                                    <option value="Shipped" <%= data[i].status === 'Shipped' ? 'selected' : '' %>>Shipped</option>
-                                    <option value="Delivered" <%= data[i].status === 'Delivered' ? 'selected' : '' %>>Delivered</option>
-                                    <option value="Cancelled" <%= data[i].status === 'Cancelled' ? 'selected' : '' %>>Cancelled</option>
+                                    <option value="Pending" <%= data[i].orderStatus === 'Pending' ? 'selected' : '' %>>Pending</option>
+                                    <option value="Shipped" <%= data[i].orderStatus === 'Shipped' ? 'selected' : '' %>>Shipped</option>
+                                    <option value="Delivered" <%= data[i].orderStatus === 'Delivered' ? 'selected' : '' %>>Delivered</option>
+                                    <option value="Cancelled" <%= data[i].orderStatus === 'Cancelled' ? 'selected' : '' %>>Cancelled</option>
+                                    <option value="Return Request" <%= data[i].orderStatus === 'Return Request' ? 'selected' : '' %>>Return Request</option>
+                                    <option value="Returned" <%= data[i].orderStatus === 'Returned' ? 'selected' : '' %>>Returned</option>
                                 </select>
                             </td>
                             

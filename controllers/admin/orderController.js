@@ -1,4 +1,5 @@
 const Order = require('../../models/orderSchema')
+const Wallet = require('../../models/walletSchema')
 
 
 
@@ -59,8 +60,9 @@ const cancelOrder = async (req, res) => {
             return res.status(404).json({ success: false, message: 'Order not found' });
         }
 
-        if (order.status !== 'Shipped' && order.status !== 'Delivered') {
-            order.status = 'Cancelled';
+        if (order.orderStatus !== 'Shipped' && order.orderStatus !== 'Delivered') {
+            order.orderStatus = 'Cancelled';
+          
             await order.save();
             return res.status(200).json({ success: true, message: 'Order cancelled successfully' });
         } else {
@@ -82,8 +84,25 @@ const updateOrderStatus = async (req, res) => {
         if (!order) {
             return res.status(404).send('Order not found');
         }
+if(newStatus==="Returned"){
+   
+    let wallet = await Wallet.findOne({ userId: order.userId });
+    if (!wallet) {
+        wallet = new Wallet({
+            userId: order.userId,
+            walletBalance: 0 // Initialize the balance
+        });
+    }
+    wallet.walletBalance+=order.finalAmount
 
-        order.status = newStatus; // Update status
+    wallet.transactions.push({
+        type: 'credit',
+        amount: order.finalAmount,
+        description: `Returned order of ${order.orderId}`
+    });
+    await wallet.save()
+}
+        order.orderStatus = newStatus; // Update status
         await order.save();
 
         res.status(200).send('Order status updated successfully');

@@ -49,12 +49,22 @@
 							<div id="colorlib-logo"><a href="/">Sneakerhead</a></div>
 						</div>
 						<div class="col-sm-5 col-md-3">
+							<form action="/search" method="GET" class="search-wrap">
+								<div class="form-group" style="display: flex;">
+								   <input type="search" class="form-control search" name="q" placeholder="Search for products..." style="flex: 1; padding: 10px;">
+								   <button class="btn btn-primary submit-search" type="submit" style="margin-left: 10px;"><i class="icon-search"></i></button>
+								</div>
+							 </form>
+							 
+
+
+<!-- 							
 			            <form action="#" class="search-wrap">
 			               <div class="form-group">
 			                  <input type="search" class="form-control search" placeholder="Search">
 			                  <button class="btn btn-primary submit-search text-center" type="submit"><i class="icon-search"></i></button>
 			               </div>
-			            </form>
+			            </form> -->
 			         </div>
 		         </div>
 					<div class="row">
@@ -69,7 +79,7 @@
 										
 										<li><a href="checkout.html">Checkout</a></li>
 										<li><a href="order-complete.html">Order Complete</a></li>
-										<li><a href="add-to-wishlist.html">Wishlist</a></li>
+										<li><a href="/wishlist">Wishlist</a></li>
 									</ul>
 								</li>
 								<li><a href="women.html">Women</a></li>

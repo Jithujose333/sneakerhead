@@ -1,0 +1,136 @@
+<%-include("../../views/partials/user/header",{user:firstName}) %>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
+  
+</head>
+<body>
+  <nav aria-label="breadcrumb">
+    <ol class="breadcrumb">
+      <li class="breadcrumb-item"><a href="/">Home</a></li>
+      <li class="breadcrumb-item"><a href="/userProfile">Profile</a></li>
+      <li class="breadcrumb-item active" aria-current="page">Edit Profile</li>
+    </ol>
+  </nav>
+  <div class="container" style="display: flex; justify-content: space-around; margin: 20px;">
+    <div class="sidebar">
+      <h3>My Profile</h3>
+      <div class="profile-user">
+        <div class="user">
+          <img src="https://picsum.photos/id/1015/50/50" alt="Profile Picture" style="width: 100px; height: 100px; border-radius: 50%; object-fit: cover;">
+          <div class="name" style="color: #000000;margin-left: 2rem; font-weight: 500; text-transform: uppercase;"><%= firstName %></div>
+        </div>
+      </div>
+      <ul>
+        <li><a href="/userProfile"><i class="fas fa-user"></i> Edit Profile</a></li>
+        <li><a href="/profile/wallet"><i class="fas fa-wallet"></i> Your Wallet</a></li>
+        <li><a href="/profile/orders"><i class="fas fa-shopping-cart"></i> Your Orders</a></li>
+        <!-- <li><a href="#"><i class="fas fa-shopping-cart"></i> Open Orders</a></li> -->
+        <!-- <li><a href="#"><i class="fas fa-shopping-cart"></i> Cancelled Orders</a></li> -->
+        <li><a href="/wishlist"><i class="fas fa-heart"></i> Wishlist</a></li>
+        <li><a href="/profile/address"><i class="fas fa-address-card"></i> Addresses</a></li>
+        <li><a href="#"><i class="fas fa-money-bill-wave"></i> Payment Options</a></li>
+        <!-- <li><a href="#"><i class="fas fa-lock"></i> Login & Security</a></li> -->
+        <li><a href="/logout"><i class="fas fa-sign-out-alt"></i> Logout</a></li>
+      </ul>
+    </div>
+    <div class="wallet-page" style="width: 70%; margin-left: 20px;">
+      <header>
+        <h1>Wallet</h1>
+        
+      </header>
+      <div class="card-section">
+       
+        
+          <div class="card" style="    text-align: center;
+          color: 18rem;
+          margin-left: 33rem;
+          height: 8rem;
+          width: 18rem;
+          color: rgb(255, 255, 255);
+          font-weight: bold;
+          background-color: #a0c4a0;
+          font-size: x-large;
+      ">
+            <p>Current Balance</p>
+            <p>₹ <%=wallet.walletBalance%></p>
+          </div>
+         
+        
+      </div>
+      <div class="transaction-section" style="margin-top: 20px;">
+        <div class="transaction-header">
+          <p>Transaction History</p>
+          <div class="filter-options">
+            <select style="padding: 10px; border: 1px solid #ccc; border-radius: 5px;">
+              <option value="all">All</option>
+              <option value="today">Today</option>
+              <option value="yesterday">Yesterday</option>
+              <option value="last-week">Last Week</option>
+            </select>
+          </div>
+        </div>
+        <ul class="transaction-list" style="list-style: none; padding: 0;">
+          <% wallet.transactions.slice().reverse().forEach(transaction => { %>
+            <li style="display: flex; align-items: center; padding: 10px; border-bottom: 1px solid #ccc;">
+              <p style="margin-right: 10px; font-weight: bold; flex: 0.5;"> 
+                <%= new Date(transaction.date).toDateString() %>
+              </p>
+              <p style="margin-right: 10px; font-weight: bold; color: <%= transaction.type === 'credit' ? 'green' : 'red' %>;">
+                <%= transaction.type %>ed 
+              </p>
+              <p style="margin-right: 10px; font-weight: bold;">amount Rs. <%= transaction.amount %> for</p>
+              <p style="font-weight: bold; flex: 1;">
+                <%= transaction.description %>
+              </p>
+            </li>
+          <% }); %>
+      </ul>
+          
+      </div>
+    </div>
+  </div>
+
+<%-include("../../views/partials/user/footer") %>
+
+<style>
+  .sidebar {
+    background-color: #fff;
+    padding: 20px;
+    width: 250px;
+    border-radius: 5px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  }
+
+  .sidebar h3 {
+    margin-top: 0;
+  }
+
+  .sidebar ul {
+    list-style: none;
+    padding: 0;
+  }
+
+  .sidebar li {
+    margin-bottom: 10px;
+  }
+
+  .sidebar a {
+    display: flex;
+    align-items: center;
+    text-decoration: none;
+    color: #333;
+    padding: 10px;
+    border-radius: 5px;
+    transition: background-color 0.3s ease;
+  }
+
+  .sidebar a:hover {
+    background-color: #f0f0f0;
+  }
+
+  .sidebar i {
+    margin-right: 10px;
+    font-size: 18px;
+  }
+
+  
+</style>

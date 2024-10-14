@@ -14,8 +14,8 @@ const pageError = async (req,res) => {
 const loadLogin = async (req,res) => {
 
    
-    if(req.session.admin){
-        return res.redirect('/admin/dashboard')
+    if(req.session.admin ){
+        res.render('dashboard', { admin: "admin" });
     }
     res.render("admin-login",{message:null})
 
@@ -30,7 +30,7 @@ const login = async (req,res) => {
         const passwordMatch =await bcrypt.compare(password,admin.password)
         if(passwordMatch){
             req.session.admin = true;
-            return res.redirect('/admin/dashboard')
+            return res.redirect('/admin/dashboard');
         }else{
             return res.redirect('/login')
         }
@@ -46,29 +46,13 @@ const login = async (req,res) => {
 }
     
 
-// const loadDashboard = async (req,res) => {
-//     const admin = req.session.admin
-    
-    
-//     try {
-//         if(admin){
-      
-//         res.render('dashboard',{admin:"admin"})
-//     }
-//     catch (error) {
 
-//     res.redirect('/pageError')
-//      }
-   
- 
-// }
-// }
 const loadDashboard = async (req, res) => {
     
 
     try {
         const admin = req.session.admin;
-        if (admin) {
+        if (admin  ) {
             // Render the dashboard if the user is an admin
             res.render('dashboard', { admin: "admin" });
         } 

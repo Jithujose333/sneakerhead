@@ -1,0 +1,227 @@
+<%- include("../../views/partials/admin/header", { admin: "admin" }) %>
+<head>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/cropperjs/dist/cropper.min.css">
+  <style>
+    .container-main {
+      display: flex;
+      justify-content: space-between;
+      padding: 20px;
+    }
+
+    .form-container, .image-upload-container {
+      width: 48%;
+      padding: 20px;
+      border-radius: 10px;
+      background-color: #f9f9f9;
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    }
+
+    .image-upload-container h2 {
+      text-align: center;
+    }
+
+    .image-input-container {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .image-input-container img {
+      max-width: 100%;
+      max-height: 300px;
+      border-radius: 5px;
+      object-fit: contain;
+    }
+
+    .btn-upload {
+      margin-top: 10px;
+      text-align: center;
+    }
+
+    .crop-container {
+      width: 100%;
+      max-height: 400px;
+      display: none;
+    }
+
+    .full-image-preview img {
+      max-width: 100%;
+      max-height: 300px;
+      border-radius: 5px;
+      object-fit: contain;
+    }
+
+    .action-buttons {
+      display: flex;
+      justify-content: center;
+      gap: 15px;
+      margin-top: 10px;
+    }
+
+    .error-message {
+      color: red;
+      display: none;
+    }
+  </style>
+</head>
+
+<section class="container-main">
+  <!-- Left: Product Details Form -->
+ 
+    <div class="form-container">
+        <h2>Edit Product</h2>
+        <form method="post" action="/admin/editProduct/<%=product._id%>" enctype="multipart/form-data" onsubmit="return validateForm()">
+          <div>
+            <label for="product_name">Product Name</label>
+            <input type="text" name="productName" value="<%=product.productName%>" class="form-control" id="product_name">
+            <div id="productName-error" class="error-message"></div>
+          </div>
+    
+          <div>
+            <label for="description">Full Description</label>
+            <input name="descriptionData" value="<%=product.description%>" class="form-control" id="description">
+            <div id="description-error" class="error-message"></div>
+          </div>
+    
+          <div class="row">
+            <div class="col-lg-4">
+              <label for="regularPrice">Regular Price</label>
+              <input type="text" name="regularPrice" value="<%=product.regularPrice%>" class="form-control" id="regularPrice">
+              <div id="regularPrice-error" class="error-message"></div>
+            </div>
+            <div class="col-lg-4">
+              <label for="salePrice">Sale Price</label>
+              <input type="text" name="salePrice" value="<%=product.salePrice%>" class="form-control" id="salePrice">
+              <div id="salePrice-error" class="error-message"></div>
+            </div>
+            <div class="col-lg-4">
+              <label for="quantity">Quantity</label>
+              <input type="text" name="quantity" value="<%=product.quantity%>" class="form-control" id="quantity">
+              <div id="quantity-error" class="error-message"></div>
+            </div>
+          </div>
+    
+          <div>
+            <label for="color">Color</label>
+            <input type="text" name="color" value="<%=product.color%>" class="form-control" id="color">
+            <div id="color-error" class="error-message"></div>
+          </div>
+    
+          <div>
+            <label for="category">Category</label>
+            <select name="category" class="form-control" id="category">
+              <% for(let i=0; i<cat.length; i++) { %>
+                <option value="<%=cat[i].name%>" <%=cat[i].name === product.category ? 'selected' : '' %>><%=cat[i].name%></option>
+              <% } %>
+            </select>
+            <div id="category-error" class="error-message"></div>
+          </div>
+    
+          <button type="submit" class="btn btn-primary btn-upload">Update Product</button>
+        </form>
+      </div>
+ 
+  <!-- Right: Image Upload Section with Cropper -->
+  <div class="image-upload-container">
+    <h2>Upload & Crop Image</h2>
+
+    <div class="image-input-container">
+      <input type="file" class="form-control" accept="image/png, image/jpeg, image/jpg" id="imageInput">
+      <div id="images-error" class="error-message"></div>
+    </div>
+
+    <!-- Cropping Container -->
+    <div class="crop-container">
+      <img id="cropperImage" alt="Image to Crop">
+    </div>
+
+    <!-- Preview of Cropped Image -->
+    <div class="full-image-preview">
+      <h3>Cropped Image Preview</h3>
+      <img id="croppedImagePreview" alt="Cropped Preview">
+    </div>
+
+    <!-- Action Buttons -->
+    <div class="action-buttons">
+      <button id="cropButton" class="btn btn-success">Crop</button>
+      <button id="resetButton" class="btn btn-secondary">Reset</button>
+    </div>
+
+    <div class="btn-upload">
+      <button type="button" class="btn btn-primary" onclick="submitCroppedImage()">Upload Cropped Image</button>
+    </div>
+  </div>
+</section>
+
+<script src="https://cdn.jsdelivr.net/npm/cropperjs/dist/cropper.min.js"></script>
+<script>
+  let cropper;
+  const imageInput = document.getElementById('imageInput');
+  const cropperImage = document.getElementById('cropperImage');
+  const cropContainer = document.querySelector('.crop-container');
+  const croppedImagePreview = document.getElementById('croppedImagePreview');
+  const cropButton = document.getElementById('cropButton');
+  const resetButton = document.getElementById('resetButton');
+
+  imageInput.addEventListener('change', function(event) {
+    const file = event.target.files[0];
+    if (file) {
+      const reader = new FileReader();
+      reader.onload = function(e) {
+        cropperImage.src = e.target.result;
+        cropContainer.style.display = 'block';
+
+        if (cropper) {
+          cropper.destroy();
+        }
+
+        cropper = new Cropper(cropperImage, {
+          aspectRatio: 1,  // You can adjust the aspect ratio according to your needs
+          viewMode: 1,
+          autoCropArea: 1,
+        });
+      };
+      reader.readAsDataURL(file);
+    }
+  });
+
+  cropButton.addEventListener('click', function() {
+    const canvas = cropper.getCroppedCanvas({
+      width: 400,  // Desired output image size (you can adjust this)
+      height: 400
+    });
+
+    croppedImagePreview.src = canvas.toDataURL();  // Show the cropped image preview
+  });
+
+  resetButton.addEventListener('click', function() {
+    cropper.reset();
+    croppedImagePreview.src = '';  // Clear the cropped image preview
+  });
+
+  function submitCroppedImage() {
+    const canvas = cropper.getCroppedCanvas();
+    canvas.toBlob(function(blob) {
+      const formData = new FormData();
+      formData.append('croppedImage', blob, 'croppedImage.png');
+
+      // Send the cropped image to the server
+      fetch('/your-upload-endpoint', {  // Replace with your upload URL
+        method: 'POST',
+        body: formData,
+      })
+      .then(response => response.json())
+      .then(data => {
+        console.log(data);
+        alert('Image successfully uploaded');
+      })
+      .catch(error => {
+        console.error('Error:', error);
+        alert('Upload failed');
+      });
+    });
+  }
+</script>
+
+<%- include("../../views/partials/admin/footer") %>

@@ -41,6 +41,12 @@ const userSchema = new Schema({
         type: Boolean,
         default:false
     },
+    resetPasswordToken: { 
+        type: String 
+    },
+  resetPasswordExpires: { 
+    type: Date
+ },
     cart: [{
         type: Schema.Types.ObjectId,
         ref:"Cart",
@@ -57,10 +63,7 @@ const userSchema = new Schema({
         type:Schema.Types.ObjectId,
         ref:"Order"
     }],
-    // addresses: [{  // Add this field
-    //     type: Schema.Types.ObjectId,
-    //     ref: "Address"
-    // }],
+    
     createdOn : {
         type:Date,
         default:Date.now,

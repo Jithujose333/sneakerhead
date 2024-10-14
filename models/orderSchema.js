@@ -20,6 +20,11 @@ const orderSchema = new Schema({
         required : true
     },
     orderedItems:[{
+        itemOrderId: {
+            type: String,
+            default: () => uuidv4().split('-')[0],
+            unique: true
+          },
 
         product:{
             type:Schema.Types.ObjectId,
@@ -48,26 +53,69 @@ const orderSchema = new Schema({
         type:Number,
         required:true
     },
+    razorpayOrderId: {
+        type: String,
+        required: false  
+      },
     paymentMethod:{
         type:String,
         default:"COD",
         required:true
     },
     address:{
-        type:Schema.Types.ObjectId,
-        ref:'Address',
-        required:true
+        // type:Schema.Types.ObjectId,
+        // ref:'Address',
+        // required:true
+
+        name:{
+            type : String,
+            required : true,
+        },
+       houseName:{
+            type : String,
+            required : true,
+        },
+        city:{
+            type: String,
+            required :true,
+        },
+        locality:{
+            type: String,
+            required :false,
+            default:" "
+        },
+        state:{
+            type:String,
+            required:true
+        },
+        pincode: {
+            type : Number,
+            required:true,
+        },
+        phone:{
+            type : String,
+            required :true,
+        },
+        altPhone:{
+            type: String,
+            required :false,
+            default:" "
+        }
     },
     invoiceDate:{
         type:Date,
         default:Date.now
     },
-    status:{
+    orderStatus:{
         type:String,
         required:true,
         enum:['Pending','Processing','Shipped','Delivered','Cancelled','Return Request','Returned']
     },
-    createdOn :{
+    paymentStatus:{
+        type:String,
+        required:true,
+        enum:['Pending','Completed','Failed','Refunded']
+    },createdOn :{
         type:Date,
         default:Date.now,
         required:true

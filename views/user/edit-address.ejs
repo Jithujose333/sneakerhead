@@ -22,9 +22,9 @@
       </div>
       <ul>
         <li><a href="/userProfile"><i class="fas fa-user"></i> Edit Profile</a></li>
-        <li><a href="#"><i class="fas fa-wallet"></i> Your Wallet</a></li>
+        <li><a href="/profile/wallet"><i class="fas fa-wallet"></i> Your Wallet</a></li>
         <li><a href="/profile/orders"><i class="fas fa-shopping-cart"></i> Your Orders</a></li>
-        <li><a href="#"><i class="fas fa-heart"></i> Wishlist</a></li>
+        <li><a href="/wishlist"><i class="fas fa-heart"></i> Wishlist</a></li>
         <li><a href="/profile/address"><i class="fas fa-address-card"></i> Addresses</a></li>
         <li><a href="#"><i class="fas fa-money-bill-wave"></i> Payment Options</a></li>
         <li><a href="/logout"><i class="fas fa-sign-out-alt"></i> Logout</a></li>
@@ -34,6 +34,8 @@
     <div class="address">
       <h2>Edit Address</h2>
       <form action="/profile/editAddress/<%= address._id %>" method="POST" id="edit-address-form">
+        <input type="hidden" name="from" value="<%= from %>">
+  <input type="hidden" name="cartId" value="<%= cartId %>">
        
        
         <div class="field">
@@ -129,39 +131,84 @@
       return;
     }
 
+
+
+
+    const from = document.querySelector('input[name="from"]').value;
+const cartId = document.querySelector('input[name="cartId"]').value;
+formData.from = from;
+formData.cartId = cartId;
+
+fetch(`/profile/editAddress/<%= address._id %>`, {
+  method: "POST", // Using POST
+  headers: {
+    "Content-Type": "application/json"
+  },
+  body: JSON.stringify(formData)
+})
+.then(response => {
+  if (!response.ok) {
+    throw new Error('Network response was not ok');
+  }
+  return response.json(); // Assuming the server returns JSON
+})
+.then(data => {
+  Swal.fire({
+    icon: 'success',
+    title: 'Success',
+    text: data.message, // Use the message returned from the server
+    timer: 2000, 
+ 
+  willClose: () => {
+  if (from === 'checkout') {
+    window.location.href = `/cart/checkout/${cartId}`;
+  } else {
+    window.location.href = '/profile/address';
+  }
+}
+});
+})
+.catch(error => {
+  console.error('Error:', error); // Log error for debugging
+  Swal.fire({
+    icon: 'error',
+    title: 'Oops',
+    text: 'An error occurred while updating the address.'
+  });
+});
     // Make a fetch call to update the address
-    fetch(`/profile/editAddress/<%= address._id %>`, {
-      method: "POST", // Using POST
-      headers: {
-        "Content-Type": "application/json"
-      },
-      body: JSON.stringify(formData)
-    })
-    .then(response => {
-      if (!response.ok) {
-        throw new Error('Network response was not ok');
-      }
-      return response.json(); // Assuming the server returns JSON
-    })
-    .then(data => {
-      Swal.fire({
-        icon: 'success',
-        title: 'Success',
-        text: data.message // Use the message returned from the server
-      });
-    })
-    .catch(error => {
-      console.error('Error:', error); // Log error for debugging
-      Swal.fire({
-        icon: 'error',
-        title: 'Oops',
-        text: 'An error occurred while updating the address.'
-      });
-    });
+    // fetch(`/profile/editAddress/<%= address._id %>`, {
+    //   method: "POST", 
+    //   headers: {
+    //     "Content-Type": "application/json"
+    //   },
+    //   body: JSON.stringify(formData)
+    // })
+    // .then(response => {
+    //   if (!response.ok) {
+    //     throw new Error('Network response was not ok');
+    //   }
+    //   return response.json(); 
+    // })
+    // .then(data => {
+    //   Swal.fire({
+    //     icon: 'success',
+    //     title: 'Success',
+    //     text: data.message 
+    //   });
+    // })
+    // .catch(error => {
+    //   console.error('Error:', error); 
+    //   Swal.fire({
+    //     icon: 'error',
+    //     title: 'Oops',
+    //     text: 'An error occurred while updating the address.'
+    //   });
+    // });
   }
 </script>
 
-        }
+        
    
   
 </script>

@@ -1,6 +1,7 @@
 const Product = require("../../models/productSchema")
 const Category = require('../../models/categorySchema')
 const User = require('../../models/userSchema')
+const Offer = require('../../models/offerSchema')
 const fs = require('fs')
 const path = require('path')
 const sharp = require('sharp')
@@ -215,7 +216,25 @@ const editProduct = async (req,res) => {
         if(req.files.length>0){
             updateFields.$push ={productImage:{$each:images}}
         }
-        await Product.findByIdAndUpdate(id,updateFields,{new:true})
+        const updatedProduct =   await Product.findByIdAndUpdate(id,updateFields,{new:true})
+        console.log(updatedProduct)
+
+
+ const offers = await Offer.find({
+    categoryName: updatedProduct.category.categoryName||"All Categories", // Match against categoryName in Offer schema
+    isActive: true
+});
+
+if (offers.length > 0) {
+    // Find the maximum discount
+    const maxDiscount = Math.max(...offers.map(offer => offer.discount));
+    
+
+    // Update the offer price based on the maximum discount
+    updatedProduct.offerPrice = updatedProduct.salePrice * (1 - maxDiscount / 100);
+    await updatedProduct.save();
+} 
+
         res.redirect('/admin/products')
     } catch (error) {
         console.error(`Error in editProduct: ${error.message}`);

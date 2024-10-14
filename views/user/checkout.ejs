@@ -4,7 +4,7 @@
     <div class="container">
         <div class="row">
             <div class="col">
-                <p class="bread"><span><a href="index.html">Home</a></span> / <span>Checkout</span></p>
+                <p class="bread"><span><a href="/">Home</a></span> / <span>Checkout</span></p>
             </div>
         </div>
     </div>
@@ -66,7 +66,7 @@
                                        
                                            
                                                 <button class="edit-btn" >
-                                                    <a href="/profile/editAddress?id=<%= address._id %>" style="color: #fff;">Edit</a>
+                                                    <a href="/profile/editAddress?id=<%= address._id %>&from=checkout&cartId=<%= cartId %>"%>" style="color: #fff;">Edit</a>
                                                 </button>
                                             </div>
                                         </div>
@@ -86,7 +86,7 @@
                     <ul>
                         <li>
                             <span>Subtotal</span> 
-                            <span>₹<%= cartData.items.reduce((sum, item) => sum + item.totalPrice, 0) %></span>
+                            <span>₹<%= subtotal %></span>
                             <ul>
                                 <% cartData.items.forEach(item => { %>
                                     <li>
@@ -97,46 +97,19 @@
                             </ul>
                         </li>
                         <li><span>Shipping</span> <span>₹0.00</span></li>
+                        <li><span>Discount</span> <span>₹<%= discount%></span></li>
                         <li>
                             <span>Order Total</span> 
-                            <span>₹<%= cartData.items.reduce((sum, item) => sum + item.totalPrice, 0) %></span>
+                            <span>₹<%= total %></span>
                         </li>
                         
                     </ul>
                 </div>
 
-                <!-- <div class="cart-detail">
-                    <h2>Payment Method</h2>
-                    <div class="form-group">
-                        <div class="col-md-12">
-                            <div class="radio">
-                                <label><input type="radio" name="optradio"> Card Payment</label>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="form-group">
-                        <div class="col-md-12">
-                            <div class="radio">
-                                <label><input type="radio" name="optradio"> Cash on delivery</label>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="row">
-                    <div class="col-md-12 text-center">
-                        <p><a href="/orderComplete" class="btn btn-primary">Place an order</a></p>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-</div> -->
+                
 <div class="cart-detail">
     <h2>Payment Method</h2>
     <form id="checkoutForm" action="/placeOrder" method="POST">
-     
-        <!-- Payment Method Selection -->
         <div class="form-group">
             <div class="col-md-12">
                 <div class="radio">
@@ -151,66 +124,122 @@
                 </div>
             </div>
         </div>
-
-        <!-- Place Order Button -->
         <div class="row">
             <div class="col-md-12 text-center">
                 <button type="submit" class="btn btn-primary">Place an order</button>
             </div>
         </div>
-
-        <input type="hidden" name="addressId" id="addressId" value="<%=addressId%>">
+        <input type="hidden" name="addressId" id="addressId" value="">
     </form>
+    
 </div>
 </div>
 
 
 <%- include("../../views/partials/user/footer") %>
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-<!-- <script>
-    document.getElementById('placeOrderBtn').addEventListener('click', function() {
-        const selectedAddressId = document.querySelector('input[name="selectedAddress"]:checked');
-        const selectedPaymentMethod = document.querySelector('input[name="optradio"]:checked'); // Capture payment option
-        
-        // Check if an address is selected
-        if (!selectedAddressId) {
-            alert('Please select an address for delivery.');
-            return; // Prevent form submission if no address is selected
-        }
-
-        // Check if a payment method is selected
-        if (!selectedPaymentMethod) {
-            alert('Please select a payment method.');
-            return; // Prevent form submission if no payment method is selected
-        }
-        
-        const addressId = selectedAddressId.value;
-        const paymentMethod = selectedPaymentMethod.value; // Get the value of the selected payment option
-
-        // Redirect to the placeOrder route, passing the addressId and paymentMethod in the URL
-        window.location.href = `/placeOrder?addressId=${addressId}&paymentMethod=${paymentMethod}`;
-    });
-</script> -->
+<!-- Include Razorpay's Checkout script -->
+<script src="https://checkout.razorpay.com/v1/checkout.js"></script>
 <script>
-document.querySelector('#checkoutForm').addEventListener('submit', function(event) {
+document.querySelector('#checkoutForm').addEventListener('submit', async function(event) {
+    event.preventDefault(); // Prevent default form submission
+
     const selectedAddressId = document.querySelector('input[name="selectedAddress"]:checked');
     const selectedPaymentMethod = document.querySelector('input[name="paymentMethod"]:checked');
-    
+
     // Check if an address is selected
     if (!selectedAddressId) {
         alert('Please select an address for delivery.');
-        event.preventDefault(); // Prevent form submission if no address is selected
-        return;
+        return; // Stop execution if no address is selected
     }
 
     // Set the selected address ID in the hidden input
     document.getElementById('addressId').value = selectedAddressId.value;
 
+    const addressId = selectedAddressId.value;
     const paymentMethod = selectedPaymentMethod.value; // Get the value of the selected payment option
 
-// Redirect to the placeOrder route, passing the addressId and paymentMethod in the URL
-// window.location.href = `/placeOrder?addressId=${addressId}&paymentMethod=${paymentMethod}`;
+    const orderDetails = { addressId, paymentMethod }; // Prepare order details
+
+    try {
+        const response = await fetch('/placeOrder', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(orderDetails),
+        });
+
+        const result = await response.json();
+        console.log(result)
+        if (response.ok && paymentMethod === 'Card Payment') {
+            // Initiate Razorpay payment if the payment method is 'Card Payment'
+            initiateRazorpayPayment(result); // Pass the Razorpay order details to the payment function
+        } else if (response.ok && paymentMethod === 'COD') {
+            // For COD, redirect to the order-complete page
+            window.location.href =  result.redirectUrl;
+        } else {
+            // Handle any errors from the server
+            alert(result.message || 'Error placing order');
+        }
+    } catch (error) {
+        console.error('Error submitting order:', error);
+        alert('Error submitting order.');
+    }
 });
+
+// Function to initiate Razorpay payment
+function initiateRazorpayPayment(orderDetails) {
+    const options = {
+        key: orderDetails.key, // Razorpay API Key
+        amount: orderDetails.amount, // Amount in paise
+        currency: orderDetails.currency,
+        name: orderDetails.name, // Your store name
+        description: orderDetails.description, // Payment description
+        order_id: orderDetails.orderId, // The Razorpay order_id
+        handler: function (response) {
+            // Handle payment success - send payment details to the backend for verification
+            verifyPayment(response);
+        },
+        prefill: {
+            name: orderDetails.prefill.name,
+            email: orderDetails.prefill.email,
+            contact: orderDetails.prefill.contact
+        },
+        theme: {
+            color: "#3399cc" // Customize the checkout modal's color
+        }
+    };
+
+    const rzp = new Razorpay(options);
+    rzp.open(); // Opens Razorpay Checkout modal
+}
+
+// Function to verify the payment on the backend
+function verifyPayment(paymentResponse) {
+    fetch('/verify-payment', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+            razorpay_order_id: paymentResponse.razorpay_order_id,
+            razorpay_payment_id: paymentResponse.razorpay_payment_id,
+            razorpay_signature: paymentResponse.razorpay_signature
+        })
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            alert('Payment successful! Redirecting to order completion page...');
+            window.location.href = `/order-complete/${paymentResponse.razorpay_order_id}`; // Redirect to order completion page
+        } else {
+            alert('Payment verification failed. Please try again.');
+        }
+    })
+    .catch(error => {
+        console.error('Error verifying payment:', error);
+        alert('There was an error processing your payment.');
+    });
+}
 
 </script>
 

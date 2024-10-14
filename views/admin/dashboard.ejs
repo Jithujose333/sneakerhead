@@ -1,70 +1,183 @@
-<%-include("../../views/partials/admin/header")%>
+<%- include("../../views/partials/admin/header",{admin:"admin"}) %>
 
 <div>
 
-<link rel="stylesheet" href="/css/admindashboard.css">
-<!-- dashboard.html -->
-
-<div class="dashboard-container">
-    <div class="sidebar">
-      <ul class="nav">
-        <li><a href="#" class="active">Dashboard</a></li>
-        <li><a href="#">Orders</a></li>
-        <li><a href="#">Products</a></li>
-        <li><a href="#">Customers</a></li>
-        <li><a href="#">Reports</a></li>
-      </ul>
-    </div>
-    <div class="main-content">
-      <div class="card">
-        <h2>Dashboard Overview</h2>
-        <p>Welcome to your ecommerce dashboard!</p>
-      </div>
-      <div class="card">
-        <h2>Recent Orders</h2>
-        <table>
-          <thead>
-            <tr>
-              <th>Order ID</th>
-              <th>Customer Name</th>
-              <th>Order Date</th>
-              <th>Total</th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr>
-              <td>#1234</td>
-              <td>John Doe</td>
-              <td>2022-01-01</td>
-              <td>$100.00</td>
-            </tr>
-            <tr>
-              <td>#1235</td>
-              <td>Jane Doe</td>
-              <td>2022-01-02</td>
-              <td>$50.00</td>
-            </tr>
-          </tbody>
-        </table>
-      </div>
-      <div class="card">
-        <h2>Top Selling Products</h2>
-        <ul>
-          <li>
-            <img src="product1.jpg" alt="Product 1">
-            <span>Product 1</span>
-            <span>$20.00</span>
-          </li>
-          <li>
-            <img src="product2.jpg" alt="Product 2">
-            <span>Product 2</span>
-            <span>$30.00</span>
-          </li>
+  <link rel="stylesheet" href="/css/admindashboard.css">
+  
+  <div class="dashboard-container">
+      <!-- <div class="sidebar">
+        <ul class="nav">
+          <li><a href="#" class="active">Dashboard</a></li><br>
+          <li><a href="#">Orders</a><br></li><br>
+          <li><a href="#">Products</a><br></li><br>
+          <li><a href="#">Customers</a><br></li><br>
+          <li><a href="#">Reports</a></li><br>
         </ul>
-      </div>
-    </div>
-  </div>
+      </div> -->
 
-    
+      <div class="main-content">
+        <h2 style=" margin-left: 2rem;"> Dashboard Overview</h2>
+        <div class="dashboard-cards" >
+          <div class="card" style="background-color: #5588A6;">
+            <h4>Today Orders</h4>
+            <p>₹0.00</p>
+            <p>Cash: ₹0.00</p>
+            <p>Card: ₹0.00</p>
+            <p>Credit: ₹0.00</p>
+          </div>
+
+          <div class="card" style="background-color: #7CBFBF;">
+            <h4>Overall Order</h4>
+            <p>₹461.01</p>
+            <p>Cash: ₹461.01</p>
+            <p>Card: ₹0.00</p>
+            <p>Credit: ₹0.00</p>
+          </div>
+
+          <div class="card" style="background-color: #ccd5df;">
+            <h4>Overall Discount</h4>
+            <p>₹461.01</p>
+          </div>
+
+          <div class="card" style="background-color: #8FBC8F;">
+            <h4>Last Month</h4>
+            <p>₹24,137.69</p>
+          </div>
+
+          <div class="card" style="background-color: #2F847C;">
+            <h4>Overall Sales</h4>
+            <p>₹176,412.07</p>
+          </div>
+        </div>
+
+        
+
 </div>
-<%-include("../../views/partials/admin/footer")%>
+<%- include("../../views/partials/admin/footer") %>
+
+<style>
+  body {
+      font-family: sans-serif;
+      margin: 0;
+      padding: 0;
+      background-color: #f4f4f9;
+  }
+
+  .dashboard-container {
+    display: flex;
+    flex-wrap: wrap;
+  }
+
+ 
+  .main-content {
+      flex: 1;
+      padding: 20px;
+  }
+
+  .dashboard-cards {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+  }
+
+  .card {
+      box-shadow: 0 4px 8px 0 rgba(0,0,0,0.2);
+      transition: 0.3s;
+      border-radius: 10px;
+      width: 200px;
+      margin: 10px;
+      text-align: center;
+      padding: 20px;
+      color: white;
+  }
+
+  .card h4 {
+      margin-bottom: 10px;
+  }
+
+  .card p {
+      margin: 5px 0;
+  }
+
+  .card:hover {
+      box-shadow: 0 8px 16px 0 rgba(0,0,0,0.3);
+  }
+
+  .recent-orders, .top-selling {
+      margin-top: 20px;
+  }
+
+  table {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 20px 0;
+  }
+
+  table, th, td {
+      border: 1px solid #ddd;
+      padding: 8px;
+  }
+
+  th {
+      background-color: #f2f2f2;
+      text-align: left;
+  }
+
+  tr:nth-child(even) {
+      background-color: #f9f9f9;
+  }
+
+  tr:hover {
+      background-color: #f1f1f1;
+  }
+
+  ul {
+      list-style-type: none;
+      padding: 0;
+  }
+
+  ul li {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 10px 0;
+  }
+
+  ul li img {
+      width: 50px;
+      height: 50px;
+      object-fit: cover;
+      margin-right: 10px;
+  }
+
+  /* Responsive Design */
+  @media (max-width: 768px) {
+      .dashboard-cards {
+          justify-content: center;
+      }
+
+      .sidebar {
+          width: 100%;
+          height: auto;
+      }
+
+      .main-content {
+          padding: 10px;
+      }
+
+      .card {
+          width: 100%;
+          margin: 10px 0;
+      }
+
+      .recent-orders, .top-selling {
+          padding: 10px;
+      }
+  }
+
+  @media (max-width: 576px) {
+      .dashboard-cards {
+          display: block;
+      }
+  }
+</style>

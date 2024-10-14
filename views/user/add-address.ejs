@@ -22,9 +22,9 @@
       </div>
       <ul>
         <li><a href="/userProfile"><i class="fas fa-user"></i> Edit Profile</a></li>
-        <li><a href="#"><i class="fas fa-wallet"></i> Your Wallet</a></li>
+        <li><a href="/profile/wallet"><i class="fas fa-wallet"></i> Your Wallet</a></li>
         <li><a href="/profile/orders"><i class="fas fa-shopping-cart"></i> Your Orders</a></li>
-        <li><a href="#"><i class="fas fa-heart"></i> Wishlist</a></li>
+        <li><a href="/wishlist"><i class="fas fa-heart"></i> Wishlist</a></li>
         <li><a href="/profile/address"><i class="fas fa-address-card"></i> Addresses</a></li>
         <li><a href="#"><i class="fas fa-money-bill-wave"></i> Payment Options</a></li>
         <li><a href="/logout"><i class="fas fa-sign-out-alt"></i> Logout</a></li>
@@ -33,7 +33,9 @@
 
     <div class="address">
       <h2>Add Address</h2>
-      <form action="/profile/addAddress?from=profile" method="POST" id="add-address-form">
+      <form action="/profile/addAddress?from=checkout&cartId=<%= cartId %>" method="POST" id="add-address-form">
+        <input type="hidden" name="from" value="<%= (from === 'checkout') ? 'checkout' : 'profile' %>">
+      <!-- <form action="/profile/addAddress?from=checkout||from=profile" method="POST" id="add-address-form"> -->
         <!-- <div class="field">
             <label for="type">AddressType</label>
             <input type="text" id="name" name="addressType" required>
@@ -134,11 +136,12 @@
 // If the form is valid, proceed with fetch submission
     const formData = new FormData(this);
     try {
-        const response = await fetch('/profile/addAddress', {
+      // const response = await
+       fetch('/profile/addAddress', {
             method: 'POST',
             body: formData,
         });
-
+        const cartID = "<%= cartId %>";
         const result = await response.json();
         if (response.ok) {
             Swal.fire({
@@ -147,7 +150,14 @@
                 showConfirmButton: false,
                 timer: 1500
             }).then(() => {
-                window.location.href = "/profile/address"; // Redirect after successful submission
+              const urlParams = new URLSearchParams(window.location.search);
+        const fromCheckout = urlParams.get('from') === 'checkout';
+        
+        if (fromCheckout) {
+            window.location.href = `/cart/checkout/${cartID}`; // Redirect to checkout page
+        } else {
+            window.location.href = "/profile/address"; // Redirect to address page
+        }
             });
         } else {
             Swal.fire({
