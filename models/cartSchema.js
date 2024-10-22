@@ -34,6 +34,10 @@ const cartSchema = new Schema({
             ref:'Product',
             required:true
         },
+        size: {
+            type: Number, 
+            required: true
+          },
         quantity:{
             type:Number,
             default:1

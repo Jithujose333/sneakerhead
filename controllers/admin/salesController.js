@@ -5,9 +5,12 @@ const ExcelJS = require('exceljs');
 
 
 const getSalesData = async (search, dateFilter, startDate, endDate) => {
-    let query = {};
+   
+    let query = {
+        orderStatus: 'Delivered' 
+    };
 
-    // Search filters
+    // Search filters 
     if (search) {
         query.$or = [
             { orderId: { $regex: search, $options: 'i' } },
@@ -15,7 +18,35 @@ const getSalesData = async (search, dateFilter, startDate, endDate) => {
         ];
     }
 
-    // Date filters
+    // // Date filters
+    // if (dateFilter) {
+    //     const now = moment(); // Get current time
+    //     if (dateFilter === 'daily') {
+    //         query.invoiceDate = { $gte: now.startOf('day').toDate(), $lt: now.endOf('day').toDate() };
+    //     } else if (dateFilter === 'weekly') {
+    //         query.invoiceDate = { $gte: now.startOf('week').toDate(), $lt: now.endOf('week').toDate() };
+    //     } else if (dateFilter === 'monthly') {
+    //         query.invoiceDate = { $gte: now.startOf('month').toDate(), $lt: now.endOf('month').toDate() };
+    //     } else if (dateFilter === 'yearly') {
+    //         query.invoiceDate = { $gte: now.startOf('year').toDate(), $lt: now.endOf('year').toDate() };
+    //     } else if (dateFilter === 'custom' && startDate && endDate) {
+    //         const start = moment(startDate);
+    //         const end = moment(endDate);
+    //         if (start.isValid() && end.isValid()) {
+    //             query.invoiceDate = { $gte: start.toDate(), $lt: end.toDate() };
+    //         } else {
+    //             console.error('Invalid date range');
+    //         }
+    //     }
+    // }
+
+
+
+
+
+
+
+
     if (dateFilter) {
         const now = moment(); // Get current time
         if (dateFilter === 'daily') {
@@ -27,15 +58,38 @@ const getSalesData = async (search, dateFilter, startDate, endDate) => {
         } else if (dateFilter === 'yearly') {
             query.invoiceDate = { $gte: now.startOf('year').toDate(), $lt: now.endOf('year').toDate() };
         } else if (dateFilter === 'custom' && startDate && endDate) {
-            const start = moment(startDate);
-            const end = moment(endDate);
+            const start = moment(startDate).startOf('day');
+            const end = moment(endDate).endOf('day'); // Include the entire end date
             if (start.isValid() && end.isValid()) {
-                query.invoiceDate = { $gte: start.toDate(), $lt: end.toDate() };
+                query.invoiceDate = { $gte: start.toDate(), $lte: end.toDate() }; // Using $lte to include the full end date
             } else {
                 console.error('Invalid date range');
             }
+        } else if (dateFilter === 'custom' && startDate && !endDate) {
+            const singleDate = moment(startDate);
+            if (singleDate.isValid()) {
+                query.invoiceDate = {
+                    $gte: singleDate.startOf('day').toDate(),
+                    $lt: singleDate.endOf('day').toDate()
+                };
+            } else {
+                console.error('Invalid single date');
+            }
         }
     }
+    
+    
+    
+    
+
+
+
+
+
+
+
+
+
 
     return await Order.find(query)
         .populate('userId')
@@ -45,11 +99,19 @@ const getSalesData = async (search, dateFilter, startDate, endDate) => {
 
 const getSalesReport = async (req, res) => {
     try {
+        console.log('Incoming Query Parameters:', req.query); 
         const { search = "", dateFilter, startDate, endDate } = req.query; // Search query from the user
+        console.log('main Query Parameters:', search, dateFilter, startDate, endDate);
         const page = parseInt(req.query.page) || 1; // Current page number
-        const limit = 5; // Limit of orders per page
+        const limit = 10; // Limit of orders per page
         const orders = await getSalesData(search, dateFilter, startDate, endDate);
        
+
+
+ // Construct the download URLs using req.query
+ const pdfUrl = `/admin/salesreport/pdf?${new URLSearchParams(req.query).toString()}`;
+ const excelUrl = `/admin/salesreport/excel?${new URLSearchParams(req.query).toString()}`;
+ console.log(pdfUrl)
 
        
         // // Check if there are no results
@@ -78,7 +140,9 @@ const getSalesReport = async (req, res) => {
             noResults,
             totalSalesCount,
             totalOrderAmount,
-            totalDiscount
+            totalDiscount,
+            pdfUrl,
+            excelUrl
         });
     } catch (error) {
         console.error('Error fetching orders:', error);
@@ -91,11 +155,19 @@ const getSalesReport = async (req, res) => {
 
 const getPdf = async (req, res) => {
     try {
-        const { search="", dateFilter, startDate, endDate } = req.query;
+        const { search = "", dateFilter, startDate, endDate } = req.query; // Search query from the user
         console.log('PDF Query Parameters:', search, dateFilter, startDate, endDate);
         const orders = await getSalesData(search, dateFilter, startDate, endDate); // Fetch data based on filters
         
+        // console.log('Filtered Orders:', orders);
 
+        const totalSalesCount = orders.length; // Count of orders on current page
+
+        const totalOrderAmount = orders.reduce((acc, order) => {
+            return acc + (order.orderedItems ? order.orderedItems.reduce((sum, item) => sum + item.price * item.quantity, 0) : 0);
+        }, 0);
+
+        const totalDiscount = orders.reduce((acc, order) => acc + (order.discount || 0), 0);
 
         const doc = new PDFDocument();
         res.setHeader('Content-Disposition', 'attachment; filename=sales_report.pdf');
@@ -104,6 +176,18 @@ const getPdf = async (req, res) => {
 
         // Set title
         doc.fontSize(16).text('Sales Report', { align: 'center' }).moveDown(1);
+
+
+        doc.fontSize(13).text('Sales Overview', { align: 'left' }).moveDown(1);
+
+         // Add the total overview at the top
+         doc.fontSize(12).text(`Total Sales Count: ${totalSalesCount}`, { align: 'left' });
+         doc.text(`Total Order Amount: Rs ${totalOrderAmount.toFixed(2)}`, { align: 'left' });
+         doc.text(`Total Discount: Rs ${totalDiscount.toFixed(2)}`, { align: 'left' }).moveDown(1);
+
+
+         doc.fontSize(13).text('Sales OrderList', { align: 'left' }).moveDown(1);
+ 
 
         // Set column headers with alignment
         const headers = ['Order ID', 'Invoice Date', 'Quantity', 'Total Price', 'Total Discount', 'Status', 'Payment Method', 'Payment Status'];
@@ -153,13 +237,35 @@ const getPdf = async (req, res) => {
 };
 
 
+
+
 const getExcel = async (req, res) => {
     try {
         const { search, dateFilter, startDate, endDate } = req.query; // Get filters from query
         const orders = await getSalesData(search, dateFilter, startDate, endDate); // Fetch data based on filters
 
+
+        const totalSalesCount = orders.length; // Count of orders on current page
+
+        const totalOrderAmount = orders.reduce((acc, order) => {
+            return acc + (order.orderedItems ? order.orderedItems.reduce((sum, item) => sum + item.price * item.quantity, 0) : 0);
+        }, 0);
+
+        const totalDiscount = orders.reduce((acc, order) => acc + (order.discount || 0), 0);
+
+        const doc = new PDFDocument();
+
+
         const workbook = new ExcelJS.Workbook();
         const worksheet = workbook.addWorksheet('Sales Report');
+
+
+        // Add the total overview at the top
+        worksheet.addRow(['Sales Overview']);
+        worksheet.addRow([`Total Sales Count: ${totalSalesCount}`]);
+        worksheet.addRow([`Total Order Amount: Rs ${totalOrderAmount.toFixed(2)}`]);
+        worksheet.addRow([`Total Discount: Rs ${totalDiscount.toFixed(2)}`]);
+        worksheet.addRow([]); // Empty row for spacing
 
         // Add table headers
         const headers = ['Order ID', 'Invoice Date', 'Quantity', 'Total Price', 'Total Discount', 'Status', 'Payment Method', 'Payment Status'];

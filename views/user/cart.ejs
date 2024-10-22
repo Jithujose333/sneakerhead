@@ -49,13 +49,16 @@
                     <div class="one-forth text-left px-4">
                         <span>Product Details</span>
                     </div>
-                    <div class="one-eight text-center">
+                    <div class="one-eight text-center" style="margin-left: 1rem;">
                         <span>Price</span>
                     </div>
-                    <div class="one-eight text-center">
+                    <div class="one-eight text-center"  style="margin-left: 2rem;">
+                        <span>Size</span>
+                    </div>
+                    <div class="one-eight text-center"style="margin-left: 2rem;">
                         <span>Quantity</span>
                     </div>
-                    <div class="one-eight text-center">
+                    <div class="one-eight text-center"style="margin-left: 2rem;">
                         <span>Total</span>
                     </div>
                     <div class="one-eight text-center px-4">
@@ -84,37 +87,38 @@
                         </div>
                     </div>
                     <div class="one-eight text-center">
-                        <div class="display-tc">
-                            <span class="price">₹<%= item.price %></span>
+                        <div class="display-tc" >
+                            <span class="price"style="margin-right: 3rem;">₹<%= item.price %></span>
                         </div>
                     </div>
-
+                    <div class="one-eight text-center">
+                        <div class="display-tc">
+                            <span class="price"><%= item.size %></span>
+                        </div>
+                    </div>
 
                   
-                    <div class="one-eight text-center">
-                        <div class="display-tc d-flex justify-content-center align-items-center quantity-control">
-                            <!-- Decrement Button -->
-                            <button type="button" class="btn quantity-left-minus" data-type="minus" data-field="" style="border: none; background-color: #f8f9fa; cursor: pointer;">
-                                <i class="icon-minus2"></i>
-                            </button>
+                   
                     
-                            <!-- Quantity Input Field -->
-                            <input type="text" id="quantity-<%= item._id %>" name="quantity" class="form-control input-number text-center" value="<%= item.quantity %>" min="1" max="<%= item.stock%>" data-stock="<%= item.stock %>" readonly style="width: 60px; border: none;">
-                    
-                            <!-- Increment Button -->
-                            <button type="button" class="btn quantity-right-plus" data-type="plus" data-field="" style="border: none; background-color: #f8f9fa; cursor: pointer;">
-                                <i class="icon-plus2"></i>
-                            </button>
-                        </div>
-                    </div>
-                    
+<div class="one-eight text-center">
+    <div class="display-tc d-flex justify-content-center align-items-center quantity-control">
+        <!-- Decrement Button -->
+        <button type="button" class="btn quantity-left-minus" data-type="minus" data-field="" style="border: none; background-color: #f8f9fa; cursor: pointer;">
+            <i class="icon-minus2"style="margin-left: -5px;"></i>
+        </button>
+
+        <!-- Quantity Input Field -->
+        <input type="text" id="quantity-<%= item.productId._id%>" name="quantity" class="form-control input-number text-center" value="<%= item.quantity %>" min="1" readonly style="width: 60px; border: none;"data-size="<%= item.size %>">
+
+        <!-- Increment Button -->
+        <button type="button" class="btn quantity-right-plus" data-type="plus" data-field="" style="border: none; background-color: #f8f9fa; cursor: pointer;">
+            <i class="icon-plus2" style="margin-left: -5px;"></i>
+        </button>
+    </div>
+</div>
 
                    
-                    <!-- <div class="one-eight text-center">
-                        <div class="display-tc">
-                       <input type="text" id="quantity" name="quantity" class="form-control input-number text-center" value="<%= item.quantity %>" min="1" max="100">
-                        </div>
-                    </div> -->
+                  
 
                     
                     <div class="one-eight text-center">
@@ -187,10 +191,14 @@
                                     <p><span>Discount:</span> <span>₹<%=discount%></span></p>
                                 </div>
                                 <div class="grand-total">
-                                    <p><span><strong>Total:</strong></span> <span>₹<%=total%></span></p>
+                                    <p><span><strong>Total:</strong></span> <span>₹<%= parseFloat(total.toFixed(2))%></span></p>
                                 </div>
                                 <div class="col-sm-12 text-center">
-									<p class="addtocart"><a href="/cart/checkout/<%=cartId%>" class="btn btn-primary btn-addtocart"><i class="icon-shopping-cart"></i> Buy Now</a></p>
+                                    <% if(outOfStockItems===true || cart.items.length===0){%>
+                                        <p class=""><a href="#" class="btn btn-primary btn-addtocart"><i class="icon-shopping-cart" style="color: red;"></i> No Products</a></p>
+                                    <%} else  {%>
+									<p class="addtocart"><a href="/cart/checkout/<%=cart._id%>" class="btn btn-primary btn-addtocart"><i class="icon-shopping-cart"></i> Buy Now</a></p>
+                                   <% }%>
 								</div>
                             </div>
                         </div>
@@ -205,27 +213,7 @@
             </div>
         </div>
         
-					<!-- <div class="row row-pb-md">
-						<% products.forEach((product, i) => { %>
-						  <% if (product) { %>
-							<div class="col-lg-3 mb-4 text-center">
-							  <div class="product-entry border">
-								<a href="/products/<%= product._id %>" class="prod-img">
-								  <% if (product.productImage && product.productImage.length > 0) { %>
-									<img src="/uploads/re-image/<%= product.productImage[0] %>" class="img-fluid" alt="<%= product.productName %>">
-								  <% } else { %>
-									<img src="/path/to/default/image.jpg" class="img-fluid" alt="No Image Available">
-								  <% } %>
-								</a>
-								<div class="desc">
-								  <h2><a href="/products/<%= product._id %>"><%= product.productName %></a></h2>
-								  <span class="price">₹<%= product.salePrice || product.regularPrice %>.00</span>
-								</div>
-							  </div>
-							</div>
-						  <% } %>
-						<% }); %>
-					  </div> -->
+					
                       <div class="row row-pb-md">
 						<% products.forEach((product, i) => { %>
 						  <% if (product) { %>
@@ -260,9 +248,6 @@
 </div>
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 <script>
-const quantityInput = document.getElementById('quantity');
-
-
 
 
 // Decrement quantity
@@ -271,30 +256,65 @@ document.querySelectorAll('.quantity-left-minus').forEach(button => {
         const quantityInput = this.parentNode.querySelector('input[name="quantity"]'); // Get the associated input field
         const productId = quantityInput.id.split('-')[1]; // Extract product ID from input field ID
         let quantity = parseInt(quantityInput.value);
-        
+        const selectedSize = quantityInput.getAttribute('data-size');
+
+        // Only decrement if the quantity is greater than 1
         if (quantity > 1) {
-            quantityInput.value = quantity - 1;
-            updateQuantityInDB(productId, quantityInput.value); // Send new quantity to the server
+            quantityInput.value = quantity - 1; // Decrease the quantity in the input field
+            let newQuantity = quantityInput.value; // Get the new quantity
+            
+            updateQuantityInDB(productId, selectedSize, newQuantity); // Send new quantity to the server
         }
     });
 });
+
 
 // Increment quantity with stock check
 document.querySelectorAll('.quantity-right-plus').forEach(button => {
-    button.addEventListener('click', function () {
-        const quantityInput = this.parentNode.querySelector('input[name="quantity"]'); // Get the associated input field
-        const productId = quantityInput.id.split('-')[1]; // Extract product ID from input field ID
-        const stock = parseInt(quantityInput.getAttribute('data-stock')); // Get the available stock from data attribute
+    button.addEventListener('click', async function () {
+        const quantityInput = this.parentNode.querySelector('input[name="quantity"]');
+        const productId = quantityInput.id.split('-')[1];
+        console.log(productId)
         let quantity = parseInt(quantityInput.value);
+        const selectedSize = quantityInput.getAttribute('data-size'); 
+        
 
-        if (quantity < product.stock) {
-            quantityInput.value = quantity + 1;
-            updateQuantityInDB(productId, quantityInput.value); // Send new quantity to the server
-        } else {
-            Swal.fire({
-                icon: 'warning',
-                title: 'Out of Stock',
-                text: 'The requested quantity exceeds available stock.',
+        try {
+            // Fetch product stock from the server
+            const response = await fetch(`/get-stock/${productId}/${selectedSize}`);
+            const data = await response.json();
+
+            if (!data.success) {
+                throw new Error(data.message || 'Failed to fetch stock');
+            }
+
+            const stock = data.stock;
+            console.log(stock)
+
+            // Now check if the requested quantity is less than the available stock
+            if (quantity <= stock) {
+                quantityInput.value = quantity + 1;
+                let newQuantity =quantityInput.value
+                console.log(newQuantity)
+                updateQuantityInDB(productId, selectedSize,newQuantity); // Send new quantity to the server
+            } else {
+               await Swal.fire({
+                    icon: 'warning',
+                    title: 'Out of Stock',
+                    text: 'The requested quantity exceeds available stock.',
+                    timer: 2000,
+                    confirmButtonText: 'OK',
+                    confirmButtonColor: '#d33'
+                });
+            }
+
+        } catch (error) {
+            console.error('Error fetching stock:', error);
+           await Swal.fire({
+                icon: 'error',
+                title: 'Error',
+                text: 'Failed to retrieve stock information.',
+                timer: 2000,
                 confirmButtonText: 'OK',
                 confirmButtonColor: '#d33'
             });
@@ -302,51 +322,57 @@ document.querySelectorAll('.quantity-right-plus').forEach(button => {
     });
 });
 
-// Function to send AJAX request to update quantity in the database
-function updateQuantityInDB(productId, newQuantity) {
-    fetch('/update-quantity', {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-            productId: productId,
-            quantity: newQuantity,
-        }),
-    })
-    .then(response => response.json())
-    .then(data => {
+
+
+async function updateQuantityInDB(productId, selectedSize, newQuantity) {
+    try {
+        const response = await fetch('/update-quantity', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+                productId: productId,
+                newQuantity: newQuantity,
+                selectedSize: selectedSize
+            }),
+        });
+
+        const data = await response.json();
         if (data.success) {
-            Swal.fire({
+            await Swal.fire({
                 icon: 'success',
                 title: 'Quantity Updated',
                 text: 'The quantity has been updated successfully.',
+                timer: 2000,
                 confirmButtonText: 'OK',
                 confirmButtonColor: '#28a745'
             });
+            window.location.reload(); // Refresh the page after confirming the alert
         } else {
-            Swal.fire({
+            await Swal.fire({
                 icon: 'error',
                 title: 'Update Failed',
                 text: data.message,  // Show the error message from the server
+                timer: 2000,
                 confirmButtonText: 'OK',
                 confirmButtonColor: '#d33'
             });
+            window.location.reload(); // Refresh the page after confirming the error alert
         }
-    })
-    .catch(error => {
-        Swal.fire({
+    } catch (error) {
+        await Swal.fire({
             icon: 'error',
             title: 'Error',
             text: 'An error occurred while updating the quantity.',
+            timer: 2000,
             confirmButtonText: 'OK',
             confirmButtonColor: '#d33'
         });
+        window.location.reload(); // Refresh the page after confirming the error alert
         console.error("Error updating quantity:", error);
-    });
+    }
 }
-
-
 
 async function removeItem(button) {
     try {

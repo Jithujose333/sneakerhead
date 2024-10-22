@@ -15,7 +15,7 @@
       <h3>My Profile</h3>
       <div class="profile-user">
         <div class="user">
-          <img src="https://picsum.photos/id/1015/50/50" alt="Profile Picture" style="width: 100px; height: 100px; border-radius: 50%; object-fit: cover;">
+          <img src="https://media.istockphoto.com/id/1300845620/vector/user-icon-flat-isolated-on-white-background-user-symbol-vector-illustration.jpg?s=612x612&w=0&k=20&c=yBeyba0hUkh14_jgv1OKqIH0CCSWU_4ckRkAoy2p73o=" alt="Profile Picture" style="width: 100px; height: 100px; border-radius: 50%; object-fit: cover;">
           <div class="name" style="color: #000000;margin-left: 2rem; font-weight: 500; text-transform: uppercase;"><%= firstName %></div>
         </div>
       </div>
@@ -24,7 +24,7 @@
         <li><a href="/profile/wallet"><i class="fas fa-wallet"></i> Your Wallet</a></li>
         <li><a href="/profile/orders"><i class="fas fa-shopping-cart"></i> Your Orders</a></li>
        
-        <li><a href="#"><i class="fas fa-heart"></i> Wishlist</a></li>
+        <li><a href="/wishlist"><i class="fas fa-heart"></i> Wishlist</a></li>
         <li><a href="/profile/address"><i class="fas fa-address-card"></i> Addresses</a></li>
         <li><a href="#"><i class="fas fa-money-bill-wave"></i> Payment Options</a></li>
         
@@ -32,39 +32,7 @@
       </ul>
     </div>
     
-    <!-- <div class="orders" style="width: 70%;">
-      <h2>My Orders</h2>
-      
-      <% for (let i = orders.length - 1; i >= 0; i--) {
-        const order = orders[i]; %>
-        <div class="order-container">
-            <div class="order-header">
-             
-                <div >
-                    <% if (order.orderedItems[0].product && order.orderedItems[0].product.productImage) { %>
-                        <img src="/uploads/re-image/<%= order.orderedItems[0].product.productImage[0] %>" 
-                             alt="<%= order.orderedItems[0].product.productName %>" 
-                             style="width: 100px; height: auto;">
-                    <% } else { %>
-                        <img src="/path/to/placeholder-image.jpg" alt="No Image" style="width: 100px; height: auto;">
-                    <% } %>
-                </div>
-                <div class="order-title">OrderId :<%= order.orderId %></div>
-                <div class="order-title"><%= order.orderedItems[0].product.productName %></div>
-                <div class="order-status">Order Status :<%= order.orderStatus %></div>
-                <div class="order-status">Payment Status :<%= order.paymentStatus %></div>
-            </div>
-            <div class="order-details">
-              <p>Quantity: <%=order.orderedItems[0].quantity%></p>
-                <p>Color: <%=order.orderedItems[0].product.color%></p>
-                <p>Total price:₹<%= order.totalPrice %> </p>
-            </div>
-            <div class="order-actions">
-                <button>Cancel Order</button>
-            </div>
-        </div>
-    <% } %>
-    </div> -->
+    
 
 
     <div class="orders" style="width: 70%;">
@@ -94,6 +62,7 @@
             <div style="margin-left: 20px;    ">
               <p>Item OrderID:<span style="margin-left: 5px;"></span>  <%= item.itemOrderId %></p>
               <p>Product Name: <span style="margin-left: 5px;"></span><%= item.product.productName %></p>
+              <p>Size: <span style="margin-left: 5px;"></span><%= item.size %></p>
               <p>Quantity: <span style="margin-left: 5px;"></span><%= item.quantity %></p>
               <p>Color:<span style="margin-left: 5px;"></span> <%= item.product.color %></p>
              
@@ -110,18 +79,30 @@
 
 
       <div class="order-actions">
+        <% if (order.orderStatus === 'Delivered'|| order.orderStatus === 'Completed') { %>
+         
+          <button class="btn btn-warning invoice-btn" data-id="<%= order._id %>" style="width: 130px;"><a href="/invoice/<%=order._id%>">
+            Invoice
+          </a>
+          </button>
+          <% }%>
         <% if (order.orderStatus === 'Cancelled'|| order.orderStatus === 'Returned') { %>
-          <!-- Show a disabled 'Cancelled' button if the order is already cancelled -->
+         
           <button class="btn btn-secondary" disabled style="width: 100px;">
             Cancelled
           </button>
+          <% } else if (order.orderStatus === 'Pending' && order.paymentStatus === 'Failed') { %>
+            
+            <button class="btn btn-warning retry-btn" data-id="<%= order._id %>" style="width: 130px;">
+              Retry payment
+          </button>
         <% } else if (order.orderStatus === 'Delivered' && order.paymentStatus === 'Completed') { %>
-          <!-- Show 'Return Product' button if the order is delivered and payment is completed -->
+         
           <button class="btn btn-warning return-btn" data-id="<%= order._id %>" style="width: 100px;">
             Return 
         </button>
         <% } else { %>
-          <!-- Show 'Cancel' button if the order is not delivered or already cancelled -->
+          
           <button class="btn btn-danger cancel-btn" data-id="<%= order._id %>" style="width: 100px;">
             Cancel
           </button>
@@ -137,6 +118,8 @@
 <%-include("../../views/partials/user/footer") %>
 
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@10"></script>
+<!-- Include Razorpay's Checkout script -->
+<script src="https://checkout.razorpay.com/v1/checkout.js"></script>
 <script>
    document.querySelectorAll('.cancel-btn').forEach(button => {
         button.addEventListener('click', function() {
@@ -239,6 +222,140 @@
         });
     });
 });
+
+ // Wait for the DOM to load
+ document.addEventListener('DOMContentLoaded', () => {
+        // Select all buttons with the class 'return-btn'
+        const retryPaymentButtons = document.querySelectorAll('.retry-btn');
+
+        // Add click event listeners to all buttons
+        retryPaymentButtons.forEach(button => {
+            button.addEventListener('click', async function() {
+                const orderId = this.getAttribute('data-id'); // Get the order ID from the button's data-id attribute
+                console.log('Retrying payment for order:', orderId);
+
+                try {
+                    // Make a POST request to retry the payment
+                    const response = await fetch(`/retryPayment/${orderId}`, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                    });
+
+                    const result = await response.json();
+                    console.log(result);
+
+                
+                if (response.ok) {
+    // If the response is OK and payment method is 'Card Payment', initiate Razorpay
+    initiateRazorpayPayment(result);
+} else {
+    // Show error message if payment fails
+    Swal.fire({
+        icon: 'error',
+        title: 'Payment Failed',
+        text: result.message || 'Error retrying payment order',
+        confirmButtonText: 'OK'
+    });
+}
+
+} catch (error) {
+    console.error('Error retrying payment:', error);
+    Swal.fire({
+        icon: 'error',
+        title: 'Error',
+        text: 'Error retrying payment.',
+        confirmButtonText: 'OK'
+    });
+}
+
+            });
+        });
+    });
+
+
+
+// Function to initiate Razorpay payment
+function initiateRazorpayPayment(orderDetails) {
+    const options = {
+        key: orderDetails.key, // Razorpay API Key
+        amount: orderDetails.amount, // Amount in paise
+        currency: orderDetails.currency,
+        name: orderDetails.name, // Your store name
+        description: orderDetails.description, // Payment description
+        order_id: orderDetails.orderId, // The Razorpay order_id
+        handler: function (response) {
+            // Handle payment success - send payment details to the backend for verification
+            verifyPayment(response);
+        },
+        prefill: {
+            name: orderDetails.prefill.name,
+            email: orderDetails.prefill.email,
+            contact: orderDetails.prefill.contact
+        },
+        theme: {
+            color: "#3399cc" // Customize the checkout modal's color
+        }
+    };
+
+    const rzp = new Razorpay(options);
+    rzp.open(); // Opens Razorpay Checkout modal
+}
+
+// Function to verify the payment on the backend
+function verifyPayment(paymentResponse) {
+    fetch('/verify-payment', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+            razorpay_order_id: paymentResponse.razorpay_order_id,
+            razorpay_payment_id: paymentResponse.razorpay_payment_id,
+            razorpay_signature: paymentResponse.razorpay_signature
+        })
+    })
+    .then(response => response.json())
+    .then(data => {
+
+      if (data.success) {
+    // Payment successful
+    Swal.fire({
+        icon: 'success',
+        title: 'Payment Successful!',
+        text: 'Redirecting to order completion page...',
+        showConfirmButton: false,
+        timer: 3000, // Automatically close after 3 seconds
+    }).then(() => {
+        window.location.href = `/order-complete/${paymentResponse.razorpay_order_id}`; // Redirect to order completion page
+    });
+} else {
+    // Payment verification failed
+    Swal.fire({
+        icon: 'error',
+        title: 'Payment Failed',
+        text: 'Payment verification failed. Please try again.',
+        confirmButtonText: 'OK'
+    });
+}
+})
+.catch(error => {
+    console.error('Error verifying payment:', error);
+    Swal.fire({
+        icon: 'error',
+        title: 'Error',
+        text: 'There was an error processing your payment.',
+        confirmButtonText: 'OK'
+    });
+});
+
+    
+}
+
+
+
+
+
+
 </script>
 
 <style>

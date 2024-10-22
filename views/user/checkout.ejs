@@ -90,7 +90,9 @@
                             <ul>
                                 <% cartData.items.forEach(item => { %>
                                     <li>
-                                        <span><%= item.quantity %> x<%= item.productId.productName%></span> 
+                                        
+                                        <span>size:(<%= item.size %>),<%= item.quantity %> x(<%= item.productId.productName%>)</span> 
+                                        
                                         <span>₹<%= item.totalPrice %></span>
                                     </li>
                                 <% }) %>
@@ -119,9 +121,11 @@
         </div>
         <div class="form-group">
             <div class="col-md-12">
+                <% if(total<1000){%>
                 <div class="radio">
                     <label><input type="radio" name="paymentMethod" value="COD" required> Cash on Delivery</label>
                 </div>
+                <%}%>
             </div>
         </div>
         <div class="row">
@@ -177,12 +181,28 @@ document.querySelector('#checkoutForm').addEventListener('submit', async functio
             // For COD, redirect to the order-complete page
             window.location.href =  result.redirectUrl;
         } else {
+            // // Handle any errors from the server
+            // alert(result.message || 'Error placing order');
+
             // Handle any errors from the server
-            alert(result.message || 'Error placing order');
+           Swal.fire({
+           icon: 'error',
+           title: 'Error',
+           text: result.message || 'Error placing order',
+           confirmButtonText: 'OK'
+            });
         }
     } catch (error) {
+        // console.error('Error submitting order:', error);
+        // alert('Error submitting order.');
+
         console.error('Error submitting order:', error);
-        alert('Error submitting order.');
+Swal.fire({
+    icon: 'error',
+    title: 'Submission Error',
+    text: 'There was an error submitting your order. Please try again.',
+    confirmButtonText: 'OK'
+});
     }
 });
 
@@ -228,17 +248,48 @@ function verifyPayment(paymentResponse) {
     })
     .then(response => response.json())
     .then(data => {
-        if (data.success) {
-            alert('Payment successful! Redirecting to order completion page...');
-            window.location.href = `/order-complete/${paymentResponse.razorpay_order_id}`; // Redirect to order completion page
-        } else {
-            alert('Payment verification failed. Please try again.');
-        }
-    })
-    .catch(error => {
-        console.error('Error verifying payment:', error);
-        alert('There was an error processing your payment.');
+    //     if (data.success) {
+    //         alert('Payment successful! Redirecting to order completion page...');
+    //         window.location.href = `/order-complete/${paymentResponse.razorpay_order_id}`; // Redirect to order completion page
+    //     } else {
+    //         alert('Payment verification failed. Please try again.');
+    //     }
+    // })
+    // .catch(error => {
+    //     console.error('Error verifying payment:', error);
+    //     alert('There was an error processing your payment.');
+    // });
+    if (data.success) {
+    // Payment successful
+    Swal.fire({
+        icon: 'success',
+        title: 'Payment Successful!',
+        text: 'Redirecting to order completion page...',
+        showConfirmButton: false,
+        timer: 3000, // Automatically close after 3 seconds
+    }).then(() => {
+        window.location.href = `/order-complete/${paymentResponse.razorpay_order_id}`; // Redirect to order completion page
     });
+} else {
+    // Payment verification failed
+    Swal.fire({
+        icon: 'error',
+        title: 'Payment Failed',
+        text: 'Payment verification failed. Please try again.',
+        confirmButtonText: 'OK'
+    });
+}
+})
+.catch(error => {
+    console.error('Error verifying payment:', error);
+    Swal.fire({
+        icon: 'error',
+        title: 'Error',
+        text: 'There was an error processing your payment.',
+        confirmButtonText: 'OK'
+    });
+});
+
 }
 
 </script>

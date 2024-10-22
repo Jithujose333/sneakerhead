@@ -101,8 +101,12 @@ if(newStatus==="Returned"){
         description: `Returned order of ${order.orderId}`
     });
     await wallet.save()
+    order.paymentStatus ='Refunded'
 }
         order.orderStatus = newStatus; // Update status
+        if( order.orderStatus ==="Delivered"){
+            order.paymentStatus = "Completed"
+        }
         await order.save();
 
         res.status(200).send('Order status updated successfully');

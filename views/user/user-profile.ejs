@@ -15,7 +15,7 @@
       <h3>My Profile</h3>
       <div class="profile-user">
       <div class="user">
-        <img src="https://picsum.photos/id/1015/50/50" alt="Profile Picture" style="width: 100px; 
+        <img src="https://media.istockphoto.com/id/1300845620/vector/user-icon-flat-isolated-on-white-background-user-symbol-vector-illustration.jpg?s=612x612&w=0&k=20&c=yBeyba0hUkh14_jgv1OKqIH0CCSWU_4ckRkAoy2p73o=" alt="Profile Picture" style="width: 100px; 
         height: 100px; 
         border-radius: 50%; 
         object-fit: cover; ">
@@ -24,7 +24,7 @@
       </div>
     </div>
       <ul>
-        <li><a href="/editProfile"><i  class="fas fa-user"></i> Edit Profile</a></li>
+        <li><a href="/userProfile"><i  class="fas fa-user"></i> Edit Profile</a></li>
         <li><a href="/profile/wallet"><i class="fas fa-wallet"></i> Your Wallet</a></li>
         <li><a href="/profile/orders"><i class="fas fa-shopping-cart"></i> Your Orders</a></li>
        
@@ -43,10 +43,14 @@
             <label for="firstName">Name</label>
             <input type="text" id="firstName" name="name" placeholder="<%=user.name%>">
           </div>
-          <div class="field">
+          <!-- <div class="field">
             <label for="email">Email</label>
             <input type="email" id="email" name="email" placeholder="<%=user.email%>">
-          </div>
+          </div> -->
+          <div class="field">
+            <label for="email">Email</label>
+            <input type="email" id="email" name="" placeholder="<%= user.email %>" value="<%= user.email %>" readonly>
+        </div>
           <div class="field">
             <label for="mobile">Phone</label>
             <input type="tel" id="mobile" name="mobile" placeholder="<%=user.phone%>">

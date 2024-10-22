@@ -3,9 +3,6 @@ const {Schema} = mongoose;
 const {v4:uuidv4} = require('uuid');
 
 
-// const generateOrderId = () => {
-//     return Math.random().toString(36).substr(2, 12).toUpperCase(); 
-// };
 
 const orderSchema = new Schema({
     orderId : {
@@ -29,6 +26,10 @@ const orderSchema = new Schema({
         product:{
             type:Schema.Types.ObjectId,
             ref:'Product',
+            required:true
+        },
+        size:{
+            type:Number,
             required:true
         },
         quantity:{

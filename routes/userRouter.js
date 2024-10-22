@@ -6,6 +6,7 @@ const userProductController = require('../controllers/user/userProductController
 const userProfileController = require('../controllers/user/userProfileController')
 const userOrderController = require('../controllers/user/userOrderController')
 const userPasswordController = require('../controllers/user/userPasswordController')
+const userInvoiceController = require('../controllers/user/userInvoiceController')
 const {userAuth,adminAuth} = require('../middlewares/auth')
 
 
@@ -53,7 +54,7 @@ router.get('/cart',userAuth,userProductController.getCart)
 router.post('/cart',userAuth,userProductController.addToCart)
 router.delete('/cart/deleteItems/:id',userAuth,userProductController.cartDeleteItems)
 router.post('/update-quantity',userAuth,userProductController.cartUpdateQuantity)
-
+router.get('/get-stock/:productId/:size',userAuth,userProductController.getStock);
 router.get('/cart/checkout/:id',userAuth,userProductController.getCheckout)
 
 
@@ -67,6 +68,10 @@ router.post('/profile/cancelOrder/:id',userAuth,userOrderController.userCancelOr
 router.post('/profile/returnOrder/:id',userAuth,userOrderController.returnOrder)
 router.post('/verify-payment', userAuth,userOrderController.verifyPayment);
 router.get('/order-complete/:id',userAuth,userOrderController.orderConfirmationPage)
+router.post('/retryPayment/:id',userAuth,userOrderController.retryPayment)
+
+// Invoice
+router.get('/invoice/:id',userAuth,userInvoiceController.getInvoice)
 
 
 //coupon management

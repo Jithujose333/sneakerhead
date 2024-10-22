@@ -32,10 +32,10 @@ const login = async (req,res) => {
             req.session.admin = true;
             return res.redirect('/admin/dashboard');
         }else{
-            return res.redirect('/login')
+            return res.redirect('/admin/login')
         }
     }else{
-        return res.redirect('/login')
+        return res.redirect('/admin/login')
     }
     } catch (error) {
         console.error("login error",error)
@@ -47,21 +47,6 @@ const login = async (req,res) => {
     
 
 
-const loadDashboard = async (req, res) => {
-    
-
-    try {
-        const admin = req.session.admin;
-        if (admin  ) {
-            // Render the dashboard if the user is an admin
-            res.render('dashboard', { admin: "admin" });
-        } 
-    } catch (error) {
-        console.error("Error loading dashboard:", error);
-        // Redirect to a generic error page if something goes wrong
-        res.redirect('/pageerror');
-    }
-};
 
 
    const logout = async (req,res) => {
@@ -91,7 +76,7 @@ const loadDashboard = async (req, res) => {
 module.exports = {
     loadLogin,
     login,
-    loadDashboard,
+    // loadDashboard,
     pageError,
     logout
 }

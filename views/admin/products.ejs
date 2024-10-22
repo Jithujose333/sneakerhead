@@ -44,7 +44,7 @@
                     <td><%= data[i].productName %></td>
                     <td><%= data[i].category.name %></td>
                     <td><%= data[i].salePrice %></td>
-                    <td><%= data[i].quantity %></td>
+                    <td><%= data[i].sizes.reduce((acc,curr)=> acc=acc+curr.quantity,0)%></td>
                     <td>
                         <% if (data[i].isBlocked === false) { %>
                             <button class="btn btn-danger" style="width: 80px;">
@@ -83,7 +83,7 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
 <%- include("../../views/partials/admin/footer") %>
 <style>
-    
+  
         .table {
             border-collapse: collapse;
             width: 100%;

@@ -41,8 +41,39 @@ const placeOrder = async (req, res) => {
             return res.status(400).json({ message: 'Cart is empty' });
         }
 
+
+
+        for (const item of cart.items) {
+            const product = await Product.findById(item.productId);
+            if (!product) {
+                return res.status(404).json({ message: `Product with ID ${item.productId} not found.` });
+            }
+        
+            const size = item.size;
+            // Find the size object that matches the selected size
+            const sizeObject = product.sizes.find(s => s.size === size);
+        
+            if (!sizeObject) {
+                return res.status(400).json({ message: `Size ${size} not available for ${product.productName}.` });
+            }
+        
+            if (item.quantity > sizeObject.quantity) {
+                return res.status(400).json({ message: `Not enough stock for ${product.productName}. Available: ${sizeObject.quantity}` });
+            }
+        
+        
+            // Check if the size is out of stock
+            if (product.sizes.reduce((acc,totalquantity)=>acc+=totalquantity,0)  === 0) {
+                product.status = 'out of stock';
+            }
+            
+           
+        }
+      
+
         const orderedItems = cart.items.map(item => ({
             product: item.productId._id,
+            size: item.size,
             quantity: item.quantity,
             price: item.price
         }));
@@ -86,7 +117,7 @@ const placeOrder = async (req, res) => {
 
         // Razorpay Payment (Card Payment)
         if (paymentMethod === 'Card Payment') {
-            const finalAmountPaise = finalAmount * 100; // Convert to paise
+            const finalAmountPaise = parseInt(finalAmount) * 100; // Convert to paise
 
             const razorpayOrder = await instance.orders.create({
                 amount: finalAmountPaise,
@@ -123,24 +154,19 @@ const placeOrder = async (req, res) => {
             });
         } else {
             
+   
+
             for (const item of cart.items) {
                 const product = await Product.findById(item.productId);
-                if (!product) {
-                    return res.status(404).json({ message: `Product with ID ${item.productId} not found.` });
-                }
-    
-               
-                if (item.quantity > product.quantity) {
-                    return res.status(400).json({ message: `Not enough stock for ${product.name}. Available: ${product.quantity}` });
-                }
-    
-               
-                product.quantity -= item.quantity;
-                if(item.quantity===0){
-                    product.status ='out of stock'
-                    }
-                await product.save(); 
+                const size = item.size;
+                // Find the size object that matches the selected size
+                const sizeObject = product.sizes.find(s => s.size === size);
+            // Update the quantity
+            sizeObject.quantity -= item.quantity;
+
+            await product.save(); 
             }
+
             await Cart.deleteOne({ userId });
             const orderId = newOrder.orderId;
             res.json({
@@ -153,7 +179,8 @@ const placeOrder = async (req, res) => {
         console.error('Error placing order:', error);
         res.status(500).json({ message: 'Error placing order' });
     }
-};
+
+}
 
 
 
@@ -188,25 +215,19 @@ const verifyPayment = async (req, res) => {
           const cart=  await Cart.findOne({ userId: order.userId });
           
 
-          for (const item of cart.items) {
+        
+     
+
+        for (const item of cart.items) {
             const product = await Product.findById(item.productId);
-            if (!product) {
-                return res.status(404).json({ message: `Product with ID ${item.productId} not found.` });
-            }
+            const size = item.size;
+            // Find the size object that matches the selected size
+            const sizeObject = product.sizes.find(s => s.size === size);
+        // Update the quantity
+        sizeObject.quantity -= item.quantity;
 
-           
-            if (item.quantity > product.quantity) {
-                return res.status(400).json({ message: `Not enough stock for ${product.name}. Available: ${product.quantity}` });
-            }
-
-           
-            product.quantity -= item.quantity;
-            if(product.quantity===0){
-            product.status ='out of stock'
-            }
-            await product.save(); 
+        await product.save(); 
         }
-
             
             await Cart.deleteOne({ userId: order.userId });
 
@@ -385,6 +406,62 @@ const getWallet = async (req, res) => {
         res.status(500).redirect('/pageNotFound'); 
     }
 };
+
+
+
+const retryPayment = async (req, res) => {
+    try {
+        const id = req.params.id;
+        const order = await Order.findById(id);
+        if (!order) {
+            return res.status(404).json({ message: "Order not found" });
+        }
+
+        // Razorpay Payment (Card Payment)
+        const finalAmountPaise = order.finalAmount * 100; // Convert to paise
+
+        // Create Razorpay order
+        const razorpayOrder = await instance.orders.create({
+            amount: finalAmountPaise,
+            currency: 'INR',
+            receipt: `order_rcptid_${order._id}`,
+        });
+
+        if (!razorpayOrder) {
+            // Handle error in creating Razorpay order
+            order.orderStatus = 'Failed';
+            order.paymentStatus = 'Failed';
+            await order.save();
+
+            return res.status(500).json({ message: 'Error creating Razorpay order' });
+        }
+
+        // Update the Razorpay order ID in the database
+        order.razorpayOrderId = razorpayOrder.id;
+        await order.save();
+
+        // Send Razorpay order details to the frontend
+        return res.json({
+            orderId: razorpayOrder.id,
+            amount: razorpayOrder.amount,
+            currency: razorpayOrder.currency,
+            key: process.env.Razorpay_Id, // Razorpay key for frontend
+            name: 'Sneakerhead',
+            description: 'Payment for your order',
+            prefill: {
+                name: req.session.user.name,
+                email: req.session.user.email,
+                contact: order.address.phone, // Assuming phone number is part of shippingAddress
+            }
+        });
+
+    } catch (error) {
+        // Handle unexpected errors
+        console.error(error);
+        res.status(500).json({ message: 'Server error during payment retry' });
+    }
+};
+
 module.exports = {
     getOrders,
     placeOrder,
@@ -392,5 +469,6 @@ module.exports = {
     orderConfirmationPage,
     userCancelOrder,
     getWallet,
-    returnOrder
+    returnOrder,
+    retryPayment
 }

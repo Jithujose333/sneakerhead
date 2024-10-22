@@ -33,13 +33,14 @@ const userAuth = (req, res, next) => {
 
 
 
-const adminAuth = (req, res, next) => {
+const adminAuth = async(req, res, next) => {
    try {
     
   
     if (req.session.admin  ) {
       
-        return next();
+         next();
+      
     } else {
        
         return res.redirect('/admin/login');

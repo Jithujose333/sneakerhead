@@ -9,31 +9,7 @@
 </head>
 
 </head>
-<style>
-   .error-message{
-       color: red;
-   }
 
-
-       .thumbnails-container {
-           display: flex;
-           overflow-x: auto;
-       }
-
-
-       .thumbnail {
-           margin-right: 10px;
-
-
-       }
-       .row1{
-      
-       
-        margin-left: 20rem; 
-        
-       }
-       
-</style>
 <!--style row to row1 for center -->
 <div style="color: black;font-weight: 500;">
    <section class="content-main">
@@ -54,22 +30,23 @@
                                    class="form-control border" id="product_name">
                                <div id="productName-error" class="error-message"></div>
                            </div>
-                           <!-- <div class="col-lg-4 mb-4">
-                               <label class="form-label">Brand</label>
-                               <select class="form-select border" name="brand">
-                                   
+
+
+                           <div class="col-lg-4 mb-4">
+                            <label class="form-label">Brand</label>
+                            <select class="form-select border" name="brand">
+                                <!-- Add options for different brands -->
+                                <option value="">Select a brand</option> <!-- Placeholder option -->
+                                <option value="Adidas">Adidas</option>
+                                <option value="Nike">Nike</option>
+                                <option value="Puma">Puma</option>
                                 
-                                       <option value="">
-                                           
+                            </select>
+                            <div id="brand-error" class="error-message"></div>
+                        </div>
+                        
 
-
-                                         
-                                       </option>
-                                       
-                                     
-                               </select>
-                               <div id="brand-error" class="error-message"></div>
-                           </div> -->
+                           
                            <div class="mb-4">
                                <label class="form-label">Full description</label>
                                <textarea placeholder="Type here" id="descriptionid" name="description" class="form-control border"
@@ -93,14 +70,28 @@
                                    </div>
                                    <div id="salePrice-error" class="error-message"></div>
                                </div>
-                               <div class="col-lg-4">
-                                   <div class="mb-4">
-                                       <label class="form-label">Quantity</label>
-                                       <input placeholder="" name="quantity" type="text" class="form-control border">
-                                       <div id="quantity-error" class="error-message"></div>
-                                   </div>
-                               </div>
+                               
                            </div>
+
+  
+
+
+<div class="mb-4">
+    <label class="form-label">Sizes and Quantities</label>
+    <div id="sizes-container">
+        <!-- Container to dynamically add sizes and quantities -->
+        <div class="size-quantity-row" style="margin-bottom: 10px;">
+            <input type="number" placeholder="Size" name="sizes[0][size]" class="form-control border size-input" style="width: 120px; display: inline-block;" required>
+            <input type="number" placeholder="Quantity" name="sizes[0][quantity]" class="form-control border" style="width: 120px; display: inline-block;" required>
+            <span class="remove-size-btn" style="cursor: pointer; margin-left: 10px; color: red;" onclick="removeSizeEntry(this)">&#10006;</span>
+            <div class="error-message" style="color: red; font-size: 12px; display: none;">This size already exists. Please enter a different size.</div>
+        </div>
+    </div>
+    <button type="button" onclick="addSizeQuantityRow()" class="btn btn-secondary mt-2">Add More Sizes</button>
+</div>
+
+
+
                            <div class="row">
                               
                                <div class="col-lg-4">
@@ -133,6 +124,9 @@
                                    </div>
                                </div>
                            </div>
+
+
+
                            <div class="card mb-2">
                                <div class="card-header">
                                    <h4>Choose images</h4>
@@ -203,8 +197,7 @@
                                                        </div>
                            </div>
                            <div>
-                               <button class="btn btn-md rounded font-sm hover-up"  type="submit" onclick="validateAndSubmit()
-">Publish</button>
+                               <button class="btn btn-md rounded font-sm hover-up"  type="submit" onclick="validateAndSubmit()">Publish</button>
                            </div>
                        </form>
                    </div>
@@ -425,9 +418,99 @@ function validateForm() {
           }
 
 
+
+
+
+
+
+    function addSizeQuantityRow() {
+    const container = document.getElementById('sizes-container');
+    const index = container.children.length;
+
+    // Create new size-quantity row
+    const newRow = document.createElement('div');
+    newRow.classList.add('size-quantity-row');
+    newRow.style.marginBottom = '10px';
+    newRow.innerHTML = `
+        <input type="number" placeholder="Size" name="sizes[${index}][size]" class="form-control border size-input" style="width: 120px; display: inline-block;" required>
+        <input type="number" placeholder="Quantity" name="sizes[${index}][quantity]" class="form-control border" style="width: 120px; display: inline-block;" required>
+        <span class="remove-size-btn" style="cursor: pointer; margin-left: 10px; color: red;" onclick="removeSizeEntry(this)">&#10006;</span>
+        <div class="error-message" style="color: red; font-size: 12px; display: none;">This size already exists. Please enter a different size.</div>
+    `;
+
+    // Append new row to container
+    container.appendChild(newRow);
+
+    // Add event listener to the new size input field for duplicate checking
+    const newSizeInput = newRow.querySelector('.size-input');
+    newSizeInput.addEventListener('input', function () {
+        checkDuplicateSizes(newSizeInput);
+    });
+}
+
+// Function to check for duplicate sizes
+function checkDuplicateSizes(newSizeInput) {
+    const container = document.getElementById('sizes-container');
+    
+    // Get the current value of the new size input
+    const newSizeValue = newSizeInput.value.trim();
+    
+    // Collect all existing size values
+    const allSizeInputs = container.querySelectorAll('.size-input');
+    const existingSizes = Array.from(allSizeInputs)
+        .filter(input => input !== newSizeInput) // Exclude the current new input being checked
+        .map(input => input.value.trim());
+    
+    // Check if the new size is a duplicate
+    const errorMessage = newSizeInput.parentNode.querySelector('.error-message');
+    
+    if (existingSizes.includes(newSizeValue)) {
+        errorMessage.style.display = 'block'; // Show error message
+        newSizeInput.classList.add('error-border'); // Optionally, add a red border to indicate error
+    } else {
+        errorMessage.style.display = 'none'; // Hide error message
+        newSizeInput.classList.remove('error-border'); // Remove error border if no duplicates
+    }
+}
+
+// Function to remove a size-quantity row
+function removeSizeEntry(element) {
+    element.parentNode.remove();
+}
+
+
 </script>
      
 
+<style>
+    .error-border {
+    border-color: red !important;
+}
 
+
+.error-message{
+       color: red;
+   }
+
+
+       .thumbnails-container {
+           display: flex;
+           overflow-x: auto;
+       }
+
+
+       .thumbnail {
+           margin-right: 10px;
+
+
+       }
+       .row1{
+      
+       
+        margin-left: 20rem; 
+        
+       }
+       
+</style>
 
 

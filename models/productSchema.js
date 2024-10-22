@@ -2,7 +2,14 @@ const mongoose = require("mongoose");
 const {Schema} = mongoose;
 
 
+
 const productSchema = new Schema({
+    sku: {
+        type: String,
+        default: () => Math.floor(100000 + Math.random() * 900000).toString(),
+        required: true, 
+        unique: true 
+      },
     productName : {
         type: String,
         required:true,
@@ -13,6 +20,7 @@ const productSchema = new Schema({
     },
     brand: {
         type:String,
+        enum:["Adidas","Puma","Nike"],
         required:false,
     },
     category: {
@@ -32,10 +40,13 @@ const productSchema = new Schema({
         type:Number,
         default:0,
     },
-    quantity:{
-        type:Number,
-        default:true
-    },
+    
+    sizes: [
+        {
+            size: { type: Number, required: true },
+            quantity: { type: Number, required: true },
+        }
+    ],
     color: {
         type:String,
         required:true
@@ -60,6 +71,8 @@ const productSchema = new Schema({
         default:"Available"
     },
 },{timestamps:true});
+
+
 
 const Product = mongoose.model("Product",productSchema);
 

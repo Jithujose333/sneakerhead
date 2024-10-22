@@ -33,26 +33,7 @@
 
 
 
-<!-- <div class="modal fade" id="customDateModal" tabindex="-1" aria-labelledby="customDateModalLabel" aria-hidden="true">
-    <div class="modal-dialog">
-        <div class="modal-content" style="align-items: center;width: 50%;">
-            <div class="modal-header">
-                <h5 class="modal-title" id="customDateModalLabel">Select Custom Dates</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-            </div>
-            <div class="modal-body">
-                <label for="startDateModal" class="form-label">Start Date:</label>
-                <input type="date" name="startDate" id="startDateModal" class="form-control" style="width: 200px;">
-                
-                <label for="endDateModal" class="form-label mt-2">End Date:</label>
-                <input type="date" name="endDate" id="endDateModal" class="form-control" style="width: 200px;">
-            </div>
-           <div>
-            <button class="btn btn-primary" type="submit">Filter</button>
-           </div>
-        </div>
-    </div>
-</div> -->
+
  <!-- Custom Date Range Fields -->
  <div id="customDateRange" style="display: none;">
     <label for="startDate" class="form-label">Start Date:</label>
@@ -63,13 +44,14 @@
 </div>
 
 
-<!-- Filter button -->
-<div class="mt-3 mt-md-0">
-    <button class="btn btn-primary" type="submit">Filter</button>
-    <a id="download-pdf" href="/admin/salesreport/pdf?search=${search}&dateFilter=${dateFilter}&startDate=${startDate}&endDate=${endDate}" class="btn btn-info">Download PDF</a>  
-    <a id="download-excel" href="/admin/salesreport/excel?search=${search}&dateFilter=${dateFilter}&startDate=${startDate}&endDate=${endDate}" class="btn btn-success">Download Excel</a>
+ <!-- Filter button -->
 
+<div class="mt-3 mt-md-0">
+    <button class="btn btn-primary" id="filter-button" type="submit">Filter</button>
+    <a id="download-pdf" href="<%= pdfUrl %>" class="btn btn-info">Download PDF</a>  
+    <a id="download-excel" href="<%= excelUrl %>" class="btn btn-success">Download Excel</a>
 </div>
+
 
 
 
@@ -146,10 +128,8 @@
 </div>
 
 <div class="modal-footer">
-    <!-- <button class="btn btn-primary" type="submit">Filter</button> -->
-    <a href="/admin/salesreport/pdf" class="btn btn-info">Download PDF</a>
-    <a href="/admin/salesreport/excel" class="btn btn-success">Download Excel</a>
-    <!-- <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button> -->
+    <a id="download-pdf" href="<%= pdfUrl %>" class="btn btn-info">Download PDF</a>  
+    <a id="download-excel" href="<%= excelUrl %>" class="btn btn-success">Download Excel</a>
 </div>
 
 
@@ -170,105 +150,16 @@ document.getElementById('dateFilter').addEventListener('change', function() {
 });
 
 
-
-
-
-
-
-document.getElementById('download-pdf').addEventListener('click', function(event) {  
-  event.preventDefault(); // Prevent default link behavior  
-  
-  const search = document.querySelector('input[name="search"]').value;  
-  const dateFilter = document.getElementById('dateFilter').value;  
-  const startDate = document.getElementById('startDate').value;  
-  const endDate = document.getElementById('endDate').value;  
-  
-  // Construct the URL with the current parameters  
-  const pdfUrl = `/admin/salesreport/pdf?search=${encodeURIComponent(search)}&dateFilter=${encodeURIComponent(dateFilter)}&startDate=${encodeURIComponent(startDate)}&endDate=${encodeURIComponent(endDate)}`;  
-  
-  // Set the href to the constructed URL and trigger download  
-  window.location.href = pdfUrl;  
-});  
-  
-document.getElementById('download-excel').addEventListener('click', function(event) {  
-  event.preventDefault(); // Prevent default link behavior  
-  
-  const search = document.querySelector('input[name="search"]').value;  
-  const dateFilter = document.getElementById('dateFilter').value;  
-  const startDate = document.getElementById('startDate').value;  
-  const endDate = document.getElementById('endDate').value;  
-  
-  // Construct the URL with the current parameters  
-  const excelUrl = `/admin/salesreport/excel?search=${encodeURIComponent(search)}&dateFilter=${encodeURIComponent(dateFilter)}&startDate=${encodeURIComponent(startDate)}&endDate=${encodeURIComponent(endDate)}`;  
-  
-  // Set the href to the constructed URL and trigger download  
-  window.location.href = excelUrl;  
-});
-
-
-
-
-// document.getElementById('download-pdf').addEventListener('click', function(event) {
-//     event.preventDefault(); // Prevent default link behavior
-
-//     const search = document.querySelector('input[name="search"]').value;
-//     const dateFilter = document.getElementById('dateFilter').value;
-//     const startDate = document.getElementById('startDate').value;
-//     const endDate = document.getElementById('endDate').value;
-
-//     // Construct the URL with the current parameters
-//     const pdfUrl = `/admin/salesreport/pdf?search=${encodeURIComponent(search)}&dateFilter=${encodeURIComponent(dateFilter)}&startDate=${encodeURIComponent(startDate)}&endDate=${encodeURIComponent(endDate)}`;
-
-//     // Set the href to the constructed URL and trigger download
-//     window.location.href = pdfUrl;
+// document.getElementById('filter-button').addEventListener('click', function() {
+//     // Submit the form to apply filters
+//     document.querySelector('form').submit();
 // });
 
-// document.getElementById('download-excel').addEventListener('click', function(event) {
-//     event.preventDefault(); // Prevent default link behavior
 
-//     const search = document.querySelector('input[name="search"]').value;
-//     const dateFilter = document.getElementById('dateFilter').value;
-//     const startDate = document.getElementById('startDate').value;
-//     const endDate = document.getElementById('endDate').value;
 
-//     // Construct the URL with the current parameters
-//     const excelUrl = `/admin/salesreport/excel?search=${encodeURIComponent(search)}&dateFilter=${encodeURIComponent(dateFilter)}&startDate=${encodeURIComponent(startDate)}&endDate=${encodeURIComponent(endDate)}`;
-
-//     // Set the href to the constructed URL and trigger download
-//     window.location.href = excelUrl;
-// });
 </script>
 
 
-<!-- <script>
-    document.getElementById('dateFilter').addEventListener('change', function() {
-        const customDateModal = new bootstrap.Modal(document.getElementById('customDateModal'));
-        
-        // Show modal if 'custom' is selected
-        if (this.value === 'custom') {
-            customDateModal.show();
-        }
-    });
-
-    // Ensure custom date range is hidden on page load
-    window.addEventListener('DOMContentLoaded', () => {
-        document.getElementById('customDateRange').style.display = 'none';
-    });
-
-    // Handle the Apply Dates button click
-    document.getElementById('applyDateRange').addEventListener('click', function() {
-        const startDate = document.getElementById('startDateModal').value;
-        const endDate = document.getElementById('endDateModal').value;
-
-        // You can handle the dates here (e.g., submit the form with the selected dates)
-        console.log('Start Date:', startDate);
-        console.log('End Date:', endDate);
-
-        // Close the modal
-        const customDateModal = bootstrap.Modal.getInstance(document.getElementById('customDateModal'));
-        customDateModal.hide();
-    });
-</script> -->
 
 <!-- Styling -->
 <style>

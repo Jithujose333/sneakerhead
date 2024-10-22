@@ -34,6 +34,7 @@
         <tbody style="color: #000000; font-weight: 500;">
             <tbody style="color: #000000; font-weight: 500;">
                 <% for (let i = data.length - 1; i >= 0; i--) { %>
+              
                     <tr>
                         <td><%= data[i].orderId %></td>
                         <td><%= new Date(data[i].invoiceDate).toLocaleDateString('en-GB', { day: '2-digit', month: '2-digit', year: 'numeric' }) %></td>
@@ -58,7 +59,7 @@
                         <td><%= data[i].orderStatus %></td>
                         <td><%= data[i].paymentMethod %></td>
                         <td>
-                            <% if (data[i].orderStatus !== "Cancelled" && data[i].orderStatus !== "Shipped" && data[i].orderStatus !== "Delivered") { %>
+                            <% if (data[i].orderStatus !== "Cancelled" && data[i].orderStatus !== "Shipped" && data[i].orderStatus !== "Delivered"&&data[i].orderStatus !== "Returned") { %>
                                 <button class="btn btn-danger cancel-btn" data-id="<%= data[i]._id %>" style="width: 100px;">
                                     Cancel
                                 </button>

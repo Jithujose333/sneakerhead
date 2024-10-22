@@ -16,70 +16,7 @@ const pageNotFound = async (req,res) => {
 }
 
 
-// const loadHomepage = async (req, res) => {
-//     try {
-//       const userId = req.session.user;  
-//       const selectedCategory = req.query.category;
-//       let query = { isBlocked: false };
-//       if (selectedCategory) {
-//         const category = await Category.findOne({ name: selectedCategory });
-//         if (category) {
-//             query.category = category._id; // Use ObjectId if category is found
-//         } 
-//     }
-  
-         
-//       const sortOption = req.query.sort || 'popularity'; 
-  
-//       let userData = null;
-//       let products = []; 
-  
 
-    
-//             userData = await User.findOne({ _id: userId });
-                
-    
-//       let sortCriteria;
-//       switch (sortOption) {
-//         case 'priceLowHigh':
-//           sortCriteria = { salePrice: 1 }; // Ascending price
-//           break;
-//         case 'priceHighLow':
-//           sortCriteria = { salePrice: -1 }; // Descending price
-//           break;
-//         case 'averageRatings':
-//           sortCriteria = { averageRating: -1 }; // Descending rating
-//           break;
-//         case 'az':
-//           sortCriteria = { productName: 1 }; // A-Z sorting
-//           break;
-//         case 'za':
-//           sortCriteria = { productName: -1 }; // Z-A sorting
-//           break;
-//         default:
-//           sortCriteria = { popularity: -1 }; // Default: Popularity
-//       }
-  
-//       // Retrieve a list of products with sorting
-//     //   products = await Product.find({ isBlocked: false },{}).sort(sortCriteria).limit(12);
-  
-//     products = await Product.find(query).sort(sortCriteria).limit(12);
-
-//     const categories= await Category.find();
-    
-//       if (userData) {
-//         const firstName = userData.name ? userData.name.split(' ')[0] : 'User';
-//         return res.render('home', { user: userData, firstName, products, sortOption,categories });
-//       } else {
-        
-//         return res.render('home', { products, sortOption,categories});
-//       }
-  
-//     } catch (error) {
-//       console.error("Error loading home page:", error);
-//       return res.status(500).render('error', { message: "Something went wrong on the server!" });
-//     }
-//   };
   
 
 

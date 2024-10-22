@@ -15,7 +15,7 @@ const getAddProduct = async (req,res) => {
         
         res.render('add-product',{cat:category }) 
     } catch (error) {
-        res.redirect('/pageerror')
+        res.redirect('/adminpageerror')
         
     }
     
@@ -57,15 +57,24 @@ const addProduct = async (req, res) => {
                 return res.status(400).json({ message: "Invalid category name" });
             }
 
+
+
+            // Handling sizes array from the form----new code
+            const sizes = products.sizes.map(sizeObj => ({
+                size: sizeObj.size,
+                quantity: sizeObj.quantity
+            }));
+
+
             const newProduct = new Product({
                 productName: products.productName,
+                brand:products.brand,
                 description: products.description,
                 category: categoryId._id,
                 regularPrice: products.regularPrice,
                 salePrice: products.salePrice,
                 createdOn: new Date(),
-                quantity: products.quantity,
-                size: products.size,
+                sizes,// add size quantity
                 color: products.color,
                 productImage: images,
                 status: 'Available',
@@ -123,7 +132,7 @@ if(category){
 }
 
     } catch (error) {
-        res.redirect('/pageerror')
+        res.redirect('/admin/pageerror')
     }
     
 }
@@ -138,7 +147,7 @@ const blockProduct = async(req,res)=>{
         await Product.updateOne({_id:id},{$set:{isBlocked:true}})
         res.redirect('/admin/products')
     } catch (error) {
-        res.redirect('/pageerror')
+        res.redirect('/admin/pageerror')
     }
 }
 
@@ -150,7 +159,7 @@ const unblockProduct = async(req,res)=>{
         await Product.updateOne({_id:id},{$set:{isBlocked:false}})
         res.redirect('/admin/products')
     } catch (error) {
-        res.redirect('/pageerror')
+        res.redirect('/admin/pageerror')
     }
 }
 
@@ -167,81 +176,143 @@ const getEditProduct = async (req,res) => {
 
         })
     } catch (error) {
-        res.redirect('/pageerror')
+        res.redirect('/admin/pageerror')
         
     }
     
 }
-
-
-const editProduct = async (req,res) => {
+const editProduct = async (req, res) => {
     try {
-        const id = req.params.id
-        const product = await Product.findOne({_id:id})
-        const data = req.body
+        const id = req.params.id;
+        const product = await Product.findOne({ _id: id });
+        const data = req.body;
+        
+
+        // Check for existing product with the same name
         const existingProduct = await Product.findOne({
-            productName:data.productName,
-            _id:{$ne:id}
-        })
-        if(existingProduct){
-            return res.status(400).json({error:"product with this name already exists.Please try with another name"})
+            productName: data.productName,
+            _id: { $ne: id }
+        });
+        if (existingProduct) {
+            return res.status(400).json({ error: "Product with this name already exists. Please try with another name." });
         }
-        const images =[]
-        if(req.files && req.files.length>0){
-            for(let i=0;i<req.files.length;i++){
-                
-                const orginalImagePath = req.files[i].path;
+
+        const images = [];
+        // Image processing logic...
+        if (req.files && req.files.length > 0) {
+            for (let i = 0; i < req.files.length; i++) {
+                const originalImagePath = req.files[i].path;
                 const resizedImagePath = path.join('public', 'uploads', 'product-images', req.files[i].filename);
 
                 try {
-                    await sharp(orginalImagePath).resize({ width: 440, height: 440 }).toFile(resizedImagePath);
+                    await sharp(originalImagePath).resize({ width: 440, height: 440 }).toFile(resizedImagePath);
                 } catch (err) {
                     console.error("Sharp Error:", err);
                 }
-
                 images.push(req.files[i].filename);
             }
         }
 
+        // Extract existing sizes and new sizes
+        const newSizes = [];
+        const existingSizes = [];
+
+        // Handling existing sizes from the form
+        if (data.sizes && Array.isArray(data.sizes)) {
+            data.sizes.forEach((sizeObj, index) => {
+                if (sizeObj.size && sizeObj.quantity) {
+                    existingSizes.push({
+                        size: sizeObj.size,
+                        quantity: Number(sizeObj.quantity)
+                    });
+                }
+            });
+        }
+
+        // Handling newly added sizes from the form
+        if (data.sizes.new && data.sizes.new.size && data.sizes.new.quantity) {
+            const newSizesArray = data.sizes.new.size;
+            const newQuantitiesArray = data.sizes.new.quantity;
+
+            for (let i = 0; i < newSizesArray.length; i++) {
+                newSizes.push({
+                    size: newSizesArray[i],
+                    quantity: Number(newQuantitiesArray[i])
+                });
+            }
+        }
+
+        // Function to update sizes and quantities
+        const updateSizeQuantities = async (productId, existingSizes, newSizes) => {
+            const product = await Product.findOne({ _id: productId });
+
+            // Create a map of existing sizes for easy lookup
+            const existingSizesMap = product.sizes.reduce((map, sizeObj) => {
+                map[sizeObj.size] = sizeObj;
+                return map;
+            }, {});
+
+            // Update existing sizes
+            existingSizes.forEach(sizeObj => {
+                if (existingSizesMap[sizeObj.size]) {
+                    existingSizesMap[sizeObj.size].quantity = sizeObj.quantity;
+                }
+            });
+
+            // Add new sizes
+            newSizes.forEach(newSizeObj => {
+                if (!existingSizesMap[newSizeObj.size]) {
+                    product.sizes.push(newSizeObj);
+                }
+            });
+
+            await product.save();
+            return product;
+        };
+
+        // Update size quantities
+        const sizeUpdatedProduct = await updateSizeQuantities(id, existingSizes, newSizes);
+
+        // Update product fields
         const updateFields = {
-            productName:data.productName,
-            description:data.description,
-            category:product.category,
-            regularPrice:data.regularPrice,
-            salePrice:data.salePrice,
-            quantity:data.quantity,
-            size:data.size,
-            color:data.color
+            productName: data.productName,
+            brand: data.brand,
+            description: data.descriptionData,
+            category: product.category,
+            regularPrice: data.regularPrice,
+            salePrice: data.salePrice,
+            sizes: sizeUpdatedProduct.sizes, // Update sizes only
+            color: data.color
+        };
+
+        // Add new images if any
+        if (images.length > 0) {
+            updateFields.$push = { productImage: { $each: images } };
         }
-        if(req.files.length>0){
-            updateFields.$push ={productImage:{$each:images}}
+
+        const updatedProduct = await Product.findByIdAndUpdate(id, updateFields, { new: true });
+
+        // Handle offers
+        const offers = await Offer.find({
+            categoryName: updatedProduct.category.categoryName || "All Categories",
+            isActive: true
+        });
+
+        if (offers.length > 0) {
+            const maxDiscount = Math.max(...offers.map(offer => offer.discount));
+            updatedProduct.offerPrice = updatedProduct.salePrice * (1 - maxDiscount / 100);
+            await updatedProduct.save();
         }
-        const updatedProduct =   await Product.findByIdAndUpdate(id,updateFields,{new:true})
-        console.log(updatedProduct)
 
-
- const offers = await Offer.find({
-    categoryName: updatedProduct.category.categoryName||"All Categories", // Match against categoryName in Offer schema
-    isActive: true
-});
-
-if (offers.length > 0) {
-    // Find the maximum discount
-    const maxDiscount = Math.max(...offers.map(offer => offer.discount));
-    
-
-    // Update the offer price based on the maximum discount
-    updatedProduct.offerPrice = updatedProduct.salePrice * (1 - maxDiscount / 100);
-    await updatedProduct.save();
-} 
-
-        res.redirect('/admin/products')
+        // Redirect to products page
+        res.redirect('/admin/products');
     } catch (error) {
         console.error(`Error in editProduct: ${error.message}`);
-        res.redirect('/pageerror')
+        res.redirect('/admin/pageerror');
     }
-    
-}
+};
+
+
 
 
 
@@ -260,7 +331,7 @@ const deleteSingleImage = async (req,res) => {
         }
         res.send({status:true})
     } catch (error) {
-        res.redirect('/pageerror')
+        res.redirect('/admin/pageerror')
     }
 }
 

@@ -53,6 +53,35 @@
                                    class="form-control border" id="product_name">
                                    <div id="productName-error" class="error-message"></div>
                            </div>
+
+
+
+                           <!--<div class="col-lg-4 mb-4">
+                            <label class="form-label">Brand</label>
+                            <select class="form-select border" name="brand">
+                                <!-- Add options for different brands -->
+                                <!-- <option value="">Select a brand</option> -- Placeholder option --> 
+                                <!-- <option value="Adidas">Adidas</option>
+                                <option value="Nike">Nike</option>
+                                <option value="Puma">Puma</option>
+                                
+                            </select>
+                            <div id="brand-error" class="error-message"></div>
+                        </div> -->
+
+
+                        <div class="col-lg-4 mb-4">
+                            <label class="form-label">Brand</label>
+                            <select class="form-select border" name="brand">
+                                <!-- Add options for different brands -->
+                                <option value="">Select a brand</option> <!-- Placeholder option -->
+                                <option value="Adidas" <%= product.brand === 'Adidas' ? 'selected' : '' %>>Adidas</option>
+                                <option value="Nike" <%= product.brand === 'Nike' ? 'selected' : '' %>>Nike</option>
+                                <option value="Puma" <%= product.brand === 'Puma' ? 'selected' : '' %>>Puma</option>
+                            </select>
+                            <div id="brand-error" class="error-message"></div>
+                        </div>
+                        
                           
                            <div class="mb-4">
                                <label class="form-label">Full description</label>
@@ -77,15 +106,30 @@
                                    </div>
                                    <div id="salePrice-error" class="error-message"></div>
                                </div>
-                               <div class="col-lg-4">
-                                   <div class="mb-4">
-                                       <label class="form-label">Quantity</label>
-                                       <input name="quantity" type="text" value="<%=product.quantity%>"
-                                           class="form-control border">
-                                           <div id="quantity-error" class="error-message"></div>
-                                   </div>
-                               </div>
+                              
                            </div>
+
+                           <div class="card mb-4">
+                            <div class="card-body">
+                                <h5>Sizes and Quantities</h5>
+                                <div id="sizes-container">
+                                    <% product.sizes.forEach((sizeObj, index) => { %>
+                                        <div class="size-entry" style="display: flex; align-items: center; margin-bottom: 10px;">
+                                            <input type="text" name="sizes[<%=index%>][size]" value="<%= sizeObj.size %>" class="form-control" style="width: 100px; margin-right: 10px;" placeholder="Size">
+                                            <input type="number" name="sizes[<%=index%>][quantity]" value="<%= sizeObj.quantity %>" class="form-control" style="width: 100px;" placeholder="Quantity">
+                                            <i class="fa fa-times" style="margin-left: 10px; cursor: pointer;" onclick="removeSizeEntry(this)"></i>
+                                        </div>
+                                    <% }) %>
+                                </div>
+                                <button type="button" class="btn btn-sm btn-primary" onclick="addSizeEntry()">Add Size</button>
+                                <div id="sizes-error" class="error-message"></div>
+                            </div>
+                        </div>
+
+                       
+                        
+
+
                            <div class="row">
                              
                                <div class="col-lg-4">
@@ -434,6 +478,31 @@ function deleteSingleImage(imageId,productId){
         })
     })
 }
+
+
+
+
+
+
+// new code for size quantity
+function addSizeEntry() {
+    const sizesContainer = document.getElementById('sizes-container');
+    const sizeEntryHTML = `
+        <div class="size-entry" style="display: flex; align-items: center; margin-bottom: 10px;">
+            <input type="text" name="sizes[new][size]" class="form-control" style="width: 100px; margin-right: 10px;" placeholder="Size">
+            <input type="number" name="sizes[new][quantity]" class="form-control" style="width: 100px;" placeholder="Quantity">
+            <i class="fa fa-times" style="margin-left: 10px; cursor: pointer;" onclick="removeSizeEntry(this)"></i>
+        </div>
+    `;
+    sizesContainer.insertAdjacentHTML('beforeend', sizeEntryHTML);
+}
+
+
+
+function removeSizeEntry(element) {
+    element.parentNode.remove();
+}
+
    </script>
 
 

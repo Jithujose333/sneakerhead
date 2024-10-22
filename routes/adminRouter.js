@@ -8,6 +8,7 @@ const productController = require('../controllers/admin/productController')
 const orderController = require('../controllers/admin/orderController')
 const offerController = require('../controllers/admin/offerController')
 const salesController = require('../controllers/admin/salesController')
+const dashboardController = require('../controllers/admin/dashboardController')
 const {userAuth,adminAuth} = require('../middlewares/auth')
 const multer = require('multer')
 const storage = require('../helpers/multer')
@@ -18,7 +19,7 @@ const uploads = multer({storage:storage})
 router.get('/pageerror',adminController.pageError)
 router.get('/login',adminController.loadLogin);
 router.post('/login',adminController.login)
-router.get('/dashboard',adminAuth,adminController.loadDashboard)
+// router.get('/dashboard',adminAuth,adminController.loadDashboard)
 router.get('/logout',adminController.logout)
 //user management
 router.get('/users',adminAuth,customerController.customerInfo)
@@ -66,6 +67,10 @@ router.get('/salesreport',adminAuth,salesController.getSalesReport)
 // router.get('/salesdata',adminAuth,salesController.getSalesData)
 router.get('/salesreport/pdf',adminAuth,salesController.getPdf)
 router.get('/salesreport/excel',adminAuth,salesController.getExcel)
+
+//dashboard
+
+router.get('/dashboard',adminAuth,dashboardController.getDashboard)
 
 
 
