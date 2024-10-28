@@ -7,7 +7,7 @@ const userProfileController = require('../controllers/user/userProfileController
 const userOrderController = require('../controllers/user/userOrderController')
 const userPasswordController = require('../controllers/user/userPasswordController')
 const userInvoiceController = require('../controllers/user/userInvoiceController')
-const {userAuth,adminAuth} = require('../middlewares/auth')
+const {userAuth} = require('../middlewares/auth')
 
 
 router.get("/pageNotFound",userController.pageNotFound)
@@ -50,7 +50,6 @@ router.delete('/profile/deleteAddress/:id',userAuth,userProfileController.delete
 
 // cart management
 router.get('/cart',userAuth,userProductController.getCart)
-// router.get('/cart/:id',userAuth,userProductController.getCart)
 router.post('/cart',userAuth,userProductController.addToCart)
 router.delete('/cart/deleteItems/:id',userAuth,userProductController.cartDeleteItems)
 router.post('/update-quantity',userAuth,userProductController.cartUpdateQuantity)

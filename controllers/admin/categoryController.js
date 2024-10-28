@@ -1,7 +1,7 @@
 const Category = require("../../models/categorySchema")
 
 
-const categoryInfo = async (req,res) => {
+const categoryInfo = async (req,res,next) => {
    
     try {
          
@@ -20,13 +20,13 @@ const categoryInfo = async (req,res) => {
             totalCategories :totalCategories
         })
     } catch (error) {
-        res.redirect('pageerror')
+        next(error)
     }
     
 }
 
 
-const addCategory = async (req,res) => {
+const addCategory = async (req,res,next) => {
     const {name,description} = req.body
     try {
         
@@ -41,48 +41,48 @@ const addCategory = async (req,res) => {
         await newCategory.save();
       return res.json({message:"Category added succesfully"})
     } catch (error) {
-        return res.status(500).json({error:"Internal Server Error"})
+        next(error)
         
     }
     
 }
 
 
-const getListCategory =async (req,res) => {
+const getListCategory =async (req,res,next) => {
     try {
         let id = req.query.id
         await Category.updateOne({_id:id},{$set:{isListed:false}})
         res.redirect('/admin/category')
     } catch (error) {
-        res.redirect('/pageerror')
+       next(error)
     }
     
 }
 
 
-const getUnListCategory = async (req,res) => {
+const getUnListCategory = async (req,res,next) => {
     try {
         let id = req.query.id
         await Category.updateOne({_id:id},{$set:{isListed:true}})
         res.redirect('/admin/category')
     } catch (error) {
-        res.redirect('/pageerror')
+        next(error)
     }
     
 }
 
-const getEditCategory = async (req,res) => {
+const getEditCategory = async (req,res,next) => {
     try {
         const id = req.query.id
         const category =await Category.findOne({_id:id})
         res.render('edit-category',{category:category}) 
     } catch (error) {
-        res.redirect('/pageerror')
+       next(error)
     }
 }
 
 
-const editCategory = async (req,res) => {
+const editCategory = async (req,res,next) => {
     try {
         const id = req.params.id;
         const {categoryName,description} = req.body;
@@ -104,7 +104,7 @@ const editCategory = async (req,res) => {
             res.status(404).json({error:'Category not found'})
         }
     } catch (error) {
-        res.status(500).json({error:"Internal server error" })
+      next(error)
         
     }
     

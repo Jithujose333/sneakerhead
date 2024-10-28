@@ -9,13 +9,13 @@ const sharp = require('sharp')
 
 
 
-const getAddProduct = async (req,res) => {
+const getAddProduct = async (req,res,next) => {
     try {
         const category = await Category.find({isListed:true})
         
         res.render('add-product',{cat:category }) 
     } catch (error) {
-        res.redirect('/adminpageerror')
+      next(error)
         
     }
     
@@ -25,7 +25,7 @@ const getAddProduct = async (req,res) => {
 
 
 
-const addProduct = async (req, res) => {
+const addProduct = async (req, res, next) => {
     try {
     
 
@@ -89,12 +89,12 @@ const addProduct = async (req, res) => {
        
     } catch (error) {
         console.error("Error saving product", error);
-        return res.redirect("/admin/pageerror");
+       next(error)
     }
 };
 
 
-const getAllProducts = async (req,res) => {
+const getAllProducts = async (req,res, next) => {
     try {
         const search = req.query.search || ""
         const page = parseInt(req.query.page) || 1
@@ -132,7 +132,7 @@ if(category){
 }
 
     } catch (error) {
-        res.redirect('/admin/pageerror')
+       next(error)
     }
     
 }
@@ -140,30 +140,30 @@ if(category){
 
 
 
-const blockProduct = async(req,res)=>{
+const blockProduct = async(req,res,next)=>{
 
     try {
         let id = req.query.id
         await Product.updateOne({_id:id},{$set:{isBlocked:true}})
         res.redirect('/admin/products')
     } catch (error) {
-        res.redirect('/admin/pageerror')
+        next(error)
     }
 }
 
 
-const unblockProduct = async(req,res)=>{
+const unblockProduct = async(req,res,next)=>{
 
     try {
         let id = req.query.id
         await Product.updateOne({_id:id},{$set:{isBlocked:false}})
         res.redirect('/admin/products')
     } catch (error) {
-        res.redirect('/admin/pageerror')
+       next(error)
     }
 }
 
-const getEditProduct = async (req,res) => {
+const getEditProduct = async (req,res,next) => {
     try {
         const id = req.query.id
         const product = await Product.findOne({_id:id})
@@ -176,12 +176,12 @@ const getEditProduct = async (req,res) => {
 
         })
     } catch (error) {
-        res.redirect('/admin/pageerror')
+       next(error)
         
     }
     
 }
-const editProduct = async (req, res) => {
+const editProduct = async (req, res,next) => {
     try {
         const id = req.params.id;
         const product = await Product.findOne({ _id: id });
@@ -308,7 +308,7 @@ const editProduct = async (req, res) => {
         res.redirect('/admin/products');
     } catch (error) {
         console.error(`Error in editProduct: ${error.message}`);
-        res.redirect('/admin/pageerror');
+       next(error)
     }
 };
 
@@ -318,7 +318,7 @@ const editProduct = async (req, res) => {
 
 
 
-const deleteSingleImage = async (req,res) => {
+const deleteSingleImage = async (req,res,next) => {
     try {
         const {imageNameToServer,productIdToServer}= req.body
         const product = await Product.findByIdAndUpdate(productIdToServer,{$pull:{productImage:imageNameToServer}})
@@ -331,7 +331,7 @@ const deleteSingleImage = async (req,res) => {
         }
         res.send({status:true})
     } catch (error) {
-        res.redirect('/admin/pageerror')
+        next(error)
     }
 }
 

@@ -7,17 +7,17 @@ const nodemailer = require('nodemailer');
 
 
 // Render forget password page
-const getforgetPassword = async (req, res) => {
+const getforgetPassword = async (req, res,next) => {
     try {
       res.render('forget-password');
     } catch (error) {
       console.error("Error rendering forget password page:", error);
-      res.status(500).send('Internal Server Error');
+      next(error)
     }
   };
   
   // Handle email validation and send reset link
-  const forgetEmailValid = async (req, res) => {
+  const forgetEmailValid = async (req, res,next) => {
     try {
       const { email } = req.body;
      
@@ -48,7 +48,7 @@ const getforgetPassword = async (req, res) => {
       });
     } catch (error) {
       console.error("Error processing password reset:", error);
-      res.status(500).send('Internal Server Error');
+     next(error)
     }
   };
   
@@ -86,7 +86,7 @@ const getforgetPassword = async (req, res) => {
   };
   
   
-  const getResetPassword = async (req, res) => {
+  const getResetPassword = async (req, res,next) => {
     try {
       const { token } = req.params;
   
@@ -107,13 +107,13 @@ const getforgetPassword = async (req, res) => {
       res.render('reset-password', { token });
     } catch (error) {
       console.error("Error rendering reset password page:", error);
-      res.status(500).send('Internal Server Error');
+     next(error)
     }
   };
   
   
   
-  const postResetPassword = async (req, res) => {
+  const postResetPassword = async (req, res, next) => {
     try {
       const { token } = req.params;
       const { newPassword, confirmPassword } = req.body;
@@ -150,7 +150,7 @@ const getforgetPassword = async (req, res) => {
       res.render('reset-password', { token,message: "Password changed successfully!" });
     } catch (error) {
       console.error("Error resetting password:", error);
-      res.status(500).send('Internal Server Error');
+     next(error)
     }
   };
   

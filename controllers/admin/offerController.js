@@ -3,7 +3,7 @@ const Offer = require('../../models/offerSchema')
 const Category = require('../../models/categorySchema')
 const Product = require('../../models/productSchema')
 
-const getCoupon = async (req, res) => {
+const getCoupon = async (req, res, next) => {
     try {
         const search = req.query.search || ""; // Get the search query from the request
         const page = parseInt(req.query.page) || 1; // Current page number
@@ -36,24 +36,24 @@ const getCoupon = async (req, res) => {
         }); // Pass the coupons, pagination data, and search term to the view
     } catch (error) {
         console.error('Error fetching coupons:', error);
-        res.status(500).send('Server Error'); // Handle errors
+        next(error)
     }
 };
 
     
 
-const getCreateCoupon = async (req,res) => {
+const getCreateCoupon = async (req,res,next) => {
     try {
        
             return res.render('create-coupon');
         } catch (error) {
             console.error(err.message)
-        res.redirect('/pageerror')
+        next(error)
     }
 }
 
 
-const createCoupon = async (req, res) => {
+const createCoupon = async (req, res, next) => {
     try {
         console.log(req.body);
         const { couponName, couponCode, startDate, endDate, minimumPrice, discount } = req.body;
@@ -74,11 +74,11 @@ const createCoupon = async (req, res) => {
 
     } catch (error) {
         console.error('Error creating coupon:', error);
-        return res.status(500).json({ message: 'Internal Server Error' }); 
+        next(error)
     }
 };
 
-const updateCoupon =  async (req, res) => {
+const updateCoupon =  async (req, res,next) => {
 
     const { id } = req.params;
     const { isList } = req.body;
@@ -97,14 +97,14 @@ const updateCoupon =  async (req, res) => {
         res.json({ message: `Coupon has been ${isList ? 'Listed' : 'UnListed'}.` });
     } catch (error) {
         console.error('Error updating coupon:', error);
-        res.status(500).json({ message: 'Server Error' });
+       next(error)
     }
 };
 
 
 
 
-const getAllOffers = async (req, res) => {
+const getAllOffers = async (req, res,next) => {
     try {
         const search = req.query.search || ""; // Get the search query from the request
         const page = parseInt(req.query.page) || 1; // Current page number
@@ -149,19 +149,19 @@ const getAllOffers = async (req, res) => {
         });
     } catch (error) {
         console.error('Error fetching offers:', error);
-        res.status(400).json({ message: 'Error fetching offers', error });
+       next(error)
     }
 };
 
 
-const getCreateOffer = async (req,res) => {
+const getCreateOffer = async (req,res,next) => {
     try {
         // Fetch all categories from the database
         const categories = await Category.find({});
         res.render('create-offer', { categories });
     } catch (error) {
         console.error('Error fetching categories:', error);
-        res.status(500).send('Server Error');
+        next(error)
     }
     
 }
@@ -271,6 +271,44 @@ const deleteOffer = async (req, res) => {
     }
 };
 
+
+
+const getEditCoupon = async (req, res, next) => {
+    const couponId = req.params.id;
+    try {
+        const coupon = await Coupon.findById(couponId);
+        if (!coupon) {
+            const error = new Error('Coupon not found');
+            error.statusCode = 404;
+            throw error; // Throw the error to be caught by the middleware
+        }
+        res.render('edit-coupon', { coupon });
+    } catch (error) {
+        // res.redirect('/admin/pageerror')
+        next(error)
+    }
+};
+
+
+const EditCoupon = async (req, res, next) => {
+    const { id } = req.params;
+    const updatedFields = req.body;
+
+    try {
+        const coupon = await Coupon.findByIdAndUpdate(id, updatedFields, { new: true });
+        if (coupon) {
+            res.status(200).json({ message: 'Coupon updated successfully.' });
+        } else {
+            const error = new Error('Coupon not found');
+            error.statusCode = 404;
+            throw error; // Throw the error to be caught by the middleware
+        }
+    } catch (error) {
+       next(error)
+    }
+};
+
+
 module.exports ={
     getCoupon,
     getCreateCoupon,
@@ -279,6 +317,8 @@ module.exports ={
     getAllOffers,
     getCreateOffer,
     createOffer,
-    deleteOffer
+    deleteOffer,
+    getEditCoupon,
+    EditCoupon
 
 }

@@ -3,11 +3,11 @@ const env = require('dotenv').config();
 const mongoose = require('mongoose')
 const bcrypt = require('bcrypt');
 
-const pageError = async (req,res) => {
+const pageError = async (req,res,next) => {
     try {
         res.render('admin-error')
     } catch (error) {
-        
+        next(error)
     }
     
 }
@@ -22,7 +22,7 @@ const loadLogin = async (req,res) => {
 }
 
 
-const login = async (req,res) => {
+const login = async (req,res,next) => {
     try {
         const {email,password}= req.body
     const admin = await User.findOne({email:email,isAdmin:true})
@@ -39,7 +39,7 @@ const login = async (req,res) => {
     }
     } catch (error) {
         console.error("login error",error)
-        return res.redirect('/pageerror')
+        next(error)
         
     }
     
@@ -49,7 +49,7 @@ const login = async (req,res) => {
 
 
 
-   const logout = async (req,res) => {
+   const logout = async (req,res,next) => {
     try {
         req.session.destroy((err)=>{
             if(err){
@@ -62,7 +62,7 @@ const login = async (req,res) => {
     } catch (error) {
         
         console.error(" admin Logout error",error)
-        res.redirect("/pageerror")
+       next(error)
     }
     
 }

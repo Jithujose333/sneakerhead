@@ -18,33 +18,7 @@ const getSalesData = async (search, dateFilter, startDate, endDate) => {
         ];
     }
 
-    // // Date filters
-    // if (dateFilter) {
-    //     const now = moment(); // Get current time
-    //     if (dateFilter === 'daily') {
-    //         query.invoiceDate = { $gte: now.startOf('day').toDate(), $lt: now.endOf('day').toDate() };
-    //     } else if (dateFilter === 'weekly') {
-    //         query.invoiceDate = { $gte: now.startOf('week').toDate(), $lt: now.endOf('week').toDate() };
-    //     } else if (dateFilter === 'monthly') {
-    //         query.invoiceDate = { $gte: now.startOf('month').toDate(), $lt: now.endOf('month').toDate() };
-    //     } else if (dateFilter === 'yearly') {
-    //         query.invoiceDate = { $gte: now.startOf('year').toDate(), $lt: now.endOf('year').toDate() };
-    //     } else if (dateFilter === 'custom' && startDate && endDate) {
-    //         const start = moment(startDate);
-    //         const end = moment(endDate);
-    //         if (start.isValid() && end.isValid()) {
-    //             query.invoiceDate = { $gte: start.toDate(), $lt: end.toDate() };
-    //         } else {
-    //             console.error('Invalid date range');
-    //         }
-    //     }
-    // }
-
-
-
-
-
-
+    
 
 
     if (dateFilter) {
@@ -78,17 +52,6 @@ const getSalesData = async (search, dateFilter, startDate, endDate) => {
         }
     }
     
-    
-    
-    
-
-
-
-
-
-
-
-
 
 
     return await Order.find(query)
@@ -97,11 +60,11 @@ const getSalesData = async (search, dateFilter, startDate, endDate) => {
         .lean();
 };
 
-const getSalesReport = async (req, res) => {
+const getSalesReport = async (req, res, next) => {
     try {
-        console.log('Incoming Query Parameters:', req.query); 
+       
         const { search = "", dateFilter, startDate, endDate } = req.query; // Search query from the user
-        console.log('main Query Parameters:', search, dateFilter, startDate, endDate);
+      
         const page = parseInt(req.query.page) || 1; // Current page number
         const limit = 10; // Limit of orders per page
         const orders = await getSalesData(search, dateFilter, startDate, endDate);
@@ -111,7 +74,7 @@ const getSalesReport = async (req, res) => {
  // Construct the download URLs using req.query
  const pdfUrl = `/admin/salesreport/pdf?${new URLSearchParams(req.query).toString()}`;
  const excelUrl = `/admin/salesreport/excel?${new URLSearchParams(req.query).toString()}`;
- console.log(pdfUrl)
+
 
        
         // // Check if there are no results
@@ -146,14 +109,14 @@ const getSalesReport = async (req, res) => {
         });
     } catch (error) {
         console.error('Error fetching orders:', error);
-        res.status(500).render('admin-error');
+        next(error)
     }
 };
 
 
 
 
-const getPdf = async (req, res) => {
+const getPdf = async (req, res, next) => {
     try {
         const { search = "", dateFilter, startDate, endDate } = req.query; // Search query from the user
         console.log('PDF Query Parameters:', search, dateFilter, startDate, endDate);
@@ -232,14 +195,14 @@ const getPdf = async (req, res) => {
         doc.end();
     } catch (error) {
         console.error('Error generating PDF:', error);
-        res.status(500).send('Error generating PDF');
+      next(error)
     }
 };
 
 
 
 
-const getExcel = async (req, res) => {
+const getExcel = async (req, res, next) => {
     try {
         const { search, dateFilter, startDate, endDate } = req.query; // Get filters from query
         const orders = await getSalesData(search, dateFilter, startDate, endDate); // Fetch data based on filters
@@ -292,7 +255,7 @@ const getExcel = async (req, res) => {
         res.end();
     } catch (error) {
         console.error('Error generating Excel:', error);
-        res.status(500).send('Error generating Excel');
+       next(error)
     }
 };
 

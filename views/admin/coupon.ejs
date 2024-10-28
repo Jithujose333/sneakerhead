@@ -34,6 +34,7 @@
                 <th scope="col"><b>Discount in %</b></th>
                 <th scope="col"><b>Status</b></th>
                 <th scope="col"><b>Action</b></th>
+                <th scope="col"><b>Edit</b></th>
             </tr>
         </thead>
         <tbody>
@@ -52,6 +53,10 @@
                         <% } else { %>
                             <button class="btn btn-success" onclick="updateListingStatus('<%= coupon._id %>', true)">List</button>
                         <% } %>
+                    </td>
+                    <td>
+                        <button class="btn btn-warning" ><a href="/admin/coupons/<%=coupon._id%>">Edit</a></button>
+
                     </td>
                 </tr>
             <% }) %>
@@ -113,6 +118,41 @@
         });
     }
 }
+
+
+
+
+
+// async function editCoupon(couponId) {
+//     try {
+//         // Fetch the coupon data using the coupon ID
+//         const response = await fetch(`/admin/coupons/${couponId}`);
+//         if (response.ok) {
+//             const couponData = await response.json();
+
+//             // Populate the form fields with the fetched data
+//             document.getElementById("coupon-name").value = couponData.couponName;
+//             document.getElementById("coupon-code").value = couponData.couponCode;
+//             document.getElementById("start-date").value = couponData.startDate.split('T')[0]; // Trim time
+//             document.getElementById("end-date").value = couponData.endDate.split('T')[0];
+//             document.getElementById("min-purchase").value = couponData.minimumPrice;
+//             document.getElementById("discount").value = couponData.discount;
+
+//             // Update form action for editing
+//             document.getElementById("coupon-form").action = `/admin/coupons/editcoupon/${couponData._id}`;
+//             document.getElementById("submit-button").textContent = "Update Coupon";
+//             document.getElementById("form-title").textContent = "Edit Coupon";
+
+//         } else {
+//             Swal.fire("Error", "Failed to load coupon data.", "error");
+//         }
+//     } catch (error) {
+//         console.error('Error:', error);
+//         Swal.fire("Error", "An error occurred while fetching the coupon data.", "error");
+//     }
+// }
+
+
 </script>
 
 <style>

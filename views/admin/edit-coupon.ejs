@@ -1,0 +1,300 @@
+<%- include("../../views/partials/admin/header", { admin: "admin" }) %>
+
+
+
+</head>
+<body>
+    <div class="couponcontainer">
+        <h3 id="form-title">Edit Coupon</h3>
+        <form id="coupon-form" action="/admin/coupons/updatecoupon/<%= coupon._id %>" method="POST"> 
+            <input type="hidden" id="coupon-id" name="couponId" value="<%= coupon._id %>"> <!-- Hidden field for coupon ID -->
+            <div class="form-wrapper">
+                <div class="left-side">
+                    <div class="field-wrapper">
+                        <label for="coupon-name">Coupon Name</label>
+                        <input type="text" id="coupon-name" name="couponName" value="<%= coupon.couponName %>" required>
+                    </div>
+                    <div class="field-wrapper">
+                        <label for="start-date">Start Date</label>
+                        <input type="date" id="start-date" name="startDate" value="<%= coupon.startDate.toISOString().split('T')[0] %>" required> <!-- Populate start date -->
+                    </div>
+                    <div class="field-wrapper">
+                        <label for="min-purchase">Minimum Purchase Amount</label>
+                        <input type="number" id="min-purchase" name="minimumPrice" value="<%= coupon.minimumPrice %>" required>
+                    </div>
+                </div>
+                <div class="right-side">
+                    <div class="field-wrapper">
+                        <label for="coupon-code">Coupon Code</label>
+                        <input type="text" id="coupon-code" name="couponCode" value="<%= coupon.couponCode %>" required>
+                    </div>
+                    <div class="field-wrapper">
+                        <label for="end-date">End Date</label>
+                        <input type="date" id="end-date" name="endDate" value="<%= coupon.endDate.toISOString().split('T')[0] %>" required> <!-- Populate end date -->
+                    </div>
+                    <div class="field-wrapper">
+                        <label for="discount">Discount in %</label>
+                        <input type="number" id="discount" name="discount" value="<%= coupon.discount %>" required>
+                    </div>
+                </div>
+            </div>
+            <button type="submit" id="submit-button" class="submit-button">Update Coupon</button>
+        </form>
+    </div>
+</body>
+
+<%- include("../../views/partials/admin/footer") %>
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+<script>
+document.addEventListener("DOMContentLoaded", function () {
+    const form = document.getElementById("coupon-form");
+    const submitButton = document.getElementById("submit-button");
+
+    // Track initial values
+    const initialValues = {
+        couponName: document.getElementById("coupon-name").value,
+        couponCode: document.getElementById("coupon-code").value,
+        startDate: document.getElementById("start-date").value,
+        endDate: document.getElementById("end-date").value,
+        minimumPrice: document.getElementById("min-purchase").value,
+        discount: document.getElementById("discount").value,
+    };
+
+    form.addEventListener("submit", async function (event) {
+        event.preventDefault(); // Prevent default form submission
+
+        const couponId = document.getElementById("coupon-id").value;
+        const couponName = document.getElementById("coupon-name").value.trim();
+        const couponCode = document.getElementById("coupon-code").value.trim();
+        const startDate = document.getElementById("start-date").value;
+        const endDate = document.getElementById("end-date").value;
+        const minimumPrice = document.getElementById("min-purchase").value;
+        const discount = document.getElementById("discount").value;
+
+        // Check if fields are filled with actual text (not just spaces)
+        if (!couponName || !couponCode) {
+            Swal.fire("Validation Error", "Please fill all required text fields properly.", "error");
+            return;
+        }
+
+        // Validate discount value (should be less than or equal to 100)
+        if (discount > 100 || discount < 0) {
+            Swal.fire("Validation Error", "Discount must be between 0 and 100.", "error");
+            return;
+        }
+
+        const updatedFields = {};
+
+        // Check which fields have changed
+        if (couponName !== initialValues.couponName) updatedFields.couponName = couponName;
+        if (couponCode !== initialValues.couponCode) updatedFields.couponCode = couponCode;
+        if (startDate !== initialValues.startDate) updatedFields.startDate = startDate;
+        if (endDate !== initialValues.endDate) updatedFields.endDate = endDate;
+        if (minimumPrice !== initialValues.minimumPrice) updatedFields.minimumPrice = minimumPrice;
+        if (discount !== initialValues.discount) updatedFields.discount = discount;
+
+        // Check if any field is updated
+        if (Object.keys(updatedFields).length === 0) {
+            Swal.fire("No Changes", "No fields were updated.", "info");
+            return;
+        }
+
+        // Show confirmation dialog before proceeding
+        const confirmation = await Swal.fire({
+            title: "Are you sure?",
+            text: "Only the changed fields will be updated!",
+            icon: "warning",
+            showCancelButton: true,
+            confirmButtonText: "Yes, update it!",
+            cancelButtonText: "No, cancel!"
+        });
+
+        if (confirmation.isConfirmed) {
+            try {
+                submitButton.disabled = true; // Disable button during submission
+
+                // Send the PUT request with only the updated fields
+                const response = await fetch(`/admin/coupons/updatecoupon/${couponId}`, {
+                    method: "PUT",
+                    headers: {
+                        "Content-Type": "application/json"
+                    },
+                    body: JSON.stringify(updatedFields)
+                });
+
+                if (response.ok) {
+                    Swal.fire("Success", "Coupon updated successfully!", "success");
+
+                    // Redirect after a short delay
+                    setTimeout(() => {
+                        window.location.href = "/admin/coupons";
+                    }, 1500);
+                } else {
+                    const errorData = await response.json();
+                    Swal.fire("Error", errorData.message || "An error occurred during update.", "error");
+                }
+            } catch (error) {
+                console.error("Error:", error);
+                Swal.fire("Error", "An error occurred during update.", "error");
+            } finally {
+                submitButton.disabled = false; // Re-enable submit button
+            }
+        } else {
+            Swal.fire("Cancelled", "No changes were made.", "info");
+        }
+    });
+});
+</script>
+
+<style>
+    body {
+        font-family: 'Arial', sans-serif;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        min-height: 100vh;
+        margin: 0;
+        background-color: #f4f4f9;
+    }
+
+    .couponcontainer {
+        width: 100%;
+        max-width: 700px;
+        padding: 40px;
+        background-color: white;
+        border-radius: 10px;
+        box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+        margin-left: 20rem;
+        margin-top: 3rem;
+    }
+
+    h3 {
+        text-align: center;
+        margin-bottom: 20px;
+        font-size: 24px;
+        color: #333;
+    }
+
+    .form-wrapper {
+        display: flex;
+        justify-content: space-between;
+        margin-bottom: 20px;
+        align-items: flex-start;
+    }
+
+    .field-wrapper {
+        display: flex;
+        flex-direction: column;
+        width: 100%; /* Full width for each field wrapper */
+    }
+
+    .left-side, .right-side {
+        display: flex;
+        flex-direction: column;
+        gap: 15px;
+        flex: 1; /* Equal space for both sides */
+    }
+
+    label {
+        font-size: 14px;
+        color: #333;
+        margin-bottom: 5px;
+        font-weight: bold;
+    }
+
+    input[type="text"], 
+   
+    input[type="date"], 
+    input[type="number"], 
+    textarea {
+        width: calc(100% - 24px); /* Full width minus padding */
+        height: 50px; /* Set a consistent height for all input fields */
+        box-sizing: border-box; /* Ensures padding is included in the width */
+        padding: 12px 15px; /* Consistent padding for all input fields */
+        border: 1px solid #ccc;
+        border-radius: 5px;
+        font-size: 14px;
+        transition: border 0.3s ease;
+    }
+
+    input[type="text"]:focus, 
+
+    input[type="date"]:focus, 
+    input[type="number"]:focus, 
+    textarea:focus {
+        border-color: #007bff;
+        outline: none;
+    }
+
+    .submit-button {
+        background-color: #007bff;
+        color: white;
+        padding: 12px;
+        border: none;
+        border-radius: 5px;
+        font-size: 16px;
+        cursor: pointer;
+        display: block;
+        margin: 0 auto;
+        transition: background-color 0.3s ease;
+        width: 40%; /* Make button full width */
+    }
+
+    .submit-button:hover {
+        background-color: #0056b3;
+    }
+
+    /* Responsive breakpoints */
+    @media (max-width: 1024px) {
+        .couponcontainer {
+            margin-left: 0;
+            margin-top: 2rem;
+        }
+    }
+
+    @media (max-width: 768px) {
+        .couponcontainer {
+            padding: 20px;
+        }
+
+        .form-wrapper {
+            flex-direction: column; /* Stacks left and right sides vertically on small screens */
+        }
+
+        .left-side, .right-side {
+            margin: 0;
+        }
+
+        input[type="text"], 
+       
+        input[type="date"], 
+        input[type="number"], 
+        textarea {
+            font-size: 14px;
+        }
+
+        .submit-button {
+            font-size: 14px;
+        }
+    }
+
+    @media (max-width: 480px) {
+        h3 {
+            font-size: 20px;
+        }
+
+        input[type="text"], 
+     
+        input[type="date"], 
+        input[type="number"], 
+        textarea {
+            font-size: 13px;
+            padding: 10px;
+        }
+
+        .submit-button {
+            padding: 10px;
+            font-size: 14px;
+        }
+    }
+</style>

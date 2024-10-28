@@ -104,16 +104,27 @@
 
 
 <script>
+   
+  
+
+
    const salesData = <%- JSON.stringify(salesData) %>;
-    const labels = salesData.map(item => {
-        if (item._id.year && item._id.month && item._id.day) {
-            return `${item._id.day}-${item._id.month}-${item._id.year}`;
-        }
-    });
-console.log(salesData)
-console.log(labels)
-    const ordersAmounts = salesData.map(item => item.totalOrders);
-console.log(ordersAmounts)
+   const labels = salesData.map(item => {
+    if (item._id.day) {
+        // Daily view with day, month, and year
+        return `${item._id.day}-${item._id.month}-${item._id.year}`;
+    } else {
+        // Monthly view with month and year only
+        return `${new Date(0, item._id.month - 1).toLocaleString('default', { month: 'short' })} `;
+    }
+});
+
+const ordersAmounts = salesData.map(item => item.totalOrders);
+const salesAmounts = salesData.map(item => item.totalSales);
+
+console.log(labels);
+console.log(ordersAmounts);
+console.log(salesAmounts);
     const option = {
         color: ['#80FFA5', '#00DDFF', '#37A2FF', '#FF0087', '#FFBF00'],
         title: {
@@ -203,123 +214,13 @@ console.log(ordersAmounts)
 
 
 
-// const salesData = <%- JSON.stringify(salesData) %>;
 
-// // Prepare labels and data for the chart
-// const labels = salesData.map(item => {
-//     // Create labels in 'month-year' format when filtering yearly
-//     if (item._id.year && item._id.month) {
-//         return `${item._id.month}-${item._id.year}`; // Month-Year format
-//     }
-// }).filter(Boolean); // Filter out any undefined values
 
-// const ordersAmounts = salesData.map(item => item.totalOrders); // Total orders per month
-// const salesAmounts = salesData.map(item => item.totalSales); // Total sales per month
 
-// console.log(salesData);
-// console.log(labels);
-// console.log(ordersAmounts);
-// console.log(salesAmounts);
 
-// const option = {
-//     color: ['#80FFA5', '#00DDFF', '#37A2FF', '#FF0087', '#FFBF00'],
-//     title: {
-//         text: 'Total Orders Over Time',
-//         left: 'center'
-//     },
-//     tooltip: {
-//         trigger: 'axis',
-//         axisPointer: {
-//             type: 'cross',
-//             label: {
-//                 backgroundColor: '#6a7985'
-//             }
-//         }
-//     },
-//     legend: {
-//         data: ['Total Orders', 'Total Sales'], // Added 'Total Sales' to the legend
-//         left: 'left'
-//     },
-//     toolbox: {
-//         feature: {
-//             saveAsImage: {}
-//         }
-//     },
-//     grid: {
-//         left: '3%',
-//         right: '4%',
-//         bottom: '3%',
-//         containLabel: true
-//     },
-//     xAxis: [
-//         {
-//             type: 'category',
-//             boundaryGap: false,
-//             data: labels, // Month-Year labels
-//             axisLabel: {
-//                 color: '#333',
-//                 fontSize: 12
-//             }
-//         }
-//     ],
-//     yAxis: [
-//         {
-//             type: 'value',
-//             axisLabel: {
-//                 color: '#333',
-//                 fontSize: 12
-//             }
-//         }
-//     ],
-//     series: [
-//         {
-//             name: 'Total Orders',
-//             type: 'line',
-//             stack: 'Total',
-//             smooth: true,
-//             lineStyle: {
-//                 width: 0
-//             },
-//             showSymbol: false,
-//             areaStyle: {
-//                 opacity: 0.8,
-//                 color: new echarts.graphic.LinearGradient(0, 0, 0, 1, [
-//                     { offset: 0, color: 'rgb(128, 255, 165)' },
-//                     { offset: 1, color: 'rgb(1, 191, 236)' }
-//                 ])
-//             },
-//             emphasis: {
-//                 focus: 'series'
-//             },
-//             data: ordersAmounts // Use the total orders from your data
-//         },
-//         {
-//             name: 'Total Sales',
-//             type: 'line',
-//             stack: 'Total',
-//             smooth: true,
-//             lineStyle: {
-//                 width: 2,
-//                 color: '#FFBF00'
-//             },
-//             showSymbol: false,
-//             data: salesAmounts // Use the total sales amounts from your data
-//         }
-//     ]
-// };
 
-// // Initialize and render the chart
-// document.addEventListener('DOMContentLoaded', function () {
-//     const salesChart = echarts.init(document.getElementById('salesChart'), null, {
-//         devicePixelRatio: window.devicePixelRatio // Set pixel ratio
-//     });
-//     salesChart.setOption(option);
-    
-//     // Resize chart on window resize
-//     window.addEventListener('resize', function () {
-//         salesChart.resize();
-//     });
-// });
+
+
 
 </script>
 

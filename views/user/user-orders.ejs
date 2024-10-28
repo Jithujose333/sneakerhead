@@ -14,8 +14,17 @@
     <div class="sidebar" style="width: 25%; margin-right: 20px;">
       <h3>My Profile</h3>
       <div class="profile-user">
-        <div class="user">
-          <img src="https://media.istockphoto.com/id/1300845620/vector/user-icon-flat-isolated-on-white-background-user-symbol-vector-illustration.jpg?s=612x612&w=0&k=20&c=yBeyba0hUkh14_jgv1OKqIH0CCSWU_4ckRkAoy2p73o=" alt="Profile Picture" style="width: 100px; height: 100px; border-radius: 50%; object-fit: cover;">
+        <!-- <div class="user">
+          <img src="https://media.istockphoto.com/id/1300845620/vector/user-icon-flat-isolated-on-white-background-user-symbol-vector-illustration.jpg?s=612x612&w=0&k=20&c=yBeyba0hUkh14_jgv1OKqIH0CCSWU_4ckRkAoy2p73o=" alt="Profile Picture" style="width: 100px; height: 100px; border-radius: 50%; object-fit: cover;"> -->
+          <div class="user">
+            <img src="<%= user.picture ? user.picture : 'https://media.istockphoto.com/id/1300845620/vector/user-icon-flat-isolated-on-white-background-user-symbol-vector-illustration.jpg?s=612x612&w=0&k=20&c=yBeyba0hUkh14_jgv1OKqIH0CCSWU_4ckRkAoy2p73o=' %>" 
+                 alt="Profile Picture" 
+                 style="width: 100px; height: 100px; border-radius: 50%; object-fit: cover;" 
+                 onerror="this.src='https://media.istockphoto.com/id/1300845620/vector/user-icon-flat-isolated-on-white-background-user-symbol-vector-illustration.jpg?s=612x612&w=0&k=20&c=yBeyba0hUkh14_jgv1OKqIH0CCSWU_4ckRkAoy2p73o='">
+          
+          
+          
+          
           <div class="name" style="color: #000000;margin-left: 2rem; font-weight: 500; text-transform: uppercase;"><%= firstName %></div>
         </div>
       </div>
@@ -26,92 +35,99 @@
        
         <li><a href="/wishlist"><i class="fas fa-heart"></i> Wishlist</a></li>
         <li><a href="/profile/address"><i class="fas fa-address-card"></i> Addresses</a></li>
-        <li><a href="#"><i class="fas fa-money-bill-wave"></i> Payment Options</a></li>
+        
         
         <li><a href="/logout"><i class="fas fa-sign-out-alt"></i> Logout</a></li>
       </ul>
     </div>
     
     
-
-
     <div class="orders" style="width: 70%;">
-      <h2>My Orders</h2>
-    
-      <% for (let i = orders.length - 1; i >= 0; i--) {
-        const order = orders[i]; %>
-        <div class="order-container">
-          <div class="order-header">
-            <div class="order-title">Order ID:<span style="margin-left: 5px;"></span>  <%= order.orderId %></div>
-            <div class="order-status">Order Status:<span style="margin-left: 5px;"></span><%= order.orderStatus %></div>
-            <!-- <div class="order-status">Payment Status:<span style="margin-left: 5px;"></span> <%= order.paymentStatus %></div> -->
-          </div>
-    
-          <!-- Loop through orderedItems -->
+        <h2>My Orders</h2>
+      
+        <% for (let i = orders.length - 1; i >= 0; i--) {
+          const order = orders[i]; %>
+      
+          <!-- Loop through orderedItems and create a separate order tile for each item -->
           <% order.orderedItems.forEach(item => { %>
-          <div class="ordered-item" style="display: flex; align-items: center; margin-top: 20px;">
-            <div>
-              <% if (item.product && item.product.productImage) { %>
-                <img src="/uploads/re-image/<%= item.product.productImage[0] %>" 
-                     alt="<%= item.product.productName %>" 
-                     style="width: 100px; height: auto;">
-              <% } else { %>
-                <img src="/path/to/placeholder-image.jpg" alt="No Image" style="width: 100px; height: auto;">
-              <% } %>
+          <div class="order-container" style="margin-bottom: 20px; border: 1px solid #ddd; padding: 15px; border-radius: 5px;">
+            <div class="order-header">
+              <div class="order-title">Order ID: <span style="margin-left: 5px;"></span> <%= order.orderId %></div>
+              <div class="order-status">Order Status: <span style="margin-left: 5px;"></span><%= item.itemStatus || order.orderStatus %></div>
             </div>
-            <div style="margin-left: 20px;    ">
-              <p>Item OrderID:<span style="margin-left: 5px;"></span>  <%= item.itemOrderId %></p>
-              <p>Product Name: <span style="margin-left: 5px;"></span><%= item.product.productName %></p>
-              <p>Size: <span style="margin-left: 5px;"></span><%= item.size %></p>
-              <p>Quantity: <span style="margin-left: 5px;"></span><%= item.quantity %></p>
-              <p>Color:<span style="margin-left: 5px;"></span> <%= item.product.color %></p>
-             
+      
+            <div class="ordered-item" style="display: flex; align-items: center; margin-top: 20px;">
+              <div>
+                <% if (item.product && item.product.productImage) { %>
+                  <img src="/uploads/re-image/<%= item.product.productImage[0] %>" 
+                       alt="<%= item.product.productName %>" 
+                       style="width: 100px; height: auto;">
+                <% } else { %>
+                  <img src="/path/to/placeholder-image.jpg" alt="No Image" style="width: 100px; height: auto;">
+                <% } %>
+              </div>
+              <div style="margin-left: 20px;">
+                <p>Item OrderID:<span style="margin-left: 5px;"></span> <%= item.itemOrderId %></p>
+                <p>Product Name: <span style="margin-left: 5px;"></span><%= item.product.productName %></p>
+                <p>Size: <span style="margin-left: 5px;"></span><%= item.size %></p>
+                <p>Quantity: <span style="margin-left: 5px;"></span><%= item.quantity %></p>
+                <p>Color:<span style="margin-left: 5px;"></span> <%= item.product.color %></p>
+      
+                
+
+                <div class="item-actions">
+                  <% if ((item.itemStatus || order.orderStatus) === 'Delivered' && (item.itemPaymentStatus || order.paymentStatus) === 'Completed') { %>
+                      <div class="return-reason" style="margin-bottom: 10px;">
+                          <textarea class="form-control return-reason-input" rows="2" placeholder="Enter return reason..."></textarea>
+                      </div>
+                      <button class="btn btn-danger return-btn" data-id="<%= item._id %>" style="width: 100px;">
+                          Return
+                      </button>
+                  <% } else if ((item.itemStatus || order.orderStatus) === 'Cancelled' || 
+                                (item.itemStatus || order.orderStatus) === 'Shipped' || 
+                                (item.itemStatus || order.orderStatus) === 'Returned') { %>
+                      <!-- <button class="btn btn-secondary" disabled style="width: 110px;">
+                          Cancelled
+                      </button> -->
+                  <% } else { %>
+                      <div class="cancel-reason" style="margin-bottom: 10px;">
+                          <textarea class="form-control cancel-reason-input" rows="2" placeholder="Enter cancel reason..."></textarea>
+                      </div>
+                      <button class="btn btn-danger cancel-btn" data-id="<%= item._id %>" style="width: 100px;">
+                          Cancel
+                      </button>
+                  <% } %>
+              </div>
+              
+              
+              </div>
+            </div>
+      
+            <!-- Order Details and Actions for Each Item -->
+            <div class="order-details" style="margin-top: 20px;">
+              <p>Payment Method: <span style="margin-left: 5px;"></span><%= order.paymentMethod %></p>
+              <p>Total Price: ₹<span style="margin-left: 5px;"></span><%= order.couponApplied===true?(item.price*item.quantity)-((item.price*item.quantity)*order.couponPercentage)/100:(item.price*item.quantity) %></p> <!-- Adjust price if needed per item -->
+            </div>
+      
+            <div class="order-actions" style="margin-top: 10px;">
+              <% if ((item.itemStatus||order.orderStatus) === 'Delivered' && (item.itemPaymentStatus||order.paymentStatus) === 'Completed') { %>
+                <button class="btn btn-warning invoice-btn" data-id="<%=  item.itemOrderId %>" style="width: 130px;">
+                  <a href="/invoice/<%= item.itemOrderId %>">Invoice</a>
+                </button>
+              <% } %>
+              <% if ((item.itemStatus||order.orderStatus) === 'Pending' && (item.itemPaymentStatus||order.paymentStatus) === 'Failed') { %>
+                <button class="btn btn-warning retry-btn" data-id="<%= order._id %>" style="width: 130px;">
+                  Retry Payment
+                </button>
+              <% } %>
             </div>
           </div>
           <% }) %>
-    <br>
-          <div class="order-details">
-            <p>Payment Method: <span style="margin-left: 5px;"></span><%= order.paymentMethod %></p>
-            <p>Total Price: ₹<span style="margin-left: 5px;"></span><%= order.finalAmount %> </p>
-          </div>
-         
-
-
-
-      <div class="order-actions">
-        <% if (order.orderStatus === 'Delivered'|| order.orderStatus === 'Completed') { %>
-         
-          <button class="btn btn-warning invoice-btn" data-id="<%= order._id %>" style="width: 130px;"><a href="/invoice/<%=order._id%>">
-            Invoice
-          </a>
-          </button>
-          <% }%>
-        <% if (order.orderStatus === 'Cancelled'|| order.orderStatus === 'Returned') { %>
-         
-          <button class="btn btn-secondary" disabled style="width: 100px;">
-            Cancelled
-          </button>
-          <% } else if (order.orderStatus === 'Pending' && order.paymentStatus === 'Failed') { %>
-            
-            <button class="btn btn-warning retry-btn" data-id="<%= order._id %>" style="width: 130px;">
-              Retry payment
-          </button>
-        <% } else if (order.orderStatus === 'Delivered' && order.paymentStatus === 'Completed') { %>
-         
-          <button class="btn btn-warning return-btn" data-id="<%= order._id %>" style="width: 100px;">
-            Return 
-        </button>
-        <% } else { %>
-          
-          <button class="btn btn-danger cancel-btn" data-id="<%= order._id %>" style="width: 100px;">
-            Cancel
-          </button>
         <% } %>
       </div>
       
-        </div>
-      <% } %>
-    </div>
+
+    
     
     </div>
     </body>
@@ -123,7 +139,15 @@
 <script>
    document.querySelectorAll('.cancel-btn').forEach(button => {
         button.addEventListener('click', function() {
+          const reason = this.previousElementSibling.querySelector('.cancel-reason-input').value;
             const orderId = this.getAttribute('data-id');
+            console.log(orderId)
+
+            if (reason.trim() === '') {
+                Swal.fire('Please enter a reason for cancellation.'); // Sweet Alert
+                return;
+            }
+
 
             Swal.fire({
                 title: 'Are you sure?',
@@ -140,13 +164,14 @@
                         method: 'POST', // Or 'GET' if you're using GET to cancel
                         headers: {
                             'Content-Type': 'application/json'
-                        }
+                        },
+                        body: JSON.stringify({ reason }),
                     }).then(response => response.json())
                     .then(data => {
                         if (data.success) {
                             Swal.fire(
                                 'Cancelled!',
-                                'The order has been cancelled.',
+                                data.message ||'The order has been cancelled.',
                                 'success'
                             ).then(() => {
                                 location.reload(); // Reload the page to reflect changes
@@ -154,7 +179,7 @@
                         } else {
                             Swal.fire(
                                 'Error!',
-                                'Unable to cancel the order. Please try again.',
+                                data.message ||'Unable to cancel the order. Please try again.',
                                 'error'
                             );
                         }
@@ -177,6 +202,13 @@
     document.querySelectorAll('.return-btn').forEach(button => {
     button.addEventListener('click', function() {
         const orderId = this.getAttribute('data-id');
+        const reason = this.previousElementSibling.querySelector('.return-reason-input').value;
+        console.log(orderId)
+
+        if (reason.trim() === '') {
+                Swal.fire('Please enter a reason for return.'); // Sweet Alert
+                return;
+            }
 
         Swal.fire({
             title: 'Are you sure?',
@@ -193,7 +225,8 @@
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json'
-                    }
+                    },
+                    body: JSON.stringify({ reason }),
                 }).then(response => response.json())
                 .then(data => {
                     if (data.success) {
@@ -350,7 +383,6 @@ function verifyPayment(paymentResponse) {
 
     
 }
-
 
 
 
@@ -519,7 +551,6 @@ function verifyPayment(paymentResponse) {
     margin-bottom: 0rem;
     font-weight: 500;
   }
-
 
 
 

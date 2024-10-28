@@ -39,12 +39,32 @@ const orderSchema = new Schema({
         price:{
             type:Number,
             default:0
+        },
+        itemStatus:{
+            type:String,
+        required:true,
+        enum:['Pending','Processing','Shipped','Delivered','Cancelled','Return Request','Returned']
+            
+        },
+        itemPaymentStatus:{
+            type:String,
+            required:true,
+            enum:['Pending','Completed','Failed','Refunded']
+        },
+        reason:{
+
+            type:String,
+            required:false,
         }
 
     }],
     totalPrice:{
         type:Number,
         required:true
+    },
+    couponPercentage:{
+        type:Number,
+        default:0
     },
     discount:{
         type:Number,

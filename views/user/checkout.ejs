@@ -117,6 +117,10 @@
                 <div class="radio">
                     <label><input type="radio" name="paymentMethod" value="Card Payment" required> Card Payment</label>
                 </div>
+
+                <div class="radio">
+                    <label><input type="radio" name="paymentMethod" value="Wallet" required> Wallet </label>
+                </div>
             </div>
         </div>
         <div class="form-group">
@@ -178,11 +182,29 @@ document.querySelector('#checkoutForm').addEventListener('submit', async functio
             // Initiate Razorpay payment if the payment method is 'Card Payment'
             initiateRazorpayPayment(result); // Pass the Razorpay order details to the payment function
         } else if (response.ok && paymentMethod === 'COD') {
-            // For COD, redirect to the order-complete page
-            window.location.href =  result.redirectUrl;
+            Swal.fire({
+            icon: 'success',
+            title: 'Order Placed',
+            text: 'Your order has been successfully placed with COD!',
+            confirmButtonText: 'OK',
+            allowOutsideClick: false
+        }).then(() => {
+            // Redirect to the order-complete page
+            window.location.href = result.redirectUrl;
+        });
+        } else if (response.ok && paymentMethod === 'Wallet') {
+            Swal.fire({
+            icon: 'success',
+            title: 'Order Placed',
+            text: 'Your order has been successfully placed using Wallet!',
+            confirmButtonText: 'OK',
+            allowOutsideClick: false
+        }).then(() => {
+            // Redirect to the order-complete page
+            window.location.href = result.redirectUrl;
+        });
         } else {
-            // // Handle any errors from the server
-            // alert(result.message || 'Error placing order');
+            
 
             // Handle any errors from the server
            Swal.fire({
@@ -248,17 +270,7 @@ function verifyPayment(paymentResponse) {
     })
     .then(response => response.json())
     .then(data => {
-    //     if (data.success) {
-    //         alert('Payment successful! Redirecting to order completion page...');
-    //         window.location.href = `/order-complete/${paymentResponse.razorpay_order_id}`; // Redirect to order completion page
-    //     } else {
-    //         alert('Payment verification failed. Please try again.');
-    //     }
-    // })
-    // .catch(error => {
-    //     console.error('Error verifying payment:', error);
-    //     alert('There was an error processing your payment.');
-    // });
+    
     if (data.success) {
     // Payment successful
     Swal.fire({

@@ -11,7 +11,7 @@ const Coupon = require('../../models/couponSchema')
 
 
 
-const getProduct = async (req, res) => {
+const getProduct = async (req, res ,next) => {
     try {
         const userId = req.session.user;
         const { id } = req.params;
@@ -33,66 +33,16 @@ const products = await Product.find({category:product.category,_id: { $ne: produ
         res.render('user-products', { product: product, firstName: firstName ,products});
     } catch (error) {
         console.error(error);  
-        res.status(500).render('page-404');  
+        // res.status(500).render('page-404'); 
+        next(error)
     }
 };
 
 
-// const getCart = async (req, res) => {
-//     try {
-//         if (!req.session.user || !req.session.user._id) {
-//             return res.redirect('/login'); 
-//         }
-
-//         const userId = req.session.user._id; 
-       
-// const products = await Product.find().limit(4)
-        
-//         let cart = await Cart.findOne({ userId }).populate('items.productId'); 
-
-//         if (!cart) {
-            
-//             cart = new Cart({ userId, items: [] });
-//             await cart.save(); 
-//             console.log('New cart created for user:', userId);
-//         }
-
-//         const cartId = cart._id; 
-
-//         let subtotal = 0;
-//         cart.items.forEach(item => {
-//             subtotal += item.price * item.quantity; 
-//         });
-
-//         const Discount = cart.discount
-
-//         const delivery = 0;
-//         const discount = subtotal*Discount/100 || 0
-//         const total = subtotal - discount; 
-
-    
-
-       
-//         res.render('cart', { 
-//             cartItems: cart.items,
-//             firstName: req.firstName,
-//             total,
-//             subtotal,
-//             discount,
-//             delivery,
-//             cartId ,
-//             products,
-//             cart,
-           
-//         });
-//     } catch (error) {
-//         console.error('Error fetching cart:', error);
-//         res.status(500).send('Internal Server Error');
-//     }
-// };
 
 
-const getCart = async (req, res) => {
+
+const getCart = async (req, res, next) => {
     try {
         if (!req.session.user || !req.session.user._id) {
             return res.redirect('/login'); 
@@ -155,13 +105,13 @@ const getCart = async (req, res) => {
         });
     } catch (error) {
         console.error('Error fetching cart:', error);
-        res.status(500).redirect('/pageNotFound');
+        next(error)
     }
 };
 
 
 
-const addToCart = async (req, res) => {
+const addToCart = async (req, res,next) => {
     try {
         const { productId, quantity, selectedSize } = req.body;
         const userId = req.session.user;
@@ -236,7 +186,7 @@ const addToCart = async (req, res) => {
         res.json({ message: 'Product added to cart successfully' });
     } catch (error) {
         console.error('Error adding to cart:', error);
-        res.status(500).json({ message: 'Internal Server Error' });
+        next(error)
     }
 };
 
@@ -244,7 +194,7 @@ const addToCart = async (req, res) => {
 
 
 
-const cartDeleteItems = async (req, res) => {
+const cartDeleteItems = async (req, res,next) => {
     try {
         const userId = req.session.user._id;
         const cartItemId = req.params.id; // Get the ID from the route parameters
@@ -263,7 +213,7 @@ const cartDeleteItems = async (req, res) => {
         return res.status(200).json({ success: true, message: 'Item removed successfully' });
     } catch (error) {
         console.error('Error deleting cart item:', error);
-        return res.status(500).json({ success: false, error: 'An error occurred while removing the item' });
+       next(error)
     }
 }
 
@@ -272,7 +222,7 @@ const cartDeleteItems = async (req, res) => {
 
 
 
-const getCheckout = async (req, res) => {
+const getCheckout = async (req, res,next) => {
     try {
         const cartId = req.params.id;
         
@@ -304,13 +254,13 @@ let total = subtotal - discount
         });
     } catch (error) {
         console.error("Error during checkout page load:", error);
-        res.status(500).redirect('/pageNotFound');
+      next(error)
     }
 };
 
 
 
-const getWishlist = async (req, res) => {
+const getWishlist = async (req, res,next) => {
     try {
       const Id = req.session.user; 
       
@@ -325,16 +275,16 @@ const getWishlist = async (req, res) => {
         wishlist = new Wishlist({ userId: Id._id, products: [] });
         await wishlist.save();
         console.log('New wishlist created for user:', Id._id);
-      }
+      } 
   
       res.render('wishlist', { firstName: req.firstName, wishlist });
     } catch (error) {
       console.error('Error fetching wishlist:', error.message);
-      res.status(500).redirect('PageNotFound');
+     next(error)
     }
   };
   
-   const addWishlist = async (req, res) => {
+   const addWishlist = async (req, res,next) => {
     try {
         const userId = req.session.user; // assuming user ID is stored in session
         const productId = req.body.productId; // product ID sent from the frontend
@@ -366,12 +316,12 @@ const getWishlist = async (req, res) => {
         return res.status(200).json({ message: 'Product added to wishlist successfully' });
     } catch (error) {
         console.error('Error adding product to wishlist:', error);
-        return res.status(500).json({ message: 'Server error' });
+       next(error)
     }
 };
 
 
-const wishlistDeleteItems = async (req, res) => {
+const wishlistDeleteItems = async (req, res,next) => {
     try {
         const UserId = req.session.user._id;
         const wishlistId = req.params.id; // Get the ID from the route parameters
@@ -390,12 +340,12 @@ const wishlistDeleteItems = async (req, res) => {
         return res.status(200).json({ success: true, message: 'Item removed successfully' });
     } catch (error) {
         console.error('Error deleting cart item:', error);
-        return res.status(500).json({ success: false, error: 'An error occurred while removing the item' });
+        next(error)
     }
 }
 
 
-const addUserCoupon = async (req, res) => {
+const addUserCoupon = async (req, res,next) => {
     try {
         const { code: couponCode } = req.body; 
         const userId = req.session.user._id;
@@ -449,12 +399,12 @@ const addUserCoupon = async (req, res) => {
        
     } catch (error) {
         console.error('Error applying coupon:', error);
-        res.status(500).json({ message: "Error applying coupon", error });
+        next(error);
     }
 };
 
 
-const removeUserCoupon = async (req, res) => {
+const removeUserCoupon = async (req, res,next) => {
     try {
         const userId = req.session.user._id;
         const couponName = req.params.id
@@ -484,11 +434,11 @@ const removeUserCoupon = async (req, res) => {
         res.redirect('/cart');
     } catch (error) {
         console.error('Error removing coupon:', error);
-        res.status(500).json({ message: "Error removing coupon", error });
+       next(error)
     }
 };
 
-const searchResults =async (req, res) => {
+const searchResults =async (req, res,next) => {
     const query = req.query.q; // Get search term from query parameter
     try {
         // Search for products where the product name matches the query (case-insensitive)
@@ -500,7 +450,7 @@ const searchResults =async (req, res) => {
         res.render('search-results', { products, query ,firstName:req.firstName});
     } catch (error) {
         console.error("Error searching products:", error);
-        res.status(500).redirect("/pageNotFound");
+        next(error)
     }
 };
 
@@ -508,7 +458,7 @@ const searchResults =async (req, res) => {
 
 
 
-const cartUpdateQuantity = async (req, res) => {
+const cartUpdateQuantity = async (req, res,next) => {
     const { productId, selectedSize, newQuantity } = req.body; // Assuming these are sent in the request body
     const userId = req.session.user._id;
 
@@ -561,12 +511,12 @@ const cartUpdateQuantity = async (req, res) => {
         return res.json({ success: true, message: 'Quantity updated successfully.', cart });
     } catch (error) {
         console.error('Error updating quantity:', error);
-        return res.status(500).json({ success: false, message: 'Failed to update quantity.' });
+        next(error)
     }
 };
 
 
-const getStock = async (req, res) => {
+const getStock = async (req, res, next) => {
     try {
         const productId = req.params.productId;
         const size = parseInt(req.params.size); // Convert size to an integer for comparison
@@ -591,7 +541,7 @@ const getStock = async (req, res) => {
         res.json({ success: true, stock: availableStock });
     } catch (error) {
         console.error('Error fetching product stock:', error);
-        res.json({ success: false, message: 'Failed to fetch stock' });
+      next(error)
     }
 };
 

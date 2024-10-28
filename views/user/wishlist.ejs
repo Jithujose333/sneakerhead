@@ -47,7 +47,7 @@
                 <div class="row">
                     <div class="button-group" style="display: flex; justify-content: center; gap: 10px; margin-right: 20rem;">
                     <!-- Add to Cart Button -->
-                    <a href="#" onclick="addToCart('<%= product.productId._id %>',1)" class="btn btn-primary btn-addtocart" style="    margin-left: 4rem;
+                    <a href="#" onclick="addToCart('<%= product.productId._id %>',1,8)" class="btn btn-primary btn-addtocart" style="    margin-left: 4rem;
     margin-top: 2rem;">
                       <i class="icon-shopping-cart"></i> Add to Cart
                     </a>
@@ -144,7 +144,7 @@
 
 
 
-async function addToCart(productId, quantity) {
+async function addToCart(productId, quantity,selectedSize) {
     try {
         // Send a POST request to the server to add the item to the cart
         const response = await fetch('/cart', {
@@ -152,7 +152,7 @@ async function addToCart(productId, quantity) {
             headers: {
                 'Content-Type': 'application/json',
             },
-            body: JSON.stringify({ productId, quantity }),
+            body: JSON.stringify({ productId, quantity,selectedSize }),
         });
 
         // Check if the request was successful

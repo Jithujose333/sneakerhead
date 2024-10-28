@@ -16,12 +16,7 @@ const pageNotFound = async (req,res) => {
 }
 
 
-
-  
-
-
-
-const loadHomepage = async (req, res) => {
+const loadHomepage = async (req, res, next) => {
     try {
         const userId = req.session.user;  
         const selectedCategory = req.query.category;
@@ -29,7 +24,7 @@ const loadHomepage = async (req, res) => {
 
         // Adjust the query based on the selected category
         if (selectedCategory && selectedCategory !== 'all') {
-            const category = await Category.findOne({ name: selectedCategory });
+            const category = await Category.findOne({ name: selectedCategory, isListed: true });
             if (category) {
                 query.category = category._id; // Use ObjectId if category is found
             }
@@ -37,10 +32,7 @@ const loadHomepage = async (req, res) => {
 
         const sortOption = req.query.sort || 'popularity'; 
 
-        let userData = null;
-        let products = []; 
-        
-        userData = await User.findOne({ _id: userId });
+        let userData = await User.findOne({ _id: userId });
         
         let sortCriteria;
         switch (sortOption) {
@@ -63,21 +55,30 @@ const loadHomepage = async (req, res) => {
                 sortCriteria = { popularity: -1 }; // Default: Popularity
         }
 
-        // Retrieve a list of products with sorting
-        products = await Product.find(query).sort(sortCriteria).limit(12);
+       
+        const products = await Product.find(query)
+            .populate({
+                path: 'category',
+                match: { isListed: true } // only populate categories that are listed
+            })
+            .sort(sortCriteria)
+            .limit(12);
 
-        // Fetch all categories
-        const categories = await Category.find(); // Fetch all categories
+        // Filter products to remove those without listed categories
+        const filteredProducts = products.filter(product => product.category !== null);
+
+      
+        const categories = await Category.find({ isListed: true }); // Fetch all listed categories
         
         if (userData) {
             const firstName = userData.name ? userData.name.split(' ')[0] : 'User';
-            return res.render('home', { user: userData, firstName, products, sortOption, categories });
+            return res.render('home', { user: userData, firstName, products: filteredProducts, sortOption, categories });
         } else {
-            return res.render('home', { products, sortOption, categories });
+            return res.render('home', { products: filteredProducts, sortOption, categories });
         }
     } catch (error) {
         console.error("Error loading home page:", error);
-        return res.status(500).render('error', { message: "Something went wrong on the server!" });
+        next(error)
     }
 };
 
@@ -86,12 +87,12 @@ const loadHomepage = async (req, res) => {
  
 
 
-const loadSignup = async (req,res) => {
+const loadSignup = async (req,res, next) => {
     try {
         res.render("signup")
     } catch (error) {
         console.log("failed to load signup");
-        res.status(404).send("Server Error")
+       next(error)
         
     }
 }
@@ -132,7 +133,7 @@ async function sendVerificationEmail(email,otp) {
     }
     
 }
-const signup = async (req,res) => {
+const signup = async (req,res, next) => {
 
     try {
 
@@ -157,7 +158,7 @@ const signup = async (req,res) => {
         console.log("OTP Sent ",otp)
     } catch (error) {
         console.error("signup error",error)
-        res.redirect("/pageNotFound")
+      next(error)
     }
     
 
@@ -207,13 +208,13 @@ const signup = async (req,res) => {
     } catch (error){
 
         console.error("Error Verifying OTP",error);
-        res.status(500).json({success:false, message:"An error occured"});
+       next(error)
 
     }
 }
 
 
-const resendOtp = async (req,res) => {
+const resendOtp = async (req,res, next) => {
     try {
         const {email} = req.session.userData;
         if(!email){
@@ -233,13 +234,13 @@ const resendOtp = async (req,res) => {
         }
     } catch (error) {
         console.error("Error resending OTP",error);
-        res.status(500).json({success:false,message:"Internal Server Error.Please try again"})
+        next(error)
     }
     
 }
 
 
-const loadLogin = async(req,res)=>{
+const loadLogin = async(req,res, next)=>{
    if(req.user){
     req.session.user = req.user
    }
@@ -250,7 +251,7 @@ const loadLogin = async(req,res)=>{
             res.redirect('/')
         }
     } catch (error) {
-        res.redirect('/pageNotFound')
+       next(error)
         
     }
 }
@@ -286,7 +287,7 @@ const login = async (req,res) => {
     
 }
 
-const logout = async (req,res) => {
+const logout = async (req,res, next) => {
     try {
         req.session.destroy((err)=>{
             if(err){
@@ -299,7 +300,7 @@ const logout = async (req,res) => {
     } catch (error) {
         
         console.error("Logout error",error)
-        res.redirect("/pageNotFound")
+        next(error)
     }
     
 }

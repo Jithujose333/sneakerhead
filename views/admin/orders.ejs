@@ -23,6 +23,7 @@
             <tr>
                 <th scope="col"><b>Order ID</b></th>
                 <th scope="col"><b>Invoice Date</b></th>
+                <th scope="col"><b>Item Id</b></th>
                 <th scope="col"><b>Quantity</b></th>
                 <th scope="col"><b>Total Price</b></th>
                 <th scope="col"><b>status</b></th>
@@ -34,57 +35,60 @@
         <tbody style="color: #000000; font-weight: 500;">
             <tbody style="color: #000000; font-weight: 500;">
                 <% for (let i = data.length - 1; i >= 0; i--) { %>
-              
-                    <tr>
-                        <td><%= data[i].orderId %></td>
-                        <td><%= new Date(data[i].invoiceDate).toLocaleDateString('en-GB', { day: '2-digit', month: '2-digit', year: 'numeric' }) %></td>
+                    <% const order = data[i]; %>
+                    <% if (order.orderedItems && order.orderedItems.length > 0) { %>
+                        <% order.orderedItems.forEach((item, index) => { %>
+                            <tr>
+                                <!-- Display orderId and invoiceDate only for the first item in each order -->
+                                <% if (index === 0) { %>
+                                    <td rowspan="<%= order.orderedItems.length %>"><%= order.orderId %></td>
+                                    <td rowspan="<%= order.orderedItems.length %>"><%= new Date(order.invoiceDate).toLocaleDateString('en-GB', { day: '2-digit', month: '2-digit', year: 'numeric' }) %></td>
+                                <% } %>
+                                
+                                <!-- Display item-specific details -->
+                                <td><%= item.itemOrderId %></td>
+                                <td><%= item.quantity %></td>
+                                <td><%= item.price * item.quantity %></td>
+                                <td><%= item.itemStatus||order.orderStatus %></td>
+                                <td><%= order.paymentMethod %></td>
 
 
-            
-                        <!-- Check if orderedItems exists and has at least one item -->
-                        <% if (data[i].orderedItems && data[i].orderedItems.length > 0) { %>
-                            <!-- <td> -->
-                                <!-- Access the email of the first ordered item's userId -->
-                                <!-- <%= data[i].orderedItems[0].userId ? data[i].orderedItems[0].userId.email : 'No Email' %>
-                            </td> -->
-                            <td>
-                                <%= data[i].orderedItems.reduce((total, item) => total + item.quantity, 0) %> <!-- Total quantity -->
-                            </td>
-                            <td>
-                                <%= data[i].orderedItems.reduce((total, item) => total + item.price * item.quantity, 0) %> <!-- Total Price -->
-                            </td>
-                        <% } else { %>
-                            <td colspan="3">No Ordered Items</td>
-                        <% } %>
-                        <td><%= data[i].orderStatus %></td>
-                        <td><%= data[i].paymentMethod %></td>
-                        <td>
-                            <% if (data[i].orderStatus !== "Cancelled" && data[i].orderStatus !== "Shipped" && data[i].orderStatus !== "Delivered"&&data[i].orderStatus !== "Returned") { %>
-                                <button class="btn btn-danger cancel-btn" data-id="<%= data[i]._id %>" style="width: 100px;">
-                                    Cancel
-                                </button>
-                            <% } else { %>
-                                <button class="btn btn-secondary" style="width: 100px;" disabled>
-                                    Cancelled
-                                </button>
-                            <% } %>
-                        </td>
-                        
-                       
-                            <td>
-                                <select name="status" class="form-control" onchange="updateStatus('<%= data[i]._id %>', this.value)">
-                                    <option value="Pending" <%= data[i].orderStatus === 'Pending' ? 'selected' : '' %>>Pending</option>
-                                    <option value="Shipped" <%= data[i].orderStatus === 'Shipped' ? 'selected' : '' %>>Shipped</option>
-                                    <option value="Delivered" <%= data[i].orderStatus === 'Delivered' ? 'selected' : '' %>>Delivered</option>
-                                    <option value="Cancelled" <%= data[i].orderStatus === 'Cancelled' ? 'selected' : '' %>>Cancelled</option>
-                                    <option value="Return Request" <%= data[i].orderStatus === 'Return Request' ? 'selected' : '' %>>Return Request</option>
-                                    <option value="Returned" <%= data[i].orderStatus === 'Returned' ? 'selected' : '' %>>Returned</option>
-                                </select>
-                            </td>
-                            
-                       
-                    </tr>
+                                <td>
+                                    <% if ((item.itemStatus ||order.orderStatus) !== "Cancelled" && (item.itemStatus ||order.orderStatus) !== "Shipped" && (item.itemStatus ||order.orderStatus) !== "Delivered" && (item.itemStatus ||order.orderStatus)!== "Returned") { %>
+                                        <button class="btn btn-danger cancel-btn" data-id="<%= item.itemOrderId %>"  style="width: 100px;">
+                                            Cancel
+                                        </button>
+                                    <% } else { %>
+                                        <button class="btn btn-secondary" style="width: 100px;" disabled>
+                                            Cancelled
+                                        </button>
+                                    <% } %>
+                                </td>
+                                
+                                <!-- Display status and action button for each product within the order -->
+                                <td>
+                                    <select name="status" class="form-control" onchange="updateStatus('<%= item.itemOrderId %>', this.value)">
+                                        <option value="Pending" <%= (item.itemStatus || order.orderStatus) === 'Pending' ? 'selected' : '' %>>Pending</option>
+                                        <option value="Processing" <%= (item.itemStatus || order.orderStatus) === 'Processing' ? 'selected' : '' %>>Processing</option>
+                                        <option value="Shipped" <%= (item.itemStatus || order.orderStatus) === 'Shipped' ? 'selected' : '' %>>Shipped</option>
+                                        <option value="Delivered" <%= (item.itemStatus || order.orderStatus) === 'Delivered' ? 'selected' : '' %>>Delivered</option>
+                                        <option value="Cancelled" <%= (item.itemStatus || order.orderStatus) === 'Cancelled' ? 'selected' : '' %>>Cancelled</option>
+                                        <option value="Return Request" <%= (item.itemStatus || order.orderStatus) === 'Return Request' ? 'selected' : '' %>>Return Request</option>
+                                        <option value="Returned" <%= (item.itemStatus || order.orderStatus) === 'Returned' ? 'selected' : '' %>>Returned</option>
+                                    </select>
+                                </td>
+                                
+                               
+                            </tr>
+                        <% }) %>
+                    <% } else { %>
+                        <tr>
+                            <td colspan="10">No ordered items available for this order.</td>
+                        </tr>
+                    <% } %>
                 <% } %>
+                
+                
             </tbody>
             
       
@@ -133,7 +137,7 @@
                         if (data.success) {
                             Swal.fire(
                                 'Cancelled!',
-                                'The order has been cancelled.',
+                                data.message||'The order has been cancelled.',
                                 'success'
                             ).then(() => {
                                 location.reload(); // Reload the page to reflect changes
@@ -141,7 +145,7 @@
                         } else {
                             Swal.fire(
                                 'Error!',
-                                'Unable to cancel the order. Please try again.',
+                                data.message||'Unable to cancel the order. Please try again.',
                                 'error'
                             );
                         }
@@ -163,6 +167,7 @@
 
 
     async function updateStatus(orderId, newStatus) {
+        console.log(orderId,newStatus)
     try {
         const response = await fetch(`/admin/updateOrderStatus/${orderId}`, {
             method: 'POST',
@@ -182,7 +187,7 @@
         Swal.fire({
             icon: 'success',
             title: 'Success!',
-            text: data,
+            text: data.message,
             confirmButtonText: 'OK'
         }).then(() => {
                       location.reload(); // Reload the page to reflect changes

@@ -10,7 +10,7 @@ const nodemailer = require('nodemailer');
 
 
 
-const getProfile = async (req,res) => {
+const getProfile = async (req,res,next) => {
     
     try {
 if(req.user){
@@ -25,7 +25,7 @@ if(req.user){
         res.render('user-profile',{user:userData,firstName})
     
     } catch (error) {
-        res.status(500).send('/pageerror')
+       next(error)
     }
     
 }
@@ -36,7 +36,7 @@ if(req.user){
 
 
 
-const editProfile = async (req, res) => {
+const editProfile = async (req, res, next) => {
   try {
     const userId = req.session.user; 
     const { name, email, mobile, currentPassword, newPassword } = req.body;
@@ -72,7 +72,7 @@ const editProfile = async (req, res) => {
     return res.json({ success: true, message: 'Profile updated successfully' });
   } catch (error) {
     console.error('Error updating profile:', error);
-    res.status(500).json({ success: false, message: 'Server error' });
+   next(error)
   }
 };
 
@@ -81,7 +81,7 @@ const editProfile = async (req, res) => {
 
 
 
-const getAddress = async (req, res) => {
+const getAddress = async (req, res,next) => {
   try {
       const userId = req.session.user;
 
@@ -98,16 +98,16 @@ const getAddress = async (req, res) => {
       const firstName = userAddresses[0]?.userId?.name?.split(' ')[0] || "User"; // Fallback to "User"
 
       // Render the address page with multiple addresses
-      res.render('address', { addresses: userAddresses, firstName });
+      res.render('address', { addresses: userAddresses, firstName,user:req.session.user });
 
   } catch (error) {
       console.error("Error fetching addresses:", error);
-      res.status(500).json({ message: "Error fetching addresses" });
+      next(error)
   }
 };
 
 
-const getaddAddress = async (req,res) => {
+const getaddAddress = async (req,res,next) => {
   try {
     const from = req.query.from || 'profile';
     const userId = req.session.user
@@ -116,10 +116,10 @@ const getaddAddress = async (req,res) => {
     const firstName = userData.name.split(' ')[0];
     const cartId = req.query.cartId;
     
-    res.render('add-address',{userData,firstName,from:req.query.from,cartId})
+    res.render('add-address',{userData,firstName,from:req.query.from,cartId,user:req.session.user})
 
   } catch (error) {
-    res.status(500).redirect('/pageNotFound')
+    next(error)
   }
   
 }
@@ -128,7 +128,7 @@ const getaddAddress = async (req,res) => {
 
 
 
-const addAddress = async (req, res) => {
+const addAddress = async (req, res,next) => {
   try {
     const userId = req.session.user; 
 
@@ -193,7 +193,7 @@ const addAddress = async (req, res) => {
   }
   } catch (error) {
     console.error("Error adding address:", error); // Improved error logging
-    res.status(500).json({ message: "Error adding address", error: error.message });
+    next(error)
   }
 };
 
@@ -202,7 +202,7 @@ const addAddress = async (req, res) => {
 
 
 
-const getEditAddress = async (req, res) => {
+const getEditAddress = async (req, res,next) => {
   try {
     const addressId = req.query.id;
     console.log(addressId)
@@ -221,10 +221,17 @@ console.log(addressData)
     }
 
     const firstName = userData.name.split(' ')[0]; // Extract first name
-    res.render('edit-address', { address: addressData, firstName,from:req.query.from,cartId: req.query.cartId  }); // Pass address data and first name to the template
+    res.render('edit-address', {
+       address: addressData, 
+      firstName,
+      from:req.query.from,
+      cartId: req.query.cartId ,
+      user:req.session.user
+     }); // Pass address data and first name to the template
+     
   } catch (error) {
     console.error("Error fetching address for editing:", error);
-    res.status(500).send('Server error'); // Handle error appropriately
+    next(error)
   }
 };
 
@@ -272,7 +279,7 @@ const editAddress = async (req, res, next) => {
 };
 
 
-const deleteAddress = async (req,res) => {
+const deleteAddress = async (req,res,next) => {
   try {
     const addressId = req.params.id
     const deletedAddress = await Address.findByIdAndDelete(addressId)
@@ -283,7 +290,7 @@ const deleteAddress = async (req,res) => {
 
   return res.status(200).json({ success: "Address deleted successfully" });
   } catch (error) {
-    res.status(500).redirect('/pageNotFound')
+   next(error)
   }
 }
 

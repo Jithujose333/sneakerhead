@@ -12,14 +12,29 @@ passport.use(new GoogleStrategy({
 },
 async(accessToken,refreshToken,profile,done)=>{
     try {
-        let user = await User.findOne({googleId:profile.id});
+        // let user = await User.findOne({googleId:profile.id})
+
+        let user = await User.findOne({
+            $or: [
+                { googleId: profile.id },
+                { email: profile.emails[0].value }
+            ]
+        });
+
+       
+        const profilePicture = profile.photos && profile.photos.length > 0 ? profile.photos[0].value : null;
         if(user){
+            await User.updateOne({  $or: [
+                { googleId: profile.id },
+                { email: profile.emails[0].value }
+            ] }, { picture: profilePicture, googleId: profile.id });
             return done(null,user)
         }else{
             user = new User({
                 name:profile.displayName,
                 email:profile.emails[0].value,
-                googleId:profile.id
+                googleId:profile.id,
+                picture:profilePicture
             })
             await user.save();
             return done(null,user)
