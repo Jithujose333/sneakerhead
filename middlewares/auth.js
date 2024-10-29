@@ -18,7 +18,7 @@ const userAuth = (req, res, next) => {
                     
                      next(); 
                 } else {
-                    res.redirect('/login'); 
+                    res.redirect('/logout'); 
                 }
             })
             .catch(error => {

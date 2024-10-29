@@ -237,9 +237,7 @@ const getCheckout = async (req, res,next) => {
 
         const userAddresses = await Address.find({ userId }).populate('userId');
 
-        if (!userAddresses.length) {
-            return res.render('checkout', { addresses: [], firstName: req.firstName, message: 'No addresses found' });
-        }
+       
 const addressId = userAddresses._id
 
 let subtotal = cartData.items.reduce((sum, item) => sum + item.totalPrice, 0) 
@@ -445,9 +443,13 @@ const searchResults =async (req, res,next) => {
         const products = await Product.find({
             productName: { $regex: query, $options: 'i' } // 'i' for case-insensitive
         });
-
+        if(req.session.user){
+            const userId = req.session.user
+            let userData = await User.findOne({ _id: userId });
+        var firstName = userData.name ? userData.name.split(' ')[0] : 'User';
+        }
         // Render the search results page and pass the products to it
-        res.render('search-results', { products, query ,firstName:req.firstName});
+        res.render('search-results', { products, query ,firstName});
     } catch (error) {
         console.error("Error searching products:", error);
         next(error)

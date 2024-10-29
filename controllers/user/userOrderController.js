@@ -46,8 +46,17 @@ const placeOrder = async (req, res, next) => {
        if(paymentMethod==="Wallet"){
         const wallet = await Wallet.findOne({ userId: req.session.user._id }); 
        
-       const cartTotalPrice= cart.items.reduce((acc,total)=>acc+=total.totalPrice,0) 
-        if(wallet.walletBalance < cartTotalPrice){
+       
+       let totalPrice = 0;
+       cart.items.forEach(item => {
+           totalPrice += item.price * item.quantity;
+       });
+     let discount = totalPrice*cart.discount/100
+       // Apply discount if available
+       const finalAmount = discount ? totalPrice - discount : totalPrice;
+
+     console.log(finalAmount)
+        if(wallet.walletBalance < finalAmount){
         return res.status(400).json({ message: 'Insufficient wallet balance' });
             }
        }
@@ -403,7 +412,11 @@ const userCancelOrder = async (req, res, next) => {
 
         // If the payment method is "Card Payment" or "Wallet", update wallet balance
         if ((order.paymentMethod === "Card Payment" || order.paymentMethod === "Wallet") && item.paymentStatus !== "Refunded") {
-            const wallet = await Wallet.findOne({ userId: req.session.user._id });
+            let wallet = await Wallet.findOne({ userId: req.session.user._id });
+            if(!wallet){
+                wallet = new Wallet({userId:req.session.user._id, walletBalance: 0, transactions: [] });
+                await wallet.save(); 
+            }
              var discountedPrice = 0
             if(order.couponApplied===true){
                var discountedPrice =(item.price* item.quantity)*order.couponPercentage/100;
